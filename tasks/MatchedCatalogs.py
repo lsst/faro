@@ -61,7 +61,7 @@ class MatchedCatalogTask(pipeBase.PipelineTask):
                    inputRefs,
                    outputRefs):
         inputs = butlerQC.get(inputRefs)
-        oid = outputRefs.__dict__['outputCatalog'].dataId.byName()
+        oid = outputRefs.outputCatalog.dataId.byName()
         skymap = inputs['skyMap']
         del inputs['skyMap']
         tract_info = skymap.generateTract(oid['tract'])
@@ -70,7 +70,7 @@ class MatchedCatalogTask(pipeBase.PipelineTask):
         patch_box = patch_info.getInnerBBox()
         # Cast to float to handle fractional pixels
         patch_box = geom.Box2D(patch_box)
-        inputs['vIds'] = [el.dataId.byName() for el in inputRefs.__dict__['source_catalogs']]
+        inputs['vIds'] = [el.dataId.byName() for el in inputRefs.source_catalogs]
         inputs['wcs'] = wcs
         inputs['box'] = patch_box
         outputs = self.run(**inputs)
