@@ -1,6 +1,5 @@
 description: Compute metrics from matched catalogs
 tasks:
   matchCatalogs: MatchedCatalogs.MatchedCatalogTask
-  #analysis: MatchedCatalogsAnalysis.MatchedCatalogsAnalysisTask
   analysis: MatchedCatalogsAnalysis.MeasurePA1Task
   aggregate: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
