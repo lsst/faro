@@ -52,9 +52,11 @@ class MatchedCatalogTask(pipeBase.PipelineTask):
         srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
+        self.log.info(f"{len(matched)} sources in matched catalog.")
         for record in matched:
             if box.contains(wcs.skyToPixel(record.getCoord())):
                 out_matched.append(record)
+        self.log.info(f"{len(out_matched)} sources when trimmed to patch boundaries.")
         return pipeBase.Struct(outputCatalog=out_matched)
 
     def runQuantum(self, butlerQC,
@@ -68,6 +70,7 @@ class MatchedCatalogTask(pipeBase.PipelineTask):
         wcs = tract_info.getWcs()
         patch_info = tract_info.getPatchInfo(oid['patch'])
         patch_box = patch_info.getInnerBBox()
+        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
         # Cast to float to handle fractional pixels
         patch_box = geom.Box2D(patch_box)
         inputs['vIds'] = [el.dataId.byName() for el in inputRefs.source_catalogs]
