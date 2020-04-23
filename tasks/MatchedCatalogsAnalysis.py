@@ -81,8 +81,9 @@ class MeasurePA1Task(pipeBase.PipelineTask):
                 return False
             return np.isfinite(cat.get(magKey)).all()
 
-        if len(matchedCat.where(nMatchFilter)) > 0:
+        if matchedCat.where(nMatchFilter).count > 0:
             pa1 = calcPhotRepeat(matchedCat.where(nMatchFilter), magKey)
             return pipeBase.Struct(measurements=Measurement("PA1", pa1['repeatability']))
         else:
-            return pipeBase.Struct(measurements=Measurement("PA1", np.nan))
+            return pipeBase.Struct(measurements=Measurement("PA1", np.nan*u.mmag))
+
