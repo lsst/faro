@@ -15,12 +15,14 @@ from lsst.verify import Measurement
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, \
     MetricComputationError
 
+# Dimentions of the Connections class define the iterations of runQuantum
 class MatchedCatalogsAggregationTaskConnections(pipeBase.PipelineTaskConnections,
-                                             dimensions=("tract", "patch", "abstract_filter", "instrument", "skymap")):
+                                                dimensions=("abstract_filter", "instrument", "skymap")):
     measurements = pipeBase.connectionTypes.Input(doc="Number of sources in catalog.",
                                                   dimensions=("tract", "patch", "instrument", "abstract_filter"),
                                                   storageClass="NumpyArray",
-                                                  name="nsrcMeas")
+                                                  name="nsrcMeas",
+                                                  multiple=True)
     # Make this an LSST verify Measurement
     summary = pipeBase.connectionTypes.Output(doc="Number of sources in catalog.",
                                               dimensions=("instrument", "abstract_filter"),
@@ -39,6 +41,7 @@ class MatchedCatalogsAggregationTask(pipeBase.PipelineTask):
 #    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
 #        super().__init__(*args, config=config, **kwargs)
 
+    # Accepts python objects
     def run(self, measurements):
         self.log.info(f"Computing the mean of source count in matched catalogs")
         
@@ -49,12 +52,15 @@ class MatchedCatalogsAggregationTask(pipeBase.PipelineTask):
         meas = np.array(0.)
         #meas = Measurement("numSources", nSources * u.count)
         input('WAIT')
-        return pipeBase.Struct(measurements=meas)
+        return pipeBase.Struct(summary=meas)
 
-#    def runQuantum(self, butlerQC,
-#                   inputRefs,
-#                   outputRefs):
-#        inputs = butlerQC.get(inputRefs)
+    # Use this to assemble python objects to send to the run method
+    def runQuantum(self, butlerQC,
+                   inputRefs,
+                   outputRefs):
+        inputs = butlerQC.get(inputRefs)
+        outputs = run(**inputs)
+        butlerQC.put(outputs, outputRefs)
 #        inputs['vIds'] = [el.dataId.byName() for el in inputRefs.__dict__['source_catalogs']]
 #        outputs = self.run(**inputs)
 #        butlerQC.put(outputs, outputRefs)
