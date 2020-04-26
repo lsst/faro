@@ -3,10 +3,12 @@ import numpy as np
 import lsst.pipe.base as pipeBase
 from lsst.verify import Measurement
 from lsst.afw.table import GroupView
+import lsst.pex.config as pexConfig
 from lsst.verify.gen2tasks import register
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, \
     MetricComputationError
 from lsst.validate.drp.repeatability import calcPhotRepeat
+from lsst.validate.drp import matchreduce
 from sst_metrics_utils.matcher import match_catalogs
 
 # The first thing to do is to define a Connections class. This will define all
@@ -62,13 +64,21 @@ class MeasurePA1TaskConnections(pipeBase.PipelineTaskConnections,
 
 class MeasurePA1TaskConfig(pipeBase.PipelineTaskConfig,
                            pipelineConnections=MeasurePA1TaskConnections):
-    pass
+    brightSnrMin = pexConfig.Field(doc="Minimum median SNR for a source to be considered bright.",
+                                   dtype=float, default=50)
+    brightSnrMax = pexConfig.Field(doc="Maximum median SNR for a source to be considered bright.",
+                                   dtype=float, default=np.Inf)
 
 
 class MeasurePA1Task(pipeBase.PipelineTask):
 
     ConfigClass = MeasurePA1TaskConfig
     _DefaultName = "measurePA1Task"
+
+    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
+        super().__init__(*args, config=config, **kwargs)
+        self.brightSnrMin = self.config.brightSnrMin
+        self.brightSnrMax = self.config.brightSnrMax
 
     def run(self, matchedCatalog):
         self.log.info(f"Measuring PA1")
@@ -81,9 +91,20 @@ class MeasurePA1Task(pipeBase.PipelineTask):
                 return False
             return np.isfinite(cat.get(magKey)).all()
 
-        if matchedCat.where(nMatchFilter).count > 0:
-            pa1 = calcPhotRepeat(matchedCat.where(nMatchFilter), magKey)
+        def snrFilter(cat):
+            # Note that this also implicitly checks for psfSnr being non-nan.
+            snr = cat.get('base_PsfFlux_snr')
+            ok0, = np.where(np.isfinite(snr))
+            medianSnr = np.median(snr[ok0])
+            return self.brightSnrMin <= medianSnr and medianSnr <= self.brightSnrMax
+
+        def fullFilter(cat):
+            return nMatchFilter(cat) and snrFilter(cat)
+
+        # Require at least nMinPA1=10 objects to calculate the repeatability:
+        nMinPA1 = 10
+        if matchedCat.where(fullFilter).count > nMinPA1:
+            pa1 = calcPhotRepeat(matchedCat.where(fullFilter), magKey)
             return pipeBase.Struct(measurements=Measurement("PA1", pa1['repeatability']))
         else:
             return pipeBase.Struct(measurements=Measurement("PA1", np.nan*u.mmag))
-
