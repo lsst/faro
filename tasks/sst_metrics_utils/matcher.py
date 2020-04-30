@@ -4,7 +4,7 @@ from lsst.afw.table import (SchemaMapper, Field,
 
 import numpy as np
 
-def match_catalogs(inputs, photoCalibs, vIds, matchRadius):
+def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -46,8 +46,8 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius):
 
     for oldSrc, photoCalib, vId in zip(inputs, photoCalibs, vIds):
 
-        print(len(oldSrc), "sources in ccd %s  visit %s" %
-              (vId['detector'], vId["visit"]))
+        if logger:
+            logger.debug(f"{len(oldSrc)} sources in ccd {vId['detector']}  visit {vId['visit']}")
 
         # create temporary catalog
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)

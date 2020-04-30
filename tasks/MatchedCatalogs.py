@@ -49,7 +49,7 @@ class MatchedCatalogTask(pipeBase.PipelineTask):
     def run(self, source_catalogs, photo_calibs, vIds, wcs, box):
         self.log.info(f"Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius)
+        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius, logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
