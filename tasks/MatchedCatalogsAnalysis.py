@@ -2,14 +2,12 @@ import astropy.units as u
 import numpy as np
 import lsst.pipe.base as pipeBase
 from lsst.verify import Measurement
-from lsst.afw.table import GroupView
 import lsst.pex.config as pexConfig
+from sst_metrics_utils.filtermatches import filterMatches
 from lsst.verify.gen2tasks import register
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, \
     MetricComputationError
 from lsst.validate.drp.repeatability import calcPhotRepeat
-from lsst.validate.drp import matchreduce
-from sst_metrics_utils.matcher import match_catalogs
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
@@ -82,29 +80,14 @@ class MeasurePA1Task(pipeBase.PipelineTask):
 
     def run(self, matchedCatalog):
         self.log.info(f"Measuring PA1")
-        matchedCat = GroupView.build(matchedCatalog)
-        magKey = matchedCat.schema.find('slot_PsfFlux_mag').key
 
-        def nMatchFilter(cat):
-            nMatchesRequired = 2
-            if len(cat) < nMatchesRequired:
-                return False
-            return np.isfinite(cat.get(magKey)).all()
-
-        def snrFilter(cat):
-            # Note that this also implicitly checks for psfSnr being non-nan.
-            snr = cat.get('base_PsfFlux_snr')
-            ok0, = np.where(np.isfinite(snr))
-            medianSnr = np.median(snr[ok0])
-            return self.brightSnrMin <= medianSnr and medianSnr <= self.brightSnrMax
-
-        def fullFilter(cat):
-            return nMatchFilter(cat) and snrFilter(cat)
+        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
+        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
         # Require at least nMinPA1=10 objects to calculate the repeatability:
-        nMinPA1 = 10
-        if matchedCat.where(fullFilter).count > nMinPA1:
-            pa1 = calcPhotRepeat(matchedCat.where(fullFilter), magKey)
+        nMinPA1 = 50
+        if filteredCat.count > nMinPA1:
+            pa1 = calcPhotRepeat(filteredCat, magKey)
             return pipeBase.Struct(measurements=Measurement("PA1", pa1['repeatability']))
         else:
             return pipeBase.Struct(measurements=Measurement("PA1", np.nan*u.mmag))
