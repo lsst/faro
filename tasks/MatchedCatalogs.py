@@ -15,9 +15,9 @@ class MatchedCatalogTaskConnections(pipeBase.PipelineTaskConnections,
                                                      name="src",
                                                      multiple=True)
     photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
+                                                     dimensions=("instrument", "visit", "detector", "abstract_filter", "tract"),
                                                      storageClass="PhotoCalib",
-                                                     name="calexp.photoCalib",
+                                                     name="jointcal_photoCalib",
                                                      multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
