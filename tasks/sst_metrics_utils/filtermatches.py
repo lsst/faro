@@ -29,9 +29,15 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
     magKey = matchedCat.schema.find('slot_PsfFlux_mag').key
 
     def nMatchFilter(cat):
-        if len(cat) < nMatchesRequired:
+        match_finite = np.isfinite(cat.get(magKey))
+        if len(np.where(match_finite == True)[0]) < nMatchesRequired:
             return False
-        return np.isfinite(cat.get(magKey)).all()
+        return match_finite
+
+#    def nMatchFilter(cat):
+#        if len(cat) < nMatchesRequired:
+#            return False
+#        return np.isfinite(cat.get(magKey)).all()
 
     def snrFilter(cat):
         # Note that this also implicitly checks for psfSnr being non-nan.
@@ -59,13 +65,13 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
         else:
             return True
 
-    def isPrimary(cat):
+    def isPrimaryFilter(cat):
         if isPrimary:
             flag_primary = cat.get("detect_isPrimary")
             return flag_primary
 
     def fullFilter(cat):
         return nMatchFilter(cat) and snrFilter(cat) and ptsrcFilter(cat)\
-            and flagFilter(cat)
+            and flagFilter(cat) and isPrimaryFilter(cat)
 
     return matchedCat.where(fullFilter)

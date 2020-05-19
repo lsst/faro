@@ -81,11 +81,11 @@ class MeasurePA1Task(pipeBase.PipelineTask):
     def run(self, matchedCatalog):
         self.log.info(f"Measuring PA1")
 
-        filteredCat = filterMatches(matchedCatalog)
+        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
         magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
         # Require at least nMinPA1=10 objects to calculate the repeatability:
-        nMinPA1 = 10
+        nMinPA1 = 50
         if filteredCat.count > nMinPA1:
             pa1 = calcPhotRepeat(filteredCat, magKey)
             return pipeBase.Struct(measurements=Measurement("PA1", pa1['repeatability']))
