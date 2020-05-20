@@ -4,76 +4,58 @@ import lsst.pipe.base as pipeBase
 from lsst.verify import Measurement
 import lsst.pex.config as pexConfig
 from sst_metrics_utils.filtermatches import filterMatches
-from lsst.verify.gen2tasks import register
-from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, \
-    MetricComputationError
+from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.validate.drp.repeatability import calcPhotRepeat
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
 
-class NumSourcesTaskConnections(pipeBase.PipelineTaskConnections,
-                                dimensions=("tract", "patch", "abstract_filter",
-                                            "instrument", "skymap")):
+class MatchedCatalogTaskConnections(MetricConnections,
+                                    dimensions=("tract", "patch", "abstract_filter",
+                                                "instrument", "skymap")):
     matchedCatalog = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                                     dimensions=("tract", "patch", "instrument",
                                                                 "abstract_filter"),
                                                     storageClass="SimpleCatalog",
                                                     name="matchedCatalog")
-    measurements = pipeBase.connectionTypes.Output(doc="Number of sources in catalog.",
-                                                   dimensions=("tract", "patch", "instrument",
-                                                               "abstract_filter"),
-                                                   storageClass="MetricValue",
-                                                   name="nsrcMeas")
+    measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
+                                                  dimensions=("tract", "patch",
+                                                              "instrument","abstract_filter"),
+                                                  storageClass="MetricValue",
+                                                  name="metricvalue_{package}_{metric}")
 
 
-class NumSourcesTaskConfig(pipeBase.PipelineTaskConfig,
-                           pipelineConnections=NumSourcesTaskConnections):
+class MatchedCatalogTaskConfig(MetricConfig,
+                               pipelineConnections=MatchedCatalogTaskConnections):
     pass
 
 
-class NumSourcesTask(pipeBase.PipelineTask):
+class NumSourcesTask(MetricTask):
 
-    ConfigClass = NumSourcesTaskConfig
+    ConfigClass = MatchedCatalogTaskConfig
     _DefaultName = "numSourcesTask"
 
     def run(self, matchedCatalog):
         self.log.info(f"Counting sources in matched catalog")
         nSources = len(matchedCatalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
-        return pipeBase.Struct(measurements=meas)
+        return pipeBase.Struct(measurement=meas)
 
 
-class MeasurePA1TaskConnections(pipeBase.PipelineTaskConnections,
-                                dimensions=("tract", "patch", "abstract_filter",
-                                            "instrument", "skymap")):
-    matchedCatalog = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                                    dimensions=("tract", "patch", "instrument",
-                                                                "abstract_filter"),
-                                                    storageClass="SimpleCatalog",
-                                                    name="matchedCatalog")
-    measurements = pipeBase.connectionTypes.Output(doc="PA1.",
-                                                   dimensions=("tract", "patch", "instrument",
-                                                               "abstract_filter"),
-                                                   storageClass="MetricValue",
-                                                   name="PA1")
-
-
-class MeasurePA1TaskConfig(pipeBase.PipelineTaskConfig,
-                           pipelineConnections=MeasurePA1TaskConnections):
+class MeasurePA1TaskConfig(MatchedCatalogTaskConfig):
     brightSnrMin = pexConfig.Field(doc="Minimum median SNR for a source to be considered bright.",
                                    dtype=float, default=50)
     brightSnrMax = pexConfig.Field(doc="Maximum median SNR for a source to be considered bright.",
                                    dtype=float, default=np.Inf)
 
 
-class MeasurePA1Task(pipeBase.PipelineTask):
+class MeasurePA1Task(MetricTask):
 
     ConfigClass = MeasurePA1TaskConfig
     _DefaultName = "measurePA1Task"
 
-    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
+    def __init__(self, config: MeasurePA1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
@@ -88,6 +70,6 @@ class MeasurePA1Task(pipeBase.PipelineTask):
         nMinPA1 = 50
         if filteredCat.count > nMinPA1:
             pa1 = calcPhotRepeat(filteredCat, magKey)
-            return pipeBase.Struct(measurements=Measurement("PA1", pa1['repeatability']))
+            return pipeBase.Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
-            return pipeBase.Struct(measurements=Measurement("PA1", np.nan*u.mmag))
+            return pipeBase.Struct(measurement=Measurement("PA1", np.nan*u.mmag))

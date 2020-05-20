@@ -1,5 +1,14 @@
 description: Compute metrics from matched catalogs
 tasks:
   matchCatalogs: MatchedCatalogs.MatchedCatalogTask
-  analysis: MatchedCatalogsAnalysis.MeasurePA1Task
-  aggregate: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+  analysis:
+    class: MatchedCatalogsAnalysis.MeasurePA1Task
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+  aggregate:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+      connections.agg_name: Mean
