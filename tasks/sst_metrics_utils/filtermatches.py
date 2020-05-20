@@ -28,16 +28,17 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
     matchedCat = GroupView.build(matchedCatalog)
     magKey = matchedCat.schema.find('slot_PsfFlux_mag').key
 
-    def nMatchFilter(cat):
-        match_finite = np.isfinite(cat.get(magKey))
-        if len(np.where(match_finite == True)[0]) < nMatchesRequired:
-            return False
-        return match_finite
+    # def nMatchFilter(cat):
+        # match_finite = np.isfinite(cat.get(magKey))
+        # match_finite = np.isfinite(cat.get('slot_PsfFlux_mag'))
+        #if len(match_finite > 0.5) < nMatchesRequired:
+            # return False
+        # return True
 
-#    def nMatchFilter(cat):
-#        if len(cat) < nMatchesRequired:
-#            return False
-#        return np.isfinite(cat.get(magKey)).all()
+    def nMatchFilter(cat):
+        if len(cat) < nMatchesRequired:
+            return False
+        return np.isfinite(cat.get(magKey)).all()
 
     def snrFilter(cat):
         # Note that this also implicitly checks for psfSnr being non-nan.
@@ -65,13 +66,13 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
         else:
             return True
 
-    def isPrimaryFilter(cat):
-        if isPrimary:
-            flag_primary = cat.get("detect_isPrimary")
-            return flag_primary
+    # def isPrimaryFilter(cat):
+        # if isPrimary:
+            # flag_primary = cat.get("detect_isPrimary")
+            # return np.all(flag_primary)
 
     def fullFilter(cat):
         return nMatchFilter(cat) and snrFilter(cat) and ptsrcFilter(cat)\
-            and flagFilter(cat) and isPrimaryFilter(cat)
+            and flagFilter(cat) # and isPrimaryFilter(cat)
 
     return matchedCat.where(fullFilter)
