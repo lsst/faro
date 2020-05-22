@@ -1,0 +1,50 @@
+description: Compute aggregate metrics from a list of individual measurements
+tasks:
+  agg_mean_PA1:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+      connections.agg_name: Mean
+  agg_mean_AM1:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM1
+      connections.agg_name: Mean
+  agg_mean_AM2:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM2
+      connections.agg_name: Mean
+  agg_mean_AM3:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM3
+      connections.agg_name: Mean
+  agg_median_PA1:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+      connections.agg_name: Median
+  agg_mean_TE1:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE1
+      connections.agg_name: Mean
+  agg_mean_TE2:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE2
+      connections.agg_name: Mean
+  agg_sum_nsrc:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeas
+      connections.agg_name: Sum
