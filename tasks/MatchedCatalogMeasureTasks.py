@@ -1,32 +1,32 @@
 import astropy.units as u
 import numpy as np
-import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-from lsst.verify import Measurement
+from lsst.pipe.base import Struct, Task
+from lsst.pex.config import Config, Field
+from lsst.verify import Measurement, ThresholdSpecification
 import lsst.pex.config as pexConfig
 from sst_metrics_utils.filtermatches import filterMatches
 from lsst.validate.drp.repeatability import calcPhotRepeat
 
-class NumSourcesTask(pipeBase.Task):
+class NumSourcesTask(Task):
 
-    ConfigClass = pexConfig.Config
+    ConfigClass = Config
     _DefaultName = "numSourcesTask"
 
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Counting sources in matched catalog")
         nSources = len(matchedCatalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
-        return pipeBase.Struct(measurement=meas)
+        return Struct(measurement=meas)
 
 
-class PA1TaskConfig(pexConfig.Config):
-    brightSnrMin = pexConfig.Field(doc="Minimum median SNR for a source to be considered bright.",
+class PA1TaskConfig(Config):
+    brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
                                    dtype=float, default=50)
-    brightSnrMax = pexConfig.Field(doc="Maximum median SNR for a source to be considered bright.",
+    brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                                    dtype=float, default=np.Inf)
 
 
-class PA1Task(pipeBase.Task):
+class PA1Task(Task):
 
     ConfigClass = PA1TaskConfig
     _DefaultName = "PA1Task"
@@ -46,6 +46,6 @@ class PA1Task(pipeBase.Task):
         nMinPA1 = 50
         if filteredCat.count > nMinPA1:
             pa1 = calcPhotRepeat(filteredCat, magKey)
-            return pipeBase.Struct(measurement=Measurement("PA1", pa1['repeatability']))
+            return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
-            return pipeBase.Struct(measurement=Measurement("PA1", np.nan*u.mmag))
+            return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
