@@ -23,7 +23,6 @@ class MatchedCatalogAnalysisTaskConnections(MetricConnections,
 
 
 class MatchedCatalogAnalysisTaskConfig(MetricConfig,
-                               defaultTemplates={"metric": None},
                                pipelineConnections=MatchedCatalogAnalysisTaskConnections):
     measure = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.
@@ -43,4 +42,4 @@ class MatchedCatalogAnalysisTask(MetricTask):
         self.makeSubtask('measure')
 
     def run(self, matchedCatalog):
-        return self.measure.run(matchedCatalog)
+        return self.measure.run(matchedCatalog, self.config.connections.metric)

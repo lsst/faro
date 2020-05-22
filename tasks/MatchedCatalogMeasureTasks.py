@@ -12,7 +12,7 @@ class NumSourcesTask(pipeBase.Task):
     ConfigClass = pexConfig.Config
     _DefaultName = "numSourcesTask"
 
-    def run(self, matchedCatalog):
+    def run(self, matchedCatalog, metric_name):
         self.log.info(f"Counting sources in matched catalog")
         nSources = len(matchedCatalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
@@ -36,7 +36,7 @@ class PA1Task(pipeBase.Task):
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
 
-    def run(self, matchedCatalog):
+    def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring PA1")
 
         filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
