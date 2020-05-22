@@ -9,6 +9,33 @@ tasks:
       python: |
         from MeasureTasks import PA1Task
         config.measure.retarget(PA1Task)
+  AM1:
+    class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM1
+      python: |
+        from MeasureTasks import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 5.0
+  AM2:
+    class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM2
+      python: |
+        from MeasureTasks import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 20.0
+  AM3:
+    class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM3
+      python: |
+        from MeasureTasks import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 200.0
   TE1:
     class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
     config:
@@ -42,6 +69,24 @@ tasks:
     config:
       connections.package: validate_drp
       connections.metric: PA1
+      connections.agg_name: Mean
+  agg_mean_AM1:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM1
+      connections.agg_name: Mean
+  agg_mean_AM2:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM2
+      connections.agg_name: Mean
+  agg_mean_AM3:
+    class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM3
       connections.agg_name: Mean
   agg_median_PA1:
     class: MatchedCatalogsAggregation.MatchedCatalogsAggregationTask
