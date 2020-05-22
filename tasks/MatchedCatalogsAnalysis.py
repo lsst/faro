@@ -1,8 +1,8 @@
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
-from MeasureTasks import measure_task_map
 
+from MeasureTasks import NumSourcesTask
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
@@ -26,7 +26,7 @@ class MatchedCatalogAnalysisTaskConfig(MetricConfig,
                                defaultTemplates={"metric": None},
                                pipelineConnections=MatchedCatalogAnalysisTaskConnections):
     measure = pexConfig.ConfigurableField(
-        target=measure_task_map["nsrcMeas"],
+        target=NumSourcesTask,  # This is the simplest measurement I can think of
         doc="Measure task")
 
 
