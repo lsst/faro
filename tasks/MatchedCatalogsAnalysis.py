@@ -23,7 +23,6 @@ class MatchedCatalogAnalysisTaskConnections(MetricConnections,
 
 
 class MatchedCatalogAnalysisTaskConfig(MetricConfig,
-                               defaultTemplates={"metric": None},
                                pipelineConnections=MatchedCatalogAnalysisTaskConnections):
     measure = pexConfig.ConfigurableField(
         target=NumSourcesTask,  # This is the simplest measurement I can think of
@@ -39,4 +38,4 @@ class MatchedCatalogAnalysisTask(MetricTask):
         self.makeSubtask('measure')
 
     def run(self, matchedCatalog):
-        return self.measure.run(matchedCatalog)
+        return self.measure.run(matchedCatalog, self.config.connections.metric)
