@@ -9,6 +9,7 @@ tasks:
       python: |
         from MatchedCatalogMeasureTasks import PA1Task
         config.measure.retarget(PA1Task)
+        config.measure.brightSnrMin = 50.0
   nsrcMeas:
     class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
     config:

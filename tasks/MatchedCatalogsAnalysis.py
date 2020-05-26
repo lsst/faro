@@ -26,7 +26,11 @@ class MatchedCatalogAnalysisTaskConfig(MetricConfig,
                                defaultTemplates={"metric": None},
                                pipelineConnections=MatchedCatalogAnalysisTaskConnections):
     measure = pexConfig.ConfigurableField(
-        target=NumSourcesTask,  # This is the simplest measurement I can think of
+        # This task is meant to make measurements of various types.
+        # The default task is, therefore, a bit of a place holder.
+        # It is expected that this will be overridden in the pipeline
+        # definition in most cases.
+        target=NumSourcesTask,
         doc="Measure task")
 
 

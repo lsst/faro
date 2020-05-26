@@ -49,4 +49,4 @@ class MatchedCatalogsAggregationTask(MetricTask):
         self.log.info(f"Computing the {agg} of {package}_{metric} values in matched catalogs")
 
         value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
-        return pipeBase.Struct(measurement=Measurement("metricvalue_{agg}_{package}_{metric}", value))
+        return pipeBase.Struct(measurement=Measurement(f"metricvalue_{agg}_{package}_{metric}", value))
