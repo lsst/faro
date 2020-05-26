@@ -13,35 +13,40 @@ pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-type
 import astropy.units as u
 import numpy as np
 
+from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 import lsst.pipe.base as pipeBase
 from lsst.verify import Measurement
 
 # Dimentions of the Connections class define the iterations of runQuantum
-class MatchedCatalogsAggregationTaskConnections(pipeBase.PipelineTaskConnections,
+class MatchedCatalogsAggregationTaskConnections(MetricConnections,
+                                                defaultTemplates={'agg_name': None},
                                                 dimensions=("abstract_filter", "instrument", "skymap")):
-    measurements = pipeBase.connectionTypes.Input(doc="PA1.",
+    measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch", "instrument", "abstract_filter"),
                                                   storageClass="MetricValue",
-                                                  name="PA1",
+                                                  name="metricvalue_{package}_{metric}",
                                                   multiple=True)
     # Make this an LSST verify Measurement
-    summary = pipeBase.connectionTypes.Output(doc="Mean PA1.",
+    measurement = pipeBase.connectionTypes.Output(doc="{agg_name} {package}_{metric}.",
                                               dimensions=("instrument", "abstract_filter"),
                                               storageClass="MetricValue",
-                                              name="meanPA1")
+                                              name="metricvalue_{agg_name}_{package}_{metric}")
 
-class MatchedCatalogsAggregationTaskConfig(pipeBase.PipelineTaskConfig,
+class MatchedCatalogsAggregationTaskConfig(MetricConfig,
                                            pipelineConnections=MatchedCatalogsAggregationTaskConnections):
     pass
 
-class MatchedCatalogsAggregationTask(pipeBase.PipelineTask):
+class MatchedCatalogsAggregationTask(MetricTask):
 
     ConfigClass = MatchedCatalogsAggregationTaskConfig
     _DefaultName = "matchedCatalogsAggregationTask"
 
     # Accepts python objects
     def run(self, measurements):
-        self.log.info(f"Computing the mean of PA1 values in matched catalogs")
+        package = self.config.connections.package
+        metric = self.config.connections.metric
+        agg = self.config.connections.agg_name.lower()
+        self.log.info(f"Computing the {agg} of {package}_{metric} values in matched catalogs")
 
-        value = np.mean(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
-        return pipeBase.Struct(summary=Measurement("MeanPA1", value))
+        value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
+        return pipeBase.Struct(measurement=Measurement(f"metricvalue_{agg}_{package}_{metric}", value))
