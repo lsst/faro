@@ -2,7 +2,7 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 
-from MeasureTasks import NumSourcesTask
+from MatchedCatalogMeasureTasks import NumSourcesTask
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
