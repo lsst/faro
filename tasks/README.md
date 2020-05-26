@@ -5,6 +5,8 @@ At the time of writing, this package was not an `eups` package, so you'll have t
 
 `> export PYTHONPATH=$PYTHONPATH:$PWD`
 
+You will also have to setup the $METRIC\_PIPE\_DIR environment variable this variable should point to the root of the `metric-pipeline-tasks` repository.
+
 Next, from the `metric-pipeline-tasks` directory, you can execute the full pipeline with the command
 
 `pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/metrics_pipeline.yaml -d "abstract_filter = 'r'" -o pipeTest -i shared/ci_hsc_output`

@@ -1,32 +1,35 @@
 import astropy.units as u
 import numpy as np
-import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-from lsst.verify import Measurement
+from lsst.pipe.base import Struct, Task
+from lsst.pex.config import Config, Field
+from lsst.verify import Measurement, ThresholdSpecification
 import lsst.pex.config as pexConfig
 from sst_metrics_utils.filtermatches import filterMatches
 from lsst.validate.drp.repeatability import calcPhotRepeat
+from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
+                                           select_bin_from_corr)
+from lsst.validate.drp.calcsrd.amx import calcRmsDistances
 
-class NumSourcesTask(pipeBase.Task):
+class NumSourcesTask(Task):
 
-    ConfigClass = pexConfig.Config
+    ConfigClass = Config
     _DefaultName = "numSourcesTask"
 
-    def run(self, matchedCatalog):
+    def run(self, matchedCatalog, metric_name):
         self.log.info(f"Counting sources in matched catalog")
         nSources = len(matchedCatalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
-        return pipeBase.Struct(measurement=meas)
+        return Struct(measurement=meas)
 
 
-class PA1TaskConfig(pexConfig.Config):
-    brightSnrMin = pexConfig.Field(doc="Minimum median SNR for a source to be considered bright.",
+class PA1TaskConfig(Config):
+    brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
                                    dtype=float, default=50)
-    brightSnrMax = pexConfig.Field(doc="Maximum median SNR for a source to be considered bright.",
+    brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                                    dtype=float, default=np.Inf)
 
 
-class PA1Task(pipeBase.Task):
+class PA1Task(Task):
 
     ConfigClass = PA1TaskConfig
     _DefaultName = "PA1Task"
@@ -36,7 +39,7 @@ class PA1Task(pipeBase.Task):
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
 
-    def run(self, matchedCatalog):
+    def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring PA1")
 
         filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
@@ -46,6 +49,67 @@ class PA1Task(pipeBase.Task):
         nMinPA1 = 50
         if filteredCat.count > nMinPA1:
             pa1 = calcPhotRepeat(filteredCat, magKey)
-            return pipeBase.Struct(measurement=Measurement("PA1", pa1['repeatability']))
+            return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
-            return pipeBase.Struct(measurement=Measurement("PA1", np.nan*u.mmag))
+            return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
+
+
+class TExTaskConfig(Config):
+    annulus_r = Field(doc="Radial size of the annulus in arcmin",
+                      dtype=float, default=1.)
+    comparison_operator = Field(doc="String representation of the operator to use in comparisons",
+                                dtype=str, default="<=")
+
+class TExTask(Task):
+    ConfigClass = TExTaskConfig
+    _DefaultName = "TExTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        D = self.config.annulus_r * u.arcmin
+        filteredCat = filterMatches(matchedCatalog)
+        nMinTEx = 50
+        if filteredCat.count <= nMinTEx:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.Unit('')))
+
+        radius, xip, xip_err = correlation_function_ellipticity_from_matches(filteredCat)
+        operator = ThresholdSpecification.convert_operator_str(self.config.comparison_operator)
+        corr, corr_err = select_bin_from_corr(radius, xip, xip_err, radius=D, operator=operator)
+        return Struct(measurement=Measurement(metric_name, np.abs(corr)*u.Unit('')))
+
+
+class AMxTaskConfig(Config):
+    annulus_r = Field(doc="Radial distance of the annulus in arcmin",
+                      dtype=float, default=5.)
+    width = Field(doc="Width of annulus in arcmin",
+                  dtype=float, default=2.)
+    bright_mag_cut = Field(doc="Bright limit of catalog entries to include",
+                           dtype=float, default=17.0)
+    faint_mag_cut = Field(doc="Faint limit of catalog entries to include",
+                           dtype=float, default=21.5)
+
+
+class AMxTask(Task):
+    ConfigClass = AMxTaskConfig
+    _DefaultName = "AMxTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        filteredCat = filterMatches(matchedCatalog)
+
+        magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
+        D = self.config.annulus_r * u.arcmin
+        width = self.config.width * u.arcmin
+        annulus = D + (width/2)*np.array([-1, +1])
+
+        rmsDistances = calcRmsDistances(
+            filteredCat,
+            annulus,
+            magRange=magRange)
+
+        if len(rmsDistances) == 0:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+
+        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec))))
