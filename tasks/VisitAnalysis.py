@@ -1,6 +1,7 @@
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
+from lsst.afw.table import SourceCatalog
 
 from VisitMeasureTasks import NumSourcesTask
 
@@ -8,16 +9,16 @@ from VisitMeasureTasks import NumSourcesTask
 # the inputs and outputs that our task requires
 
 class VisitAnalysisTaskConnections(MetricConnections,
-                                   dimensions=("instrument", "visit", "detector", "abstract_filter")):
+                                   dimensions=("instrument", "visit", "abstract_filter")):
     
-    source_catalog = pipeBase.connectionTypes.Input(doc="Source catalogs.",
-                                                    dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                    storageClass="SourceCatalog",
-                                                    name="src")
-                                                    #multiple=True) # We might need to compile results by visit
+    source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
+                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
+                                                     storageClass="SourceCatalog",
+                                                     name="src",
+                                                     multiple=True)
     
     measurement = pipeBase.connectionTypes.Output(doc="Per-visit measurement.",
-                                                  dimensions=("instrument", "visit", "detector", "abstract_filter"),
+                                                  dimensions=("instrument", "visit", "abstract_filter"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
     
@@ -39,5 +40,16 @@ class VisitAnalysisTask(MetricTask):
         super().__init__(*args, config=config, **kwargs)
         self.makeSubtask('measure')
 
-    def run(self, source_catalog):
+    def run(self, source_catalogs):
+        
+        # Concatenate catalogs
+        schema = source_catalogs[0].schema
+        size = sum([len(cat) for cat in source_catalogs])
+        source_catalog = SourceCatalog(schema)
+        source_catalog.reserve(size)
+        for cat in source_catalogs:
+            #self.log.info('%i'%len(cat))
+            source_catalog.extend(cat)
+        #self.log.info('Found a total of %i sources'%len(source_catalog))
+        
         return self.measure.run(source_catalog, self.config.connections.metric)
