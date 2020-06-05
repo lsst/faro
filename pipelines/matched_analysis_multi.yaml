@@ -6,7 +6,7 @@ tasks:
       connections.package: validate_drp
       connections.metric: PA1
       python: |
-        from MeasureTasks import PA1Task
+        from MatchedCatalogMeasureTasks import PA1Task
         config.measure.retarget(PA1Task)
   nsrcMeas:
     class: MatchedCatalogsAnalysis.MatchedCatalogAnalysisTask
@@ -14,7 +14,7 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeas
       python: |
-        from MeasureTasks import NumSourcesTask
+        from MatchedCatalogMeasureTasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
   AB1:
     class: MatchedCatalogsAnalysis.MatchedMultiCatalogAnalysisTask
@@ -22,5 +22,5 @@ tasks:
       connections.package: validate_drp
       connections.metric: AB1
       python: |
-        from MeasureTasks import AB1Task
+        from MatchedCatalogMeasureTasks import AB1Task
         config.measure.retarget(AB1Task)
