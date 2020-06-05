@@ -210,12 +210,12 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, verbose=False):
             pos_rms_mas = geom.radToMas(pos_rms_rad)  # milliarcsec
             rmsDistances.append(pos_rms_mas)
 
-        rmsDistances = rmsDistances * u.marcsec
+        rmsDistances = np.array(rmsDistances) * u.marcsec
         distancesVisit = distancesVisit.to(u.marcsec)
 
     else:
-        rmsDistances = np.nan * u.marcsec
-        distancesVisit = np.nan * u.marcsec
+        rmsDistances = np.array([np.nan]) * u.marcsec
+        distancesVisit = np.array([np.nan]) * u.marcsec
 
     return rmsDistances, distancesVisit
 
