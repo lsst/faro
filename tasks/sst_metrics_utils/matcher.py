@@ -32,6 +32,8 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
                                        'PSF Ellipticity 1'))
     mapper.addOutputField(Field[float]('psf_e2',
                                        'PSF Ellipticity 1'))
+    mapper.addOutputField(Field[np.int32]('filt',
+                                          'filter code'))
     newSchema = mapper.getOutputSchema()
     newSchema.setAliasMap(schema.getAliasMap())
 
@@ -41,8 +43,11 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
                         radius=matchRadius,
                         RecordClass=SimpleRecord)
 
-    # create the new extented source catalog
+    # create the new extended source catalog
     srcVis = SourceCatalog(newSchema)
+
+    filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
+                   'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
 
     for oldSrc, photoCalib, vId in zip(inputs, photoCalibs, vIds):
 
@@ -52,6 +57,10 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
         # create temporary catalog
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)
         tmpCat.extend(oldSrc, mapper=mapper)
+
+        filtnum = filter_dict[vId['abstract_filter']]
+        tmpCat['filt'] = np.repeat(filtnum, len(oldSrc))
+
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
             / tmpCat['base_PsfFlux_instFluxErr']
 
