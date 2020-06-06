@@ -1,9 +1,9 @@
 description: Compute metrics from single-visit catalogs
 tasks:
-  nsrcMeasVisitTest:
+  nsrcMeasVisit:
     class: VisitAnalysis.VisitAnalysisTask
     config:
-      connections.package: test
+      connections.package: info
       connections.metric: nsrcMeasVisit
       python: |
         from VisitMeasureTasks import NumSourcesTask
