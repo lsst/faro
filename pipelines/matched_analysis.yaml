@@ -61,5 +61,5 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeas
       python: |
-        from MatchedCatalogMeasureTasks import NumSourcesTask
+        from GeneralMeasureTasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

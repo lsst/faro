@@ -3,11 +3,10 @@ import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.afw.table import SourceCatalog
 
-from VisitMeasureTasks import NumSourcesTask
+from GeneralMeasureTasks import NumSourcesTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-
 class VisitAnalysisTaskConnections(MetricConnections,
                                    dimensions=("instrument", "visit", "abstract_filter")):
     
@@ -48,8 +47,6 @@ class VisitAnalysisTask(MetricTask):
         source_catalog = SourceCatalog(schema)
         source_catalog.reserve(size)
         for cat in source_catalogs:
-            #self.log.info('%i'%len(cat))
             source_catalog.extend(cat)
-        #self.log.info('Found a total of %i sources'%len(source_catalog))
         
         return self.measure.run(source_catalog, self.config.connections.metric)

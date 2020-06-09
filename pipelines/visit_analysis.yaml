@@ -6,5 +6,5 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeasVisit
       python: |
-        from VisitMeasureTasks import NumSourcesTask
+        from GeneralMeasureTasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

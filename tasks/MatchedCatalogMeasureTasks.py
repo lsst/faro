@@ -10,17 +10,6 @@ from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from
                                            select_bin_from_corr)
 from lsst.validate.drp.calcsrd.amx import calcRmsDistances
 
-class NumSourcesTask(Task):
-
-    ConfigClass = Config
-    _DefaultName = "numSourcesTask"
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Counting sources in matched catalog")
-        nSources = len(matchedCatalog)
-        meas = Measurement("nsrcMeas", nSources * u.count)
-        return Struct(measurement=meas)
-
 
 class PA1TaskConfig(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
