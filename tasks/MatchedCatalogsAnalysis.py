@@ -2,11 +2,10 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 
-from MatchedCatalogMeasureTasks import NumSourcesTask
+from GeneralMeasureTasks import NumSourcesTask
+
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-
-
 class MatchedCatalogAnalysisTaskConnections(MetricConnections,
                                     dimensions=("tract", "patch", "abstract_filter",
                                                 "instrument", "skymap")):

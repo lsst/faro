@@ -1,0 +1,8 @@
+description: Compute aggregate metrics from a list of individual measurements
+tasks:
+  agg_sum_nsrcVisit:
+    class: VisitAggregation.VisitAggregationTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasVisit
+      connections.agg_name: Sum
