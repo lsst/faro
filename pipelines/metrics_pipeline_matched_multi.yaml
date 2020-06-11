@@ -1,0 +1,4 @@
+description: Full metrics pipeline
+inherits:
+  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs_matched_multi.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/analysis_matched_multi.yaml
