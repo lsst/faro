@@ -16,17 +16,6 @@ filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
 
 
-class NumSourcesTask(Task):
-
-    ConfigClass = Config
-    _DefaultName = "numSourcesTask"
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Counting sources in matched catalog")
-        nSources = len(matchedCatalog)
-        meas = Measurement("nsrcMeas", nSources * u.count)
-        return Struct(measurement=meas)
-
 
 class PA1TaskConfig(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",

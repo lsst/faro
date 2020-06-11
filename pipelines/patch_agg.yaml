@@ -1,0 +1,8 @@
+description: Compute aggregate metrics from a list of individual measurements
+tasks:
+  agg_sum_nsrcPatch:
+    class: PatchAggregation.PatchAggregationTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasPatch
+      connections.agg_name: Sum
