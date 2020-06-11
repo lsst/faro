@@ -1,0 +1,4 @@
+description: Produce matched catalogs
+tasks:
+  matchCatalogs: MatchedCatalogs.MatchedCatalogTask
+  matchCatalogsMulti: MatchedCatalogs.MatchedCatalogMultiTask
