@@ -1,8 +1,7 @@
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
+from lsst.verify.tasks import MetricConnections
 
-from GeneralMeasureTasks import NumSourcesTask
+from CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
@@ -11,11 +10,11 @@ from GeneralMeasureTasks import NumSourcesTask
 class MatchedCatalogAnalysisTaskConnections(MetricConnections,
                                     dimensions=("tract", "patch", "abstract_filter",
                                                 "instrument", "skymap")):
-    matchedCatalog = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                                    dimensions=("tract", "patch", "instrument",
-                                                                "abstract_filter"),
-                                                    storageClass="SimpleCatalog",
-                                                    name="matchedCatalog")
+    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
+                                         dimensions=("tract", "patch", "instrument",
+                                                     "abstract_filter"),
+                                         storageClass="SimpleCatalog",
+                                         name="matchedCatalog")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
                                                               "instrument","abstract_filter"),
@@ -23,36 +22,23 @@ class MatchedCatalogAnalysisTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class MatchedCatalogAnalysisTaskConfig(MetricConfig,
+class MatchedCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
                                pipelineConnections=MatchedCatalogAnalysisTaskConnections):
-    measure = pexConfig.ConfigurableField(
-        # This task is meant to make measurements of various types.
-        # The default task is, therefore, a bit of a place holder.
-        # It is expected that this will be overridden in the pipeline
-        # definition in most cases.
-        target=NumSourcesTask,
-        doc="Measure task")
+    pass
 
 
-class MatchedCatalogAnalysisTask(MetricTask):
-
+class MatchedCatalogAnalysisTask(CatalogAnalysisBaseTask):
     ConfigClass = MatchedCatalogAnalysisTaskConfig
     _DefaultName = "matchedCatalogAnalysisTask"
-    def __init__(self, config, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.makeSubtask('measure')
-
-    def run(self, matchedCatalog):
-        return self.measure.run(matchedCatalog, self.config.connections.metric)
 
 
 class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
                                                  dimensions=("tract", "patch", "abstract_filter",
                                                  "instrument", "skymap")):
-    matchedCatalogMulti = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                                    dimensions=("tract", "patch", "instrument"),
-                                                    storageClass="SimpleCatalog",
-                                                    name="matchedCatalogMulti")
+    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
+                                         dimensions=("tract", "patch", "instrument"),
+                                         storageClass="SimpleCatalog",
+                                         name="matchedCatalogMulti")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
                                                               "instrument","abstract_filter"),
@@ -60,20 +46,11 @@ class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class MatchedMultiCatalogAnalysisTaskConfig(MetricConfig,
+class MatchedMultiCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
                                pipelineConnections=MatchedMultiCatalogAnalysisTaskConnections):
-    measure = pexConfig.ConfigurableField(
-        target=NumSourcesTask,  # This is the simplest measurement I can think of
-        doc="Measure task")
+    pass
 
 
-class MatchedMultiCatalogAnalysisTask(MetricTask):
-
+class MatchedMultiCatalogAnalysisTask(CatalogAnalysisBaseTask):
     ConfigClass = MatchedMultiCatalogAnalysisTaskConfig
     _DefaultName = "matchedMultiCatalogAnalysisTask"
-    def __init__(self, config, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.makeSubtask('measure')
-
-    def run(self, matchedCatalogMulti):
-        return self.measure.run(matchedCatalogMulti, self.config.connections.metric)
