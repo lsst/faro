@@ -1,6 +1,4 @@
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-import lsst.geom as geom
 
 from MatchedCatalogsBase import (MatchedBaseTaskConnections,
                                  MatchedBaseTaskConfig,
