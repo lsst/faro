@@ -135,17 +135,11 @@ class AB1Task(Task):
 
         if len(filteredCat) > 0:
 
-            def refFiltFilter(cat):
-                return cat['filt'] == filtnum
-
             filtnum = filter_dict[self.config.ref_filter]
 
-            # Extract the set of all visits in the reference filter:
-            matchedCat_tmp = GroupView.build(matchedCatalogMulti)
-
             refVisits = set()
-            for id in matchedCat_tmp.ids:
-                grptmp = matchedCat_tmp[id]
+            for id in filteredCat.ids:
+                grptmp = filteredCat[id]
                 filtmch = (grptmp['filt'] == filtnum)
                 if len(filtmch) > 0:
                     refVisits.update(set(grptmp[filtmch]['visit']))
