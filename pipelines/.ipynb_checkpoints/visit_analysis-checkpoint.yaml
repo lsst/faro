@@ -1,18 +1,18 @@
 description: Compute metrics from single-visit catalogs
 tasks:
   starFracVisit:
-    class: metric_pipeline_tasks.VisitAnalysisTask
+    class: VisitAnalysis.VisitAnalysisTask
     config:
       connections.package: info
       connections.metric: starFracVisit
       python: |
-        from metric_pipeline_tasks import StarFracTask
+        from VisitMeasureTasks import StarFracTask
         config.measure.retarget(StarFracTask)
   nsrcMeasVisit:
-    class: metric_pipeline_tasks.VisitAnalysisTask
+    class: VisitAnalysis.VisitAnalysisTask
     config:
       connections.package: info
       connections.metric: nsrcMeasVisit
       python: |
-        from metric_pipeline_tasks import NumSourcesTask
+        from GeneralMeasureTasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

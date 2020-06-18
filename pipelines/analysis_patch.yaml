@@ -1,10 +1,10 @@
 description: Compute metrics from patch forced catalogs
 tasks:
   nsrcMeasPatch:
-    class: PatchAnalysis.PatchAnalysisTask
+    class: metric_pipeline_tasks.PatchAnalysisTask
     config:
       connections.package: info
       connections.metric: nsrcMeasPatch
       python: |
-        from GeneralMeasureTasks import NumSourcesTask
+        from metric_pipeline_tasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

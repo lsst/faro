@@ -1,10 +1,10 @@
 description: Compute metrics from single-visit catalogs
 tasks:
   nsrcMeasVisit:
-    class: VisitAnalysis.VisitAnalysisTask
+    class: metric_pipeline_tasks.VisitAnalysisTask
     config:
       connections.package: info
       connections.metric: nsrcMeasVisit
       python: |
-        from GeneralMeasureTasks import NumSourcesTask
+        from metric_pipeline_tasks import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

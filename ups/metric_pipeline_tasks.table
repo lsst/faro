@@ -1,0 +1,4 @@
+setupRequired(lsst_distrib)
+setupOptional(ci_hsc_gen3)
+
+envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)

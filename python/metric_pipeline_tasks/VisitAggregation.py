@@ -1,7 +1,7 @@
 from lsst.verify.tasks import MetricConfig
 import lsst.pipe.base as pipeBase
 
-from CatalogsAggregationBase import CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask
+from .CatalogsAggregationBase import CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask
 
 class VisitAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
     

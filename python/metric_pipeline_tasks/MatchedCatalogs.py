@@ -1,6 +1,6 @@
 import lsst.pipe.base as pipeBase
 
-from MatchedCatalogsBase import (MatchedBaseTaskConnections,
+from .MatchedCatalogsBase import (MatchedBaseTaskConnections,
                                  MatchedBaseTaskConfig,
                                  MatchedBaseTask)
 
