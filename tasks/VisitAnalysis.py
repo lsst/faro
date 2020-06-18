@@ -1,9 +1,8 @@
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
+from lsst.verify.tasks import MetricConnections
 from lsst.afw.table import SourceCatalog
 
-from GeneralMeasureTasks import NumSourcesTask
+from CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
@@ -21,23 +20,14 @@ class VisitAnalysisTaskConnections(MetricConnections,
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
     
-class VisitAnalysisTaskConfig(MetricConfig,
+class VisitAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
                               pipelineConnections=VisitAnalysisTaskConnections):
-    measure = pexConfig.ConfigurableField(
-        # This task is meant to make measurements of various types.
-        # The default task is, therefore, a bit of a place holder.
-        # It is expected that this will be overridden in the pipeline
-        # definition in most cases.
-        target=NumSourcesTask,
-        doc="Measure task")
-    
-class VisitAnalysisTask(MetricTask):
+    pass
 
+    
+class VisitAnalysisTask(CatalogAnalysisBaseTask):
     ConfigClass = VisitAnalysisTaskConfig
     _DefaultName = "visitAnalysisTask"
-    def __init__(self, config, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.makeSubtask('measure')
 
     def run(self, source_catalogs):
         

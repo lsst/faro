@@ -1,3 +1,5 @@
-description: Produce matched catalogs
-tasks:
-  matchCatalogs: MatchedCatalogs.MatchedCatalogTask
+description: Generate complete inputs
+
+inherits:
+  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs_matched_multi.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs_matched.yaml

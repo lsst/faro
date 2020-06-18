@@ -4,7 +4,6 @@ from lsst.pipe.base import Struct, Task
 from lsst.afw.table import GroupView
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
-import lsst.pex.config as pexConfig
 from sst_metrics_utils.filtermatches import filterMatches
 from sst_metrics_utils.separations import calcRmsDistances, calcRmsDistancesVsRef
 from lsst.validate.drp.repeatability import calcPhotRepeat

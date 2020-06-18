@@ -1,0 +1,10 @@
+description: Compute metrics from multiband matched catalogs
+tasks:
+  AB1:
+    class: MatchedCatalogsAnalysis.MatchedMultiCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AB1
+      python: |
+        from MatchedCatalogMeasureTasks import AB1Task
+        config.measure.retarget(AB1Task)

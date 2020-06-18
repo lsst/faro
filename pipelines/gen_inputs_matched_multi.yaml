@@ -1,0 +1,3 @@
+description: Produce multiband matched catalogs
+tasks:
+  matchCatalogsMulti: MatchedCatalogs.MatchedCatalogMultiTask

@@ -1,5 +1,8 @@
-description: Full metrics pipeline
+description: Complete metrics measurement pipeline
 inherits:
-  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/matched_analysis.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/matched_agg.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/metrics_pipeline_matched.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/metrics_pipeline_matched_multi.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/metrics_pipeline_visit.yaml
+  # This pipeline only has data for one patch which causes all other
+  # pipelines to run over only that patch
+  #- location: $METRIC_PIPE_DIR/pipelines/metrics_pipeline_patch.yaml

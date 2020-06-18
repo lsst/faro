@@ -1,30 +1,13 @@
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
-import lsst.geom as geom
 
-from sst_metrics_utils.matcher import match_catalogs
+from MatchedCatalogsBase import (MatchedBaseTaskConnections,
+                                 MatchedBaseTaskConfig,
+                                 MatchedBaseTask)
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-class MatchedCatalogTaskConnections(pipeBase.PipelineTaskConnections,
-                                    dimensions=("tract", "patch", "abstract_filter", "instrument", "skymap"),
-                                    defaultTemplates={"coaddName": "deep"}):
-    source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                     storageClass="SourceCatalog",
-                                                     name="src",
-                                                     multiple=True)
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                     storageClass="PhotoCalib",
-                                                     name="calexp.photoCalib",
-                                                     multiple=True)
-    skyMap = pipeBase.connectionTypes.Input(
-        doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
-        name="{coaddName}Coadd_skyMap",
-        storageClass="SkyMap",
-        dimensions=("skymap",),
-    )
+class MatchedCatalogTaskConnections(MatchedBaseTaskConnections,
+                                    dimensions=("tract", "patch", "abstract_filter", "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                     dimensions=("tract", "patch",
                                                                 "instrument","abstract_filter"),
@@ -32,75 +15,21 @@ class MatchedCatalogTaskConnections(pipeBase.PipelineTaskConnections,
                                                     name="matchedCatalog")
 
 
-class MatchedCatalogTaskConfig(pipeBase.PipelineTaskConfig,
+class MatchedCatalogTaskConfig(MatchedBaseTaskConfig,
                                pipelineConnections=MatchedCatalogTaskConnections):
-    match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
+    pass
 
 
-class MatchedCatalogTask(pipeBase.PipelineTask):
+class MatchedCatalogTask(MatchedBaseTask):
 
     ConfigClass = MatchedCatalogTaskConfig
     _DefaultName = "matchedCatalogTask"
 
-    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.radius = self.config.match_radius
-
-    def run(self, source_catalogs, photo_calibs, vIds, wcs, box):
-        self.log.info(f"Running catalog matching")
-        radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius, logger=self.log)
-        # Trim the output to the patch bounding box
-        out_matched = type(matched)(matched.schema)
-        self.log.info(f"{len(matched)} sources in matched catalog.")
-        for record in matched:
-            if box.contains(wcs.skyToPixel(record.getCoord())):
-                out_matched.append(record)
-        self.log.info(f"{len(out_matched)} sources when trimmed to patch boundaries.")
-        return pipeBase.Struct(outputCatalog=out_matched)
-
-    def runQuantum(self, butlerQC,
-                   inputRefs,
-                   outputRefs):
-        inputs = butlerQC.get(inputRefs)
-        oid = outputRefs.outputCatalog.dataId.byName()
-        skymap = inputs['skyMap']
-        del inputs['skyMap']
-        tract_info = skymap.generateTract(oid['tract'])
-        wcs = tract_info.getWcs()
-        patch_info = tract_info.getPatchInfo(oid['patch'])
-        patch_box = patch_info.getInnerBBox()
-        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
-        # Cast to float to handle fractional pixels
-        patch_box = geom.Box2D(patch_box)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
-        inputs['wcs'] = wcs
-        inputs['box'] = patch_box
-        outputs = self.run(**inputs)
-        butlerQC.put(outputs, outputRefs)
-
 # -------------------------------------------------------------------
 
 
-class MatchedCatalogMultiTaskConnections(pipeBase.PipelineTaskConnections,
-                                         dimensions=("tract", "patch", "instrument", "skymap"),
-                                         defaultTemplates={"coaddName": "deep"}):
-    source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                     storageClass="SourceCatalog",
-                                                     name="src",
-                                                     multiple=True)
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                  dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                  storageClass="PhotoCalib",
-                                                  name="calexp.photoCalib",
-                                                  multiple=True)
-    skyMap = pipeBase.connectionTypes.Input(
-        doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
-        name="{coaddName}Coadd_skyMap",
-        storageClass="SkyMap",
-        dimensions=("skymap",),
-    )
+class MatchedCatalogMultiTaskConnections(MatchedBaseTaskConnections,
+                                         dimensions=("tract", "patch", "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                     dimensions=("tract", "patch",
                                                                 "instrument"),
@@ -108,49 +37,12 @@ class MatchedCatalogMultiTaskConnections(pipeBase.PipelineTaskConnections,
                                                     name="matchedCatalogMulti")
 
 
-class MatchedCatalogMultiTaskConfig(pipeBase.PipelineTaskConfig,
+class MatchedCatalogMultiTaskConfig(MatchedBaseTaskConfig,
                      pipelineConnections=MatchedCatalogMultiTaskConnections):
-    match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
+    pass
 
 
-class MatchedCatalogMultiTask(pipeBase.PipelineTask):
+class MatchedCatalogMultiTask(MatchedBaseTask):
 
     ConfigClass = MatchedCatalogMultiTaskConfig
     _DefaultName = "matchedCatalogMultiTask"
-
-    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.radius = self.config.match_radius
-
-    def run(self, source_catalogs, photo_calibs, vIds, wcs, box):
-        self.log.info(f"Running catalog matching")
-        radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius, logger=self.log)
-        # Trim the output to the patch bounding box
-        out_matched = type(matched)(matched.schema)
-        self.log.info(f"{len(matched)} sources in matched catalog.")
-        for record in matched:
-            if box.contains(wcs.skyToPixel(record.getCoord())):
-                out_matched.append(record)
-        self.log.info(f"{len(out_matched)} sources when trimmed to patch boundaries.")
-        return pipeBase.Struct(outputCatalog=out_matched)
-
-    def runQuantum(self, butlerQC,
-                   inputRefs,
-                   outputRefs):
-        inputs = butlerQC.get(inputRefs)
-        oid = outputRefs.outputCatalog.dataId.byName()
-        skymap = inputs['skyMap']
-        del inputs['skyMap']
-        tract_info = skymap.generateTract(oid['tract'])
-        wcs = tract_info.getWcs()
-        patch_info = tract_info.getPatchInfo(oid['patch'])
-        patch_box = patch_info.getInnerBBox()
-        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
-        # Cast to float to handle fractional pixels
-        patch_box = geom.Box2D(patch_box)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
-        inputs['wcs'] = wcs
-        inputs['box'] = patch_box
-        outputs = self.run(**inputs)
-        butlerQC.put(outputs, outputRefs)
