@@ -1,7 +1,7 @@
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 
-from GeneralMeasureTasks import NumSourcesTask
+from .GeneralMeasureTasks import NumSourcesTask
 
 
 class CatalogAnalysisBaseTaskConfig(MetricConfig,

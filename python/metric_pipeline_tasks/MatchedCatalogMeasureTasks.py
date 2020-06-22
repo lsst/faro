@@ -4,8 +4,8 @@ from lsst.pipe.base import Struct, Task
 from lsst.afw.table import GroupView
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
-from sst_metrics_utils.filtermatches import filterMatches
-from sst_metrics_utils.separations import calcRmsDistances, calcRmsDistancesVsRef
+from metric_pipeline_utils.filtermatches import filterMatches
+from metric_pipeline_utils.separations import calcRmsDistances, calcRmsDistancesVsRef
 from lsst.validate.drp.repeatability import calcPhotRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)

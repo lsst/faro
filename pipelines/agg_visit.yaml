@@ -1,7 +1,7 @@
 description: Compute aggregate metrics from a list of individual measurements
 tasks:
   agg_sum_nsrcVisit:
-    class: VisitAggregation.VisitAggregationTask
+    class: metric_pipeline_tasks.VisitAggregationTask
     config:
       connections.package: info
       connections.metric: nsrcMeasVisit

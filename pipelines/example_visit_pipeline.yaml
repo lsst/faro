@@ -2,5 +2,5 @@
 # pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/example_visit_pipeline.yaml -d "abstract_filter = 'r'" -o visit_measurements_new_measurement -i shared/ci_hsc_output
 description: Visit metrics pipeline
 inherits:
-  - location: $METRIC_PIPE_DIR/pipelines/example_visit_analysis.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/visit_agg.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/example_visit_analysis.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/visit_agg.yaml
