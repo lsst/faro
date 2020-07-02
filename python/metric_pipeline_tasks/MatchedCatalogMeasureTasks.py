@@ -6,7 +6,7 @@ from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
 from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import calcRmsDistances, calcRmsDistancesVsRef
-from lsst.validate.drp.repeatability import calcPhotRepeat
+from metric_pipeline_utils.phot_repeat import photRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)
 
@@ -35,16 +35,23 @@ class PA1Task(Task):
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring PA1")
 
-        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
-        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+        pa1 = photRepeat(matchedCatalog)
 
-        # Require at least nMinPA1=10 objects to calculate the repeatability:
-        nMinPA1 = 50
-        if filteredCat.count > nMinPA1:
-            pa1 = calcPhotRepeat(filteredCat, magKey)
+        if np.size(pa1) > 1:
             return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
+
+#        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
+#        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+#
+#        # Require at least nMinPA1 objects to calculate the repeatability:
+#        nMinPA1 = 50
+#        if filteredCat.count > nMinPA1:
+#            pa1 = calcPhotRepeat(filteredCat, magKey)
+#            return Struct(measurement=Measurement("PA1", pa1['repeatability']))
+#        else:
+#            return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
 
 
 class PA2TaskConfig(Config):
@@ -52,6 +59,7 @@ class PA2TaskConfig(Config):
                          dtype=float, default=50)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                          dtype=float, default=np.Inf)
+    # The defaults for threshPA2 and threshPF1 correspond to the SRD "design" thresholds.
     threshPA2 = Field(doc="Threshold in mmag for PF1 calculation.", dtype=float, default=15.0)
     threshPF1 = Field(doc="Percentile of differences that can vary by more than threshPA2.",
                       dtype=float, default=10.0)
@@ -73,13 +81,9 @@ class PA2Task(Task):
         self.log.info(f"Measuring PA2")
         pf1_thresh = self.threshPF1 * u.percent
 
-        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
-        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+        pa2 = photRepeat(matchedCatalog)
 
-        # Require at least nMinPA2=10 objects to calculate the repeatability:
-        nMinPA2 = 50
-        if filteredCat.count > nMinPA2:
-            pa2 = calcPhotRepeat(filteredCat, magKey)
+        if np.size(pa2) > 1:
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
             magDiffs = pa2['magDiff']
@@ -89,6 +93,23 @@ class PA2Task(Task):
                           pf1Percentile.value) * magDiffs.unit))
         else:
             return Struct(measurement=Measurement("PA2", np.nan*u.mmag))
+
+#        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
+#        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+#
+#        # Require at least nMinPA2 objects to calculate the repeatability:
+#        nMinPA2 = 50
+#        if filteredCat.count > nMinPA2:
+#            pa2 = calcPhotRepeat(filteredCat, magKey)
+#            # Previously, validate_drp used the first random sample from PA1 measurement
+#            # Now, use all of them.
+#            magDiffs = pa2['magDiff']
+#
+#            pf1Percentile = 100.*u.percent - pf1_thresh
+#            return Struct(measurement=Measurement("PA2", np.percentile(np.abs(magDiffs.value),
+#                          pf1Percentile.value) * magDiffs.unit))
+#        else:
+#            return Struct(measurement=Measurement("PA2", np.nan*u.mmag))
 
 
 class PF1Task(Task):
@@ -107,21 +128,34 @@ class PF1Task(Task):
         self.log.info(f"Measuring PF1")
         pa2_thresh = self.threshPA2 * u.mmag
 
-        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
-        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+        pf1 = photRepeat(matchedCatalog)
 
-        # Require at least nMinPA2=10 objects to calculate the repeatability:
-        nMinPA2 = 50
-        if filteredCat.count > nMinPA2:
-            pf1 = calcPhotRepeat(filteredCat, magKey)
+        if np.size(pf1) > 1:
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
             magDiffs = pf1['magDiff']
 
             percentileAtPA2 = 100 * np.mean(np.abs(magDiffs.value) > pa2_thresh.value) * u.percent
+
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:
             return Struct(measurement=Measurement("PF1", np.nan*u.percent))
+
+#        filteredCat = filterMatches(matchedCatalog) #, extended=False, isPrimary=False)
+#        magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+#
+#        # Require at least nMinPA2 objects to calculate the repeatability:
+#        nMinPA2 = 50
+#        if filteredCat.count > nMinPA2:
+#            pf1 = calcPhotRepeat(filteredCat, magKey)
+#            # Previously, validate_drp used the first random sample from PA1 measurement
+#            # Now, use all of them.
+#            magDiffs = pf1['magDiff']
+#
+#            percentileAtPA2 = 100 * np.mean(np.abs(magDiffs.value) > pa2_thresh.value) * u.percent
+#            return Struct(measurement=Measurement("PF1", percentileAtPA2))
+#        else:
+#            return Struct(measurement=Measurement("PF1", np.nan*u.percent))
 
 
 class TExTaskConfig(Config):
