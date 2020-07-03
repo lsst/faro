@@ -8,6 +8,26 @@ tasks:
       python: |
         from metric_pipeline_tasks import PA1Task
         config.measure.retarget(PA1Task)
+  PA2_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA2_design
+      python: |
+        from metric_pipeline_tasks import PA2Task
+        config.measure.retarget(PA2Task)
+        config.measure.threshPA2 = 15.0
+        config.measure.threshPF1 = 10.0
+  PF1_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PF1_design
+      python: |
+        from metric_pipeline_tasks import PF1Task
+        config.measure.retarget(PF1Task)
+        config.measure.threshPA2 = 15.0
+        config.measure.threshPF1 = 10.0
   AM1:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
