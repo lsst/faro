@@ -35,9 +35,10 @@ class PA1Task(Task):
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring PA1")
 
-        pa1 = photRepeat(matchedCatalog)
+        pa1 = photRepeat(matchedCatalog, snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+        # import pdb; pdb.set_trace()
 
-        if np.size(pa1) > 1:
+        if 'magDiff' in pa1.keys():
             return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
@@ -83,7 +84,7 @@ class PA2Task(Task):
 
         pa2 = photRepeat(matchedCatalog)
 
-        if np.size(pa2) > 1:
+        if 'magDiff' in pa2.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
             magDiffs = pa2['magDiff']
@@ -130,7 +131,7 @@ class PF1Task(Task):
 
         pf1 = photRepeat(matchedCatalog)
 
-        if np.size(pf1) > 1:
+        if 'magDiff' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
             magDiffs = pf1['magDiff']
