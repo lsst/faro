@@ -36,7 +36,6 @@ class PA1Task(Task):
         self.log.info(f"Measuring PA1")
 
         pa1 = photRepeat(matchedCatalog, snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
-        # import pdb; pdb.set_trace()
 
         if 'magDiff' in pa1.keys():
             return Struct(measurement=Measurement("PA1", pa1['repeatability']))

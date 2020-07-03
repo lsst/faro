@@ -10,7 +10,6 @@ def photRepeat(matchedCatalog, **filterargs):
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
     nMinPhotRepeat = 50
-    # import pdb; pdb.set_trace()
     if filteredCat.count > nMinPhotRepeat:
         phot_resid_meas = calcPhotRepeat(filteredCat, magKey)
         return phot_resid_meas
