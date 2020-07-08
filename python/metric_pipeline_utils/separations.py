@@ -1,9 +1,29 @@
 import numpy as np
 import astropy.units as u
 import lsst.geom as geom
+from metric_pipeline_utils.filtermatches import filterMatches
+from metric_pipeline_utils.util import (averageRaFromCat, averageDecFromCat,
+                                        sphDist)
 
-from lsst.validate.drp.util import (averageRaFromCat, averageDecFromCat,
-                                    sphDist)
+
+def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
+    filteredCat = filterMatches(matchedCatalog, **filterargs) #, extended=False, isPrimary=False)
+
+    magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
+    D = annulus_r * u.arcmin
+    width = width * u.arcmin
+    annulus = D + (width/2)*np.array([-1, +1])
+
+    # Require at least 2 measurements to calculate the repeatability:
+    nMinMeas = 2
+    if filteredCat.count > nMinMeas:
+        astrom_resid_meas = calcRmsDistances(
+            filteredCat,
+            annulus,
+            magRange=magRange)
+        return astrom_resid_meas
+    else:
+        return {'nomeas': np.nan*u.mmag}
 
 
 def calcRmsDistances(groupView, annulus, magRange, verbose=False):

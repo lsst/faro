@@ -67,6 +67,28 @@ tasks:
         from metric_pipeline_tasks import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 200.0
+  AD1:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD1
+      python: |
+        from metric_pipeline_tasks import ADxTask
+        config.measure.retarget(ADxTask)
+        config.measure.annulus_r = 5.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  AF1:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF1
+      python: |
+        from metric_pipeline_tasks import AFxTask
+        config.measure.retarget(AFxTask)
+        config.measure.annulus_r = 5.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
   TE1:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
