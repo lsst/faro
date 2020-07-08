@@ -1,7 +1,7 @@
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config
+from lsst.pex.config import Config, Field
 from lsst.verify import Measurement
 
 
@@ -17,13 +17,19 @@ class NumSourcesTask(Task):
         return Struct(measurement=meas)
 
 
+class NumpyAggTaskConfig(Config):
+    summary = Field(dtype=str, default="median",
+                              doc="Aggregation to use for summary metrics")
+
 class NumpyAggTask(Task):
 
-    ConfigClass = Config
+    ConfigClass = NumpyAggTaskConfig
     _DefaultName = "numpyAggTask"
 
     def run(self, measurements, agg_name, package, metric):
         agg = agg_name.lower()
+        if agg == "summary":
+            agg = self.config.summary
         self.log.info(f"Computing the {agg} of {package}_{metric} values")
 
         value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
