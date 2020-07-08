@@ -6,12 +6,8 @@ config.log
 /bin/
 tests/tmp*
 ups/*.cfgc
-python/lsst/obs/lsst/version.py
 .coverage
 .pytest_cache
 tests/.tests
 pytest_session.txt
-latiss/CALIB/calibRegistry.sqlite3
-latiss/CALIB/defects/
-ts8/CALIB/calibRegistry.sqlite3
-ts8/CALIB/qe_curve/
+python/lsst/metric/pipeline/tasks/version.py
