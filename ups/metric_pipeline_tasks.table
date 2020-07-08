@@ -1,4 +1,6 @@
 setupRequired(lsst_distrib)
 setupOptional(ci_hsc_gen3)
+setupOptional(verify_metrics)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
+envPrepend(PATH, ${PRODUCT_DIR}/bin)
