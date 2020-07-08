@@ -1,4 +1,5 @@
 import astropy.units as u
+import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config
 from lsst.verify import Measurement
@@ -14,3 +15,16 @@ class NumSourcesTask(Task):
         nSources = len(catalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
+
+
+class NumpyAggTask(Task):
+
+    ConfigClass = Config
+    _DefaultName = "numpyAggTask"
+
+    def run(self, measurements, agg_name, package, metric):
+        agg = agg_name.lower()
+        self.log.info(f"Computing the {agg} of {package}_{metric} values")
+
+        value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
+        return Struct(measurement=Measurement(f"metricvalue_{agg_name.lower()}_{package}_{metric}", value))
