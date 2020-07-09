@@ -67,27 +67,71 @@ tasks:
         from metric_pipeline_tasks import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 200.0
-  AD1:
+  AD1_design:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
       connections.package: validate_drp
-      connections.metric: AD1
+      connections.metric: AD1_design
       python: |
         from metric_pipeline_tasks import ADxTask
         config.measure.retarget(ADxTask)
         config.measure.annulus_r = 5.0
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
-  AF1:
+  AD2_design:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
       connections.package: validate_drp
-      connections.metric: AF1
+      connections.metric: AD2_design
+      python: |
+        from metric_pipeline_tasks import ADxTask
+        config.measure.retarget(ADxTask)
+        config.measure.annulus_r = 20.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  AD3_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD3_design
+      python: |
+        from metric_pipeline_tasks import ADxTask
+        config.measure.retarget(ADxTask)
+        config.measure.annulus_r = 200.0
+        config.measure.threshAD = 30.0
+        config.measure.threshAF = 10.0
+  AF1_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF1_design
       python: |
         from metric_pipeline_tasks import AFxTask
         config.measure.retarget(AFxTask)
         config.measure.annulus_r = 5.0
         config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  AF2_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF2_design
+      python: |
+        from metric_pipeline_tasks import AFxTask
+        config.measure.retarget(AFxTask)
+        config.measure.annulus_r = 20.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  AF3_design:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF3_design
+      python: |
+        from metric_pipeline_tasks import AFxTask
+        config.measure.retarget(AFxTask)
+        config.measure.annulus_r = 200.0
+        config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   TE1:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask

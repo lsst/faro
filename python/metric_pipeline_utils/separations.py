@@ -17,13 +17,33 @@ def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, *
     # Require at least 2 measurements to calculate the repeatability:
     nMinMeas = 2
     if filteredCat.count > nMinMeas:
-        astrom_resid_meas = calcRmsDistances(
+        astrom_resid_rms_meas = calcRmsDistances(
+            filteredCat,
+            annulus,
+            magRange=magRange)
+        return astrom_resid_rms_meas
+    else:
+        return {'nomeas': np.nan*u.marcsec}
+
+
+def astromResiduals(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
+    filteredCat = filterMatches(matchedCatalog, **filterargs) #, extended=False, isPrimary=False)
+
+    magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
+    D = annulus_r * u.arcmin
+    width = width * u.arcmin
+    annulus = D + (width/2)*np.array([-1, +1])
+
+    # Require at least 2 measurements to calculate the repeatability:
+    nMinMeas = 2
+    if filteredCat.count > nMinMeas:
+        astrom_resid_meas = calcSepOutliers(
             filteredCat,
             annulus,
             magRange=magRange)
         return astrom_resid_meas
     else:
-        return {'nomeas': np.nan*u.mmag}
+        return {'nomeas': np.nan*u.marcsec}
 
 
 def calcRmsDistances(groupView, annulus, magRange, verbose=False):
@@ -104,6 +124,90 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
     # return quantity
     rmsDistances = np.array(rmsDistances) * u.radian
     return rmsDistances
+
+
+def calcSepOutliers(groupView, annulus, magRange, verbose=False):
+    """Calculate the RMS distance of a set of matched objects over visits.
+    Parameters
+    ----------
+    groupView : lsst.afw.table.GroupView
+        GroupView object of matched observations from MultiMatch.
+    annulus : length-2 `astropy.units.Quantity`
+        Distance range (i.e., arcmin) in which to compare objects.
+        E.g., `annulus=np.array([19, 21]) * u.arcmin` would consider all
+        objects separated from each other between 19 and 21 arcminutes.
+    magRange : length-2 `astropy.units.Quantity`
+        Magnitude range from which to select objects.
+    verbose : bool, optional
+        Output additional information on the analysis steps.
+    Returns
+    -------
+    rmsDistances : `astropy.units.Quantity`
+        RMS angular separations of a set of matched objects over visits.
+    """
+
+    # First we make a list of the keys that we want the fields for
+    importantKeys = [groupView.schema.find(name).key for
+                     name in ['id', 'coord_ra', 'coord_dec',
+                              'object', 'visit', 'base_PsfFlux_mag']]
+
+    minMag, maxMag = magRange.to(u.mag).value
+
+    def magInRange(cat):
+        mag = cat.get('base_PsfFlux_mag')
+        w, = np.where(np.isfinite(mag))
+        medianMag = np.median(mag[w])
+        return minMag <= medianMag and medianMag < maxMag
+
+    groupViewInMagRange = groupView.where(magInRange)
+
+    # List of lists of id, importantValue
+    matchKeyOutput = [obj.get(key)
+                      for key in importantKeys
+                      for obj in groupViewInMagRange.groups]
+
+    jump = len(groupViewInMagRange)
+
+    ra = matchKeyOutput[1*jump:2*jump]
+    dec = matchKeyOutput[2*jump:3*jump]
+    visit = matchKeyOutput[4*jump:5*jump]
+
+    # Calculate the mean position of each object from its constituent visits
+    # `aggregate` calulates a quantity for each object in the groupView.
+    meanRa = groupViewInMagRange.aggregate(averageRaFromCat)
+    meanDec = groupViewInMagRange.aggregate(averageDecFromCat)
+
+    annulusRadians = arcminToRadians(annulus.to(u.arcmin).value)
+
+    sepResiduals = list()
+    for obj1, (ra1, dec1, visit1) in enumerate(zip(meanRa, meanDec, visit)):
+        dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
+        objectsInAnnulus, = np.where((annulusRadians[0] <= dist) &
+                                     (dist < annulusRadians[1]))
+        for obj2 in objectsInAnnulus:
+            distances = matchVisitComputeDistance(
+                visit[obj1], ra[obj1], dec[obj1],
+                visit[obj2], ra[obj2], dec[obj2])
+            if not distances:
+                if verbose:
+                    print("No matching visits found for objs: %d and %d" %
+                          (obj1, obj2))
+                continue
+
+            finiteEntries, = np.where(np.isfinite(distances))
+            # Need at least 3 matched pairs so that the median position makes sense
+            if len(finiteEntries) >= 3:
+                okdist = np.array(distances)[finiteEntries]
+                # Get rid of zeros from stars measured against themselves:
+                realdist, = np.where(okdist > 0.0)
+                if np.size(realdist) > 0:
+                    sepResiduals.append(np.abs(okdist[realdist] - np.median(okdist[realdist])))
+
+    # return quantity
+    # import pdb; pdb.set_trace()
+    if len(sepResiduals) > 0:
+        sepResiduals = np.concatenate(np.array(sepResiduals)) * u.radian
+    return sepResiduals
 
 
 def matchVisitComputeDistance(visit_obj1, ra_obj1, dec_obj1,

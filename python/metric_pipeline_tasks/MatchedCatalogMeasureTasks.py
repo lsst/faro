@@ -6,7 +6,7 @@ from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
 from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
-                                               astromRms)
+                                               astromRms, astromResiduals)
 from metric_pipeline_utils.phot_repeat import photRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)
@@ -195,22 +195,23 @@ class ADxTask(Task):
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring {metric_name}")
 
-        rmsDistances = astromRms(matchedCatalog, self.config.bright_mag_cut,
-                                 self.config.faint_mag_cut, self.config.annulus_r,
-                                 self.config.width)
+        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
+                                       self.config.faint_mag_cut, self.config.annulus_r,
+                                       self.config.width)
 
         afThresh = self.config.threshAF * u.percent
         afPercentile = 100.0*u.percent - afThresh
 
         # import pdb; pdb.set_trace()
 
-        if len(rmsDistances) <= 1:
+        if len(sepDistances) <= 1:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
         else:
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
-            absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
-            return Struct(measurement=Measurement(metric_name, np.percentile(absRmsDiffs.value,
+            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
+            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
                           afPercentile.value)*u.marcsec))
 
 
@@ -228,21 +229,22 @@ class AFxTask(Task):
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring {metric_name}")
 
-        rmsDistances = astromRms(matchedCatalog, self.config.bright_mag_cut,
-                                 self.config.faint_mag_cut, self.config.annulus_r,
-                                 self.config.width)
+        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
+                                       self.config.faint_mag_cut, self.config.annulus_r,
+                                       self.config.width)
 
         adxThresh = self.config.threshAD * u.marcsec
 
         # import pdb; pdb.set_trace()
 
-        if len(rmsDistances) <= 1:
+        if len(sepDistances) <= 1:
             return Struct(measurement=Measurement(metric_name, np.nan*u.percent))
         else:
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
-            absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
-            percentileAtADx = 100 * np.mean(np.abs(absRmsDiffs.value) > adxThresh.value) * u.percent
+            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
+            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            percentileAtADx = 100 * np.mean(np.abs(absDiffsMarcsec.value) > adxThresh.value) * u.percent
             return Struct(measurement=Measurement(metric_name, percentileAtADx))
 
 
