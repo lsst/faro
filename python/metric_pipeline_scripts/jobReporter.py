@@ -19,8 +19,6 @@ class JobReporter:
                             collections=self.collection))
             for did in data_ids:
                 m = self.butler.get(did, collections=self.collection)
-                if np.isnan(m.quantity):
-                    continue
                 # make the name the same as what SQuaSH Expects
                 m.metric_name = metric
                 tract = did.dataId['tract']
