@@ -4,7 +4,9 @@ from lsst.verify import Job, MetricSet
 from lsst.daf.butler import Butler
 class JobReporter:
     def __init__(self, repository, collection, metrics_package, spec):
-        self.metrics = MetricSet.load_metrics_package(package_name_or_path='verify_metrics',  # Maybe allow an argument
+        # Hard coding verify_metrics as the packager for now.
+        # It would be easy to pass this in as an argument, if necessary.
+        self.metrics = MetricSet.load_metrics_package(package_name_or_path='verify_metrics',
                                                       subset=metrics_package)
         self.butler = Butler(repository)
         self.registry = self.butler.registry
