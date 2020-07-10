@@ -4,28 +4,40 @@ import numpy as np
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 import lsst.pipe.base as pipeBase
 from lsst.verify import Measurement
+import lsst.pex.config as pexConfig
+
+from .GeneralMeasureTasks import NumpyAggTask
 
 # Dimentions of the Connections class define the iterations of runQuantum
 class CatalogsAggregationBaseTaskConnections(MetricConnections,
                                                 defaultTemplates={'agg_name': None},
-                                                dimensions=("abstract_filter", "instrument", "skymap")):
+                                                dimensions=("abstract_filter", "tract", "instrument", "skymap")):
     # Make this an LSST verify Measurement
     measurement = pipeBase.connectionTypes.Output(doc="{agg_name} {package}_{metric}.",
-                                              dimensions=("instrument", "abstract_filter"),
+                                              dimensions=("instrument", "tract", "abstract_filter"),
                                               storageClass="MetricValue",
                                               name="metricvalue_{agg_name}_{package}_{metric}")
+
+class CatalogAggregationBaseTaskConfig(MetricConfig,
+                               pipelineConnections=CatalogsAggregationBaseTaskConnections):
+    agg = pexConfig.ConfigurableField(
+        # This task is meant to make measurements of various types.
+        # The default task is, therefore, a bit of a place holder.
+        # It is expected that this will be overridden in the pipeline
+        # definition in most cases.
+        target=NumpyAggTask,
+        doc="Numpy aggregation task")
 
 
 class CatalogsAggregationBaseTask(MetricTask):
 
-    ConfigClass = MetricConfig
+    ConfigClass = CatalogAggregationBaseTaskConfig
     _DefaultName = "catalogsAggregationBaseTask"
 
-    def run(self, measurements):
-        package = self.config.connections.package
-        metric = self.config.connections.metric
-        agg = self.config.connections.agg_name.lower()
-        self.log.info(f"Computing the {agg} of {package}_{metric} values")
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, config=config, **kwargs)
+        self.makeSubtask('agg')
 
-        value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
-        return pipeBase.Struct(measurement=Measurement(f"metricvalue_{agg}_{package}_{metric}", value))
+    def run(self, measurements):
+        return self.agg.run(measurements, self.config.connections.agg_name, self.config.connections.package,
+                            self.config.connections.metric)

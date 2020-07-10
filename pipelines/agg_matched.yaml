@@ -9,39 +9,63 @@ tasks:
   agg_mean_AM1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
+      # The special agg_name summary defaults to median.
+      # It can be changed via the config.
+      # This is an example of how to change it.
+      # It must be a valid atribute of the numpy package.
+      connections.package: info
+      connections.metric: AM1
+      connections.agg_name: summary
+      python: |
+        config.agg.summary = 'mean'
+  agg_summary_AM1:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
       connections.package: validate_drp
       connections.metric: AM1
-      connections.agg_name: Mean
-  agg_mean_AM2:
+      connections.agg_name: summary
+  agg_summary_AM2:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM2
-      connections.agg_name: Mean
-  agg_mean_AM3:
+      connections.agg_name: summary
+  agg_summary_AM3:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM3
-      connections.agg_name: Mean
-  agg_median_PA1:
+      connections.agg_name: summary
+  agg_summary_PA1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: PA1
-      connections.agg_name: Median
-  agg_mean_TE1:
+      connections.agg_name: summary
+  agg_summary_PA2:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA2_design_gri
+      connections.agg_name: summary
+  agg_summary_PF1:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PF1_design_gri
+      connections.agg_name: summary
+  agg_summary_TE1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
-      connections.agg_name: Mean
-  agg_mean_TE2:
+      connections.agg_name: summary
+  agg_summary_TE2:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE2
-      connections.agg_name: Mean
+      connections.agg_name: summary
   agg_sum_nsrc:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:

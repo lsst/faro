@@ -13,7 +13,8 @@ pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-type
 from lsst.verify.tasks import MetricConfig
 import lsst.pipe.base as pipeBase
 
-from .CatalogsAggregationBase import CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask
+from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask,
+                                      CatalogAggregationBaseTaskConfig)
 
 # Dimentions of the Connections class define the iterations of runQuantum
 class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
@@ -23,7 +24,7 @@ class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConne
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)
 
-class MatchedCatalogsAggregationTaskConfig(MetricConfig,
+class MatchedCatalogsAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
                                            pipelineConnections=MatchedCatalogsAggregationTaskConnections):
     pass
 

@@ -12,7 +12,7 @@ tasks:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
       connections.package: validate_drp
-      connections.metric: PA2_design
+      connections.metric: PA2_design_gri
       python: |
         from metric_pipeline_tasks import PA2Task
         config.measure.retarget(PA2Task)
@@ -22,12 +22,24 @@ tasks:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
       connections.package: validate_drp
-      connections.metric: PF1_design
+      connections.metric: PF1_design_gri
       python: |
         from metric_pipeline_tasks import PF1Task
         config.measure.retarget(PF1Task)
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
+  AM1_info:
+    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    config:
+      # Compute this in the info namespace as well so we can
+      # show an example of changing the summary aggregation
+      # method withough over writing the default one.
+      connections.package: info
+      connections.metric: AM1
+      python: |
+        from metric_pipeline_tasks import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 5.0
   AM1:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:

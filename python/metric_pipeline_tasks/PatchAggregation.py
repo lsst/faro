@@ -1,7 +1,8 @@
 from lsst.verify.tasks import MetricConfig
 import lsst.pipe.base as pipeBase
 
-from .CatalogsAggregationBase import CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask
+from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask,
+                                      CatalogAggregationBaseTaskConfig)
 
 class PatchAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
     
@@ -12,7 +13,7 @@ class PatchAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)
     
-class PatchAggregationTaskConfig(MetricConfig,
+class PatchAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
                                  pipelineConnections=PatchAggregationTaskConnections):
     pass
 
