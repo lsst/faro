@@ -2,6 +2,8 @@ import numpy as np
 
 from lsst.verify import Job, MetricSet
 from lsst.daf.butler import Butler
+
+
 class JobReporter:
     def __init__(self, repository, collection, metrics_package, spec):
         # Hard coding verify_metrics as the packager for now.
@@ -12,10 +14,12 @@ class JobReporter:
         self.registry = self.butler.registry
         self.spec = spec
         self.collection = collection
+
     def run(self):
         jobs = {}
         for metric in self.metrics:
-            data_ids = list(self.registry.queryDatasets(f'metricvalue_summary_{metric.package}_{metric.metric}',
+            data_ids = list(self.registry.queryDatasets((f'metricvalue_summary_{metric.package}'
+                                                         f'_{metric.metric}'),
                             collections=self.collection))
             for did in data_ids:
                 m = self.butler.get(did, collections=self.collection)
@@ -28,9 +32,9 @@ class JobReporter:
                 key = f"{tract}_{filt}"
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
-                         'filter_name': filt,
-                         'tract': tract}
-                         # Get this from repository? 'dataset_repo_url': dataset_repo_url})
+                                    'filter_name': filt,
+                                    'tract': tract}
+                    # Get dataset_repo_url from repository somehow?
                     jobs[key] = Job(meta=job_metadata, metrics=self.metrics)
                 jobs[key].measurements.insert(m)
         return jobs

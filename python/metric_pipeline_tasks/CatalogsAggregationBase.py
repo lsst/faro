@@ -1,25 +1,24 @@
-import astropy.units as u
-import numpy as np
-
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 import lsst.pipe.base as pipeBase
-from lsst.verify import Measurement
 import lsst.pex.config as pexConfig
 
 from .GeneralMeasureTasks import NumpyAggTask
 
+
 # Dimentions of the Connections class define the iterations of runQuantum
 class CatalogsAggregationBaseTaskConnections(MetricConnections,
-                                                defaultTemplates={'agg_name': None},
-                                                dimensions=("abstract_filter", "tract", "instrument", "skymap")):
+                                             defaultTemplates={'agg_name': None},
+                                             dimensions=("abstract_filter", "tract",
+                                                         "instrument", "skymap")):
     # Make this an LSST verify Measurement
     measurement = pipeBase.connectionTypes.Output(doc="{agg_name} {package}_{metric}.",
-                                              dimensions=("instrument", "tract", "abstract_filter"),
-                                              storageClass="MetricValue",
-                                              name="metricvalue_{agg_name}_{package}_{metric}")
+                                                  dimensions=("instrument", "tract", "abstract_filter"),
+                                                  storageClass="MetricValue",
+                                                  name="metricvalue_{agg_name}_{package}_{metric}")
+
 
 class CatalogAggregationBaseTaskConfig(MetricConfig,
-                               pipelineConnections=CatalogsAggregationBaseTaskConnections):
+                                       pipelineConnections=CatalogsAggregationBaseTaskConnections):
     agg = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.
         # The default task is, therefore, a bit of a place holder.

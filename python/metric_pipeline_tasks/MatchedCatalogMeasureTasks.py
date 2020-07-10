@@ -1,7 +1,6 @@
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
-from lsst.afw.table import GroupView
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
 from metric_pipeline_utils.filtermatches import filterMatches

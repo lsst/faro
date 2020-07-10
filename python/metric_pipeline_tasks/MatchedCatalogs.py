@@ -1,16 +1,18 @@
 import lsst.pipe.base as pipeBase
 
 from .MatchedCatalogsBase import (MatchedBaseTaskConnections,
-                                 MatchedBaseTaskConfig,
-                                 MatchedBaseTask)
+                                  MatchedBaseTaskConfig,
+                                  MatchedBaseTask)
+
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 class MatchedCatalogTaskConnections(MatchedBaseTaskConnections,
-                                    dimensions=("tract", "patch", "abstract_filter", "instrument", "skymap")):
+                                    dimensions=("tract", "patch", "abstract_filter",
+                                                "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                     dimensions=("tract", "patch",
-                                                                "instrument","abstract_filter"),
+                                                                "instrument", "abstract_filter"),
                                                     storageClass="SimpleCatalog",
                                                     name="matchedCatalog")
 
@@ -38,7 +40,7 @@ class MatchedCatalogMultiTaskConnections(MatchedBaseTaskConnections,
 
 
 class MatchedCatalogMultiTaskConfig(MatchedBaseTaskConfig,
-                     pipelineConnections=MatchedCatalogMultiTaskConnections):
+                                    pipelineConnections=MatchedCatalogMultiTaskConnections):
     pass
 
 

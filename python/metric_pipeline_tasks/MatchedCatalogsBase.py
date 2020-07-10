@@ -4,23 +4,25 @@ import lsst.geom as geom
 
 from metric_pipeline_utils.matcher import match_catalogs
 
+
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-
 # Should not be used alone, subclasses should define dimensions and output
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
                                  defaultTemplates={"coaddName": "deep"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
+                                                     dimensions=("instrument", "visit",
+                                                                 "detector", "abstract_filter"),
                                                      storageClass="SourceCatalog",
                                                      name="src",
                                                      multiple=True)
     photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                     dimensions=("instrument", "visit", "detector", "abstract_filter"),
-                                                     storageClass="PhotoCalib",
-                                                     name="calexp.photoCalib",
-                                                     multiple=True)
+                                                  dimensions=("instrument", "visit",
+                                                              "detector", "abstract_filter"),
+                                                  storageClass="PhotoCalib",
+                                                  name="calexp.photoCalib",
+                                                  multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
         name="{coaddName}Coadd_skyMap",
@@ -30,7 +32,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
 
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
-                               pipelineConnections=MatchedBaseTaskConnections):
+                            pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
 
 

@@ -1,8 +1,9 @@
 from lsst.afw.table import (SchemaMapper, Field,
-                            MultiMatch, SimpleRecord, GroupView,
+                            MultiMatch, SimpleRecord,
                             SourceCatalog)
 
 import numpy as np
+
 
 def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
     schema = inputs[0].schema
@@ -23,7 +24,7 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
     mapper.addOutputField(Field[float](f'{modelName}_magErr',
                                        'Model magnitude uncertainty'))
     mapper.addOutputField(Field[float](f'{modelName}_snr',
-                                           'Model flux snr'))
+                                       'Model flux snr'))
     mapper.addOutputField(Field[float]('e1',
                                        'Source Ellipticity 1'))
     mapper.addOutputField(Field[float]('e2',
@@ -65,8 +66,8 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
             / tmpCat['base_PsfFlux_instFluxErr']
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")
-        tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux'] /
-                                           tmpCat['slot_ModelFlux_instFluxErr'])
+        tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux']
+                                           / tmpCat['slot_ModelFlux_instFluxErr'])
         photoCalib.instFluxToMagnitude(tmpCat, "slot_ModelFlux", "slot_ModelFlux")
 
         _, psf_e1, psf_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_PsfShape')
@@ -90,7 +91,8 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
     # allMatches = GroupView.build(matchCat)
 
     return srcVis, matchCat
-# PYTHONPATH=$PYTHONPATH:$(pwd) pipetask run -j 5 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i shared/ci_hsc_output -o aptest2 --register-dataset-types -t WritingPipelineTasks.ApertureTask -d "detector in (22, 16, 23) AND visit in (90334, 903986, 903988)"
+
+
 def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
     """Calculate the ellipticity of the Shapes in a catalog from the 2nd moments.
     Parameters
@@ -111,6 +113,7 @@ def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
     """
     i_xx, i_xy, i_yy = cat.get(slot_shape+'_xx'), cat.get(slot_shape+'_xy'), cat.get(slot_shape+'_yy')
     return ellipticity(i_xx, i_xy, i_yy)
+
 
 def ellipticity(i_xx, i_xy, i_yy):
     """Calculate ellipticity from second moments.
