@@ -36,6 +36,42 @@ tasks:
       connections.package: validate_drp
       connections.metric: AM3
       connections.agg_name: summary
+  agg_mean_AD1_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD1_design
+      connections.agg_name: Mean
+  agg_mean_AF1_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF1_design
+      connections.agg_name: Mean
+  agg_mean_AD2_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD2_design
+      connections.agg_name: Mean
+  agg_mean_AF2_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF2_design
+      connections.agg_name: Mean
+  agg_mean_AD3_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD3_design
+      connections.agg_name: Mean
+  agg_mean_AF3_design:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF3_design
+      connections.agg_name: Mean
   agg_summary_PA1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
