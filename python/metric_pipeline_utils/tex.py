@@ -27,9 +27,9 @@ import treecorr
 
 from lsst.verify import Measurement, Datum, ThresholdSpecification
 
-from ..util import (averageRaFromCat, averageDecFromCat,
-                    medianEllipticity1ResidualsFromCat,
-                    medianEllipticity2ResidualsFromCat)
+from metric_pipeline_utils.util import (averageRaFromCat, averageDecFromCat,
+                                        medianEllipticity1ResidualsFromCat,
+                                        medianEllipticity2ResidualsFromCat)
 
 
 def measureTEx(metric, matchedDataset, D, bin_range_operator, verbose=False):
