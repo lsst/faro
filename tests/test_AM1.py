@@ -36,6 +36,7 @@ DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 class AmxTest(unittest.TestCase):
 
     def load_data(self, key):
+        '''Helper to load data to process and the expected value.'''
         cat_file, expected_file = self.file_map[key]
         catalog = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
         with open(os.path.join(DATADIR, expected_file), 'r') as fh:
@@ -44,12 +45,15 @@ class AmxTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        '''This gets called once so can be used to set up
+           state that is used by all test methods.'''
         super().setUpClass()
         cls.file_map = {('PA1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
                         ('PA1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):
+        '''Delete any variables set in setUpClass.'''
         del cls.file_map
         super().tearDownClass()
 
@@ -62,6 +66,10 @@ class AmxTest(unittest.TestCase):
             catalog, expected = self.load_data(('PA1', band))
             result = task.run(catalog, 'validate_drp.AM1')
             self.assertEqual(result.measurement.quantity, expected.quantity)
+
+    def test_am2(self):
+        '''A stub function to test AM2 when we have data to do that.'''
+        pass
 
 
 if __name__ == "__main__":
