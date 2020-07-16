@@ -1,6 +1,6 @@
 description: Compute aggregate metrics from a list of individual measurements
 tasks:
-  agg_mean_AB1_design:
+  agg_summary_AB1_design:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: validate_drp
