@@ -45,3 +45,20 @@ class NumpyAggTask(Task):
             # In some cases numpy can return a NaN and the unit gets dropped
             value = value.value*unit
         return Struct(measurement=Measurement(f"metricvalue_{agg_name.lower()}_{package}_{metric}", value))
+
+
+class HistModeTask(Task):
+
+    ConfigClass = Config
+    _DefaultName = "histModeTask"
+
+    def run(self, measurements, agg_name, package, metric):
+        self.log.info(f"Computing the {agg_name} of {package}_{metric} values")
+        values = measurements[0].extras['values'].quantity
+        bins = measurements[0].extras['bins'].quantity
+        for m in measurements[1:]:
+            values += m.extras['values'].quantity
+        idx = np.argmax(values)
+        value = (bins[idx] + bins[idx+1])/2.
+
+        return Struct(measurement=Measurement(f"metricvalue_{agg_name}_{package}_{metric}", value))

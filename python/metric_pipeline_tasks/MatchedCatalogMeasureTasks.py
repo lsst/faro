@@ -1,8 +1,8 @@
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config, Field
-from lsst.verify import Measurement, ThresholdSpecification
+from lsst.pex.config import Config, Field, ListField
+from lsst.verify import Measurement, ThresholdSpecification, Datum
 from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
                                                astromRms, astromResiduals)
@@ -202,6 +202,52 @@ class ADxTask(Task):
             absDiffsMarcsec = sepDistances.to(u.marcsec)
             return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
                           afPercentile.value)*u.marcsec))
+
+
+=======
+def isSorted(l):
+    return all(l[i] <= l[i+1] for i in range(len(l)-1))
+
+
+def bins(window, n):
+    delta = window/n
+    return [i*delta for i in range(n+1)]
+
+
+class AMxWithHistTaskConfig(AMxTaskConfig):
+    bins = ListField(doc="Bins for histogram.",
+                     dtype=float, minLength=2, maxLength=1500,
+                     listCheck=isSorted, default=bins(30, 200))
+
+
+
+class AMxWithHistTask(Task):
+    ConfigClass = AMxWithHistTaskConfig
+    _DefaultName = "AMxWithHistTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        filteredCat = filterMatches(matchedCatalog)
+
+        magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
+        D = self.config.annulus_r * u.arcmin
+        width = self.config.width * u.arcmin
+        annulus = D + (width/2)*np.array([-1, +1])
+
+        rmsDistances = calcRmsDistances(
+            filteredCat,
+            annulus,
+            magRange=magRange)
+
+        values, bins = np.histogram(rmsDistances.to(u.marcsec), bins=self.config.bins*u.marcsec)
+        extras = {'bins': Datum(bins, label='binvalues', description='bins'),
+                  'values': Datum(values*u.count, label='counts', description='icounts in bins')}
+
+        if len(rmsDistances) == 0:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec, extras=extras))
+
+        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec)), extras=extras))
 
 
 class AFxTask(Task):
