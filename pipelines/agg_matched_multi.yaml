@@ -5,4 +5,4 @@ tasks:
     config:
       connections.package: validate_drp
       connections.metric: AB1_design
-      connections.agg_name: Mean
+      connections.agg_name: summary

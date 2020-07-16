@@ -1,8 +1,7 @@
 import numpy as np
 import astropy.units as u
-# from lsst.validate.drp.repeatability import calcPhotRepeat
 from metric_pipeline_utils.filtermatches import filterMatches
-from metric_pipeline_utils.repeatability import calcPhotRepeat
+from lsst.validate.drp.repeatability import calcPhotRepeat
 
 
 def photRepeat(matchedCatalog, **filterargs):
