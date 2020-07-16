@@ -32,5 +32,15 @@ class NumpyAggTask(Task):
             agg = self.config.summary
         self.log.info(f"Computing the {agg} of {package}_{metric} values")
 
-        value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
+        if len(measurements) == 0:
+            self.log.info(f'Recieved zero length measurments list.  Returning NaN.')
+            # In the case of an empty list, there is nothing we can do other than
+            # to return a NaN
+            value = u.Quantity(np.nan)
+        else:
+            unit = measurements[0].quantity.unit
+            value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
+            # Make sure return has same unit as inputs
+            # In some cases numpy can return a NaN and the unit gets dropped
+            value = value.value*unit
         return Struct(measurement=Measurement(f"metricvalue_{agg_name.lower()}_{package}_{metric}", value))
