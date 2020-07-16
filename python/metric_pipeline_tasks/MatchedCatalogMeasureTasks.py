@@ -5,11 +5,11 @@ from lsst.afw.table import GroupView
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement, ThresholdSpecification
 from metric_pipeline_utils.filtermatches import filterMatches
-from metric_pipeline_utils.separations import calcRmsDistances, calcRmsDistancesVsRef
+from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
+                                               astromRms, astromResiduals)
 from metric_pipeline_utils.phot_repeat import photRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)
-
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
@@ -141,7 +141,7 @@ class TExTask(Task):
 
 
 class AMxTaskConfig(Config):
-    annulus_r = Field(doc="Radial distance of the annulus in arcmin",
+    annulus_r = Field(doc="Radial distance of the annulus in arcmin (5, 20, or 200 for AM1, AM2, AM3)",
                       dtype=float, default=5.)
     width = Field(doc="Width of annulus in arcmin",
                   dtype=float, default=2.)
@@ -149,6 +149,10 @@ class AMxTaskConfig(Config):
                            dtype=float, default=17.0)
     faint_mag_cut = Field(doc="Faint limit of catalog entries to include",
                           dtype=float, default=21.5)
+    # The defaults for threshADx and threshAFx correspond to the SRD "design" thresholds.
+    threshAD = Field(doc="Threshold in mas for AFx calculation.", dtype=float, default=20.0)
+    threshAF = Field(doc="Percentile of differences that can vary by more than threshAD.",
+                     dtype=float, default=10.0)
 
 
 class AMxTask(Task):
@@ -174,6 +178,55 @@ class AMxTask(Task):
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
 
         return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec))))
+
+
+class ADxTask(Task):
+    ConfigClass = AMxTaskConfig
+    _DefaultName = "ADxTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
+                                       self.config.faint_mag_cut, self.config.annulus_r,
+                                       self.config.width)
+
+        afThresh = self.config.threshAF * u.percent
+        afPercentile = 100.0*u.percent - afThresh
+
+        if len(sepDistances) <= 1:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+        else:
+            # absolute value of the difference between each astrometric rms
+            #    and the median astrometric RMS
+            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
+            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
+                          afPercentile.value)*u.marcsec))
+
+
+class AFxTask(Task):
+    ConfigClass = AMxTaskConfig
+    _DefaultName = "AFxTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
+                                       self.config.faint_mag_cut, self.config.annulus_r,
+                                       self.config.width)
+
+        adxThresh = self.config.threshAD * u.marcsec
+
+        if len(sepDistances) <= 1:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.percent))
+        else:
+            # absolute value of the difference between each astrometric rms
+            #    and the median astrometric RMS
+            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
+            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            percentileAtADx = 100 * np.mean(np.abs(absDiffsMarcsec.value) > adxThresh.value) * u.percent
+            return Struct(measurement=Measurement(metric_name, percentileAtADx))
 
 
 class AB1TaskConfig(Config):
