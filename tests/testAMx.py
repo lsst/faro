@@ -48,8 +48,10 @@ class AmxTest(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('PA1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
-                        ('PA1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml')}
+        cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
+                        ('AM1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml'),
+                        ('AM1_hist', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_r.yaml'),
+                        ('AM1_hist', 'i'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_i.yaml')}
 
     @classmethod
     def tearDownClass(cls):
@@ -63,9 +65,21 @@ class AmxTest(unittest.TestCase):
         config.annulus_r = 5.0  # This is what makes it AM1
         task = AMxTask(config=config)
         for band in ('i', 'r'):
-            catalog, expected = self.load_data(('PA1', band))
+            catalog, expected = self.load_data(('AM1', band))
             result = task.run(catalog, 'validate_drp.AM1')
             self.assertEqual(result.measurement.quantity, expected.quantity)
+
+    def test_am1_hist(self):
+        """Test calculation of am1 on a known catalog."""
+        config = AMxTask.ConfigClass()
+        config.annulus_r = 5.0  # This is what makes it AM1
+        task = AMxTask(config=config)
+        for band in ('i', 'r'):
+            catalog, expected = self.load_data(('AM1_hist', band))
+            result = task.run(catalog, 'info.AM1_hist')
+            self.assertEqual(result.measurement.quantity, expected.quantity)
+            self.assertEqual(result.measurement.extras['values'].quantity, expected.extras['values'].quantity)
+            self.assertEqual(result.measurement.extras['bins'].quantity, expected.extras['bins'].quantity)
 
     def test_am2(self):
         '''A stub function to test AM2 when we have data to do that.'''
