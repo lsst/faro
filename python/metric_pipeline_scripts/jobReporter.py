@@ -1,5 +1,3 @@
-import numpy as np
-
 from lsst.verify import Job, MetricSet
 from lsst.daf.butler import Butler
 
