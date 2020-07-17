@@ -5,7 +5,7 @@ from .GeneralMeasureTasks import NumSourcesTask
 
 
 class CatalogAnalysisBaseTaskConfig(MetricConfig,
-                               pipelineConnections=MetricConnections):
+                                    pipelineConnections=MetricConnections):
     measure = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.
         # The default task is, therefore, a bit of a place holder.
@@ -19,6 +19,7 @@ class CatalogAnalysisBaseTask(MetricTask):
 
     ConfigClass = CatalogAnalysisBaseTaskConfig
     _DefaultName = "catalogAnalysisBaseTask"
+
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.makeSubtask('measure')

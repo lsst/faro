@@ -5,6 +5,7 @@ import json
 
 from metric_pipeline_scripts import JobReporter
 
+
 def main(repository, collection, metrics_package, spec):
     jr = JobReporter(repository, collection, metrics_package, spec)
     jobs = jr.run()
@@ -12,6 +13,7 @@ def main(repository, collection, metrics_package, spec):
         filename = f"{metrics_package}_{spec}_{k}_{time.time()}.json"
         with open(filename, 'w') as fh:
             json.dump(v.json, fh, indent=2, sort_keys=True)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=('Produce a Job object which can either be used '

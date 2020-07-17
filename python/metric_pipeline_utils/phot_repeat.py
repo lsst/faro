@@ -5,7 +5,7 @@ from lsst.validate.drp.repeatability import calcPhotRepeat
 
 
 def photRepeat(matchedCatalog, **filterargs):
-    filteredCat = filterMatches(matchedCatalog, **filterargs) #, extended=False, isPrimary=False)
+    filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:

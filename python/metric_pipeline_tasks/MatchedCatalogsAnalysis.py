@@ -8,8 +8,8 @@ from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysis
 
 
 class MatchedCatalogAnalysisTaskConnections(MetricConnections,
-                                    dimensions=("tract", "patch", "abstract_filter",
-                                                "instrument", "skymap")):
+                                            dimensions=("tract", "patch", "abstract_filter",
+                                                        "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument",
                                                      "abstract_filter"),
@@ -17,13 +17,13 @@ class MatchedCatalogAnalysisTaskConnections(MetricConnections,
                                          name="matchedCatalog")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
-                                                              "instrument","abstract_filter"),
+                                                              "instrument", "abstract_filter"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
 
 
 class MatchedCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                               pipelineConnections=MatchedCatalogAnalysisTaskConnections):
+                                       pipelineConnections=MatchedCatalogAnalysisTaskConnections):
     pass
 
 
@@ -34,20 +34,20 @@ class MatchedCatalogAnalysisTask(CatalogAnalysisBaseTask):
 
 class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
                                                  dimensions=("tract", "patch", "abstract_filter",
-                                                 "instrument", "skymap")):
+                                                             "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument"),
                                          storageClass="SimpleCatalog",
                                          name="matchedCatalogMulti")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
-                                                              "instrument","abstract_filter"),
+                                                              "instrument", "abstract_filter"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
 
 
 class MatchedMultiCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                               pipelineConnections=MatchedMultiCatalogAnalysisTaskConnections):
+                                            pipelineConnections=MatchedMultiCatalogAnalysisTaskConnections):
     pass
 
 

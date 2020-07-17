@@ -19,7 +19,8 @@ class NumSourcesTask(Task):
 
 class NumpyAggTaskConfig(Config):
     summary = Field(dtype=str, default="median",
-                              doc="Aggregation to use for summary metrics")
+                    doc="Aggregation to use for summary metrics")
+
 
 class NumpyAggTask(Task):
 
