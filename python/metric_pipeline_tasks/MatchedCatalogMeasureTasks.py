@@ -5,7 +5,7 @@ from lsst.pex.config import Config, Field, ListField
 from lsst.verify import Measurement, ThresholdSpecification, Datum
 from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
-                                               astromRms, astromResiduals)
+                                               astromResiduals)
 from metric_pipeline_utils.phot_repeat import photRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)
@@ -204,7 +204,6 @@ class ADxTask(Task):
                           afPercentile.value)*u.marcsec))
 
 
-=======
 def isSorted(l):
     return all(l[i] <= l[i+1] for i in range(len(l)-1))
 
@@ -218,7 +217,6 @@ class AMxWithHistTaskConfig(AMxTaskConfig):
     bins = ListField(doc="Bins for histogram.",
                      dtype=float, minLength=2, maxLength=1500,
                      listCheck=isSorted, default=bins(30, 200))
-
 
 
 class AMxWithHistTask(Task):
@@ -247,7 +245,8 @@ class AMxWithHistTask(Task):
         if len(rmsDistances) == 0:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec, extras=extras))
 
-        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec)), extras=extras))
+        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec)),
+                                              extras=extras))
 
 
 class AFxTask(Task):

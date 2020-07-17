@@ -40,7 +40,8 @@ class NumpyAggTask(Task):
             value = u.Quantity(np.nan)
         else:
             unit = measurements[0].quantity.unit
-            value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements if np.isfinite(x.quantity)]))
+            value = getattr(np, agg)(u.Quantity([x.quantity for x in measurements
+                                                 if np.isfinite(x.quantity)]))
             # Make sure return has same unit as inputs
             # In some cases numpy can return a NaN and the unit gets dropped
             value = value.value*unit
