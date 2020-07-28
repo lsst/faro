@@ -26,7 +26,7 @@ import unittest
 import numpy as np
 import astropy.units as u
 
-from metric_pipeline_tasks import HistModeTask
+from metric_pipeline_tasks import HistMedianTask
 from lsst.pex.config import Config
 
 
@@ -40,18 +40,18 @@ class MockExtra:
         self.quantity = quantity
 
 
-class HistModeTest(unittest.TestCase):
+class HistMedianTest(unittest.TestCase):
 
     def test_hist_mode(self):
         """Test the aggregator that takes the mode of a histogram."""
-        task = HistModeTask(config=Config())
-        values = np.array([0, 1, 2, 3, 4, 3, 2, 1, 0])*u.count
-        bins = np.array([0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3.0])*u.m
-        expected = 1.65*u.m
+        task = HistMedianTask(config=Config())
+        values = np.array([0, 2, 4, 6, 8, 10, 14, 12, 16, 12, 8, 4, 0])*u.count
+        bins = np.array([(i+1)*0.3 for i in range(len(values)+1)])*u.m
+        expected = 2.5*u.m
         mock_meas_arr = []
         for i in range(37):
             extras = {}
-            extras['values'] = MockExtra(values*29*np.random.random())
+            extras['values'] = MockExtra(values*np.random.randint(1, 29))
             extras['bins'] = MockExtra(bins)
             mock_meas_arr.append(MockMeas(extras))
         result = task.run(mock_meas_arr, 'test', 'info', 'mock')

@@ -18,15 +18,15 @@ tasks:
       connections.agg_name: summary
       python: |
         config.agg.summary = 'mean'
-  agg_mean_AM1_hist:
+  agg_median_AM1_hist:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
       connections.package: info
       connections.metric: AM1_hist
-      connections.agg_name: hist_mode
+      connections.agg_name: hist_median
       python: |
-        from metric_pipeline_tasks import HistModeTask
-        config.agg.retarget(HistModeTask)
+        from metric_pipeline_tasks import HistMedianTask
+        config.agg.retarget(HistMedianTask)
   agg_summary_AM1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
