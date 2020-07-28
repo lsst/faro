@@ -139,6 +139,15 @@ class TExTask(Task):
         return Struct(measurement=Measurement(metric_name, np.abs(corr)*u.Unit('')))
 
 
+def isSorted(l):
+    return all(l[i] <= l[i+1] for i in range(len(l)-1))
+
+
+def bins(window, n):
+    delta = window/n
+    return [i*delta for i in range(n+1)]
+
+
 class AMxTaskConfig(Config):
     annulus_r = Field(doc="Radial distance of the annulus in arcmin (5, 20, or 200 for AM1, AM2, AM3)",
                       dtype=float, default=5.)
@@ -152,76 +161,14 @@ class AMxTaskConfig(Config):
     threshAD = Field(doc="Threshold in mas for AFx calculation.", dtype=float, default=20.0)
     threshAF = Field(doc="Percentile of differences that can vary by more than threshAD.",
                      dtype=float, default=10.0)
-
-
-class AMxTask(Task):
-    ConfigClass = AMxTaskConfig
-    _DefaultName = "AMxTask"
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
-
-        filteredCat = filterMatches(matchedCatalog)
-
-        magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
-        D = self.config.annulus_r * u.arcmin
-        width = self.config.width * u.arcmin
-        annulus = D + (width/2)*np.array([-1, +1])
-
-        rmsDistances = calcRmsDistances(
-            filteredCat,
-            annulus,
-            magRange=magRange)
-
-        if len(rmsDistances) == 0:
-            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
-
-        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec))))
-
-
-class ADxTask(Task):
-    ConfigClass = AMxTaskConfig
-    _DefaultName = "ADxTask"
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
-
-        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
-                                       self.config.faint_mag_cut, self.config.annulus_r,
-                                       self.config.width)
-
-        afThresh = self.config.threshAF * u.percent
-        afPercentile = 100.0*u.percent - afThresh
-
-        if len(sepDistances) <= 1:
-            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
-        else:
-            # absolute value of the difference between each astrometric rms
-            #    and the median astrometric RMS
-            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
-            absDiffsMarcsec = sepDistances.to(u.marcsec)
-            return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
-                          afPercentile.value)*u.marcsec))
-
-
-def isSorted(l):
-    return all(l[i] <= l[i+1] for i in range(len(l)-1))
-
-
-def bins(window, n):
-    delta = window/n
-    return [i*delta for i in range(n+1)]
-
-
-class AMxWithHistTaskConfig(AMxTaskConfig):
     bins = ListField(doc="Bins for histogram.",
                      dtype=float, minLength=2, maxLength=1500,
                      listCheck=isSorted, default=bins(30, 200))
 
 
-class AMxWithHistTask(Task):
-    ConfigClass = AMxWithHistTaskConfig
-    _DefaultName = "AMxWithHistTask"
+class AMxTask(Task):
+    ConfigClass = AMxTaskConfig
+    _DefaultName = "AMxTask"
 
     def run(self, matchedCatalog, metric_name):
         self.log.info(f"Measuring {metric_name}")
@@ -247,6 +194,31 @@ class AMxWithHistTask(Task):
 
         return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec)),
                                               extras=extras))
+
+
+class ADxTask(Task):
+    ConfigClass = AMxTaskConfig
+    _DefaultName = "ADxTask"
+
+    def run(self, matchedCatalog, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
+                                       self.config.faint_mag_cut, self.config.annulus_r,
+                                       self.config.width)
+
+        afThresh = self.config.threshAF * u.percent
+        afPercentile = 100.0*u.percent - afThresh
+
+        if len(sepDistances) <= 1:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+        else:
+            # absolute value of the difference between each astrometric rms
+            #    and the median astrometric RMS
+            # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
+            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
+                          afPercentile.value)*u.marcsec))
 
 
 class AFxTask(Task):

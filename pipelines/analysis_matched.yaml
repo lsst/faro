@@ -40,15 +40,6 @@ tasks:
         from metric_pipeline_tasks import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
-  AM1_hist:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
-    config:
-      connections.package: info
-      connections.metric: AM1_hist
-      python: |
-        from metric_pipeline_tasks import AMxWithHistTask
-        config.measure.retarget(AMxWithHistTask)
-        config.measure.annulus_r = 5.0
   AM1:
     class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
     config:
