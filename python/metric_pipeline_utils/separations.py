@@ -7,7 +7,7 @@ from lsst.validate.drp.util import (averageRaFromCat, averageDecFromCat,
 
 
 def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
-    filteredCat = filterMatches(matchedCatalog, **filterargs) #, extended=False, isPrimary=False)
+    filteredCat = filterMatches(matchedCatalog, **filterargs)
 
     magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
     D = annulus_r * u.arcmin
@@ -27,7 +27,7 @@ def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, *
 
 
 def astromResiduals(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
-    filteredCat = filterMatches(matchedCatalog, **filterargs) #, extended=False, isPrimary=False)
+    filteredCat = filterMatches(matchedCatalog, **filterargs)
 
     magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
     D = annulus_r * u.arcmin
@@ -182,8 +182,8 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     sepResiduals = list()
     for obj1, (ra1, dec1, visit1) in enumerate(zip(meanRa, meanDec, visit)):
         dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
-        objectsInAnnulus, = np.where((annulusRadians[0] <= dist) &
-                                     (dist < annulusRadians[1]))
+        objectsInAnnulus, = np.where((annulusRadians[0] <= dist)
+                                     & (dist < annulusRadians[1]))
         for obj2 in objectsInAnnulus:
             distances = matchVisitComputeDistance(
                 visit[obj1], ra[obj1], dec[obj1],

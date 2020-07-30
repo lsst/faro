@@ -1,11 +1,11 @@
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config, Field
-from lsst.verify import Measurement, ThresholdSpecification
+from lsst.pex.config import Config, Field, ListField
+from lsst.verify import Measurement, ThresholdSpecification, Datum
 from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
-                                               astromRms, astromResiduals)
+                                               astromResiduals)
 from metric_pipeline_utils.phot_repeat import photRepeat
 from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
                                            select_bin_from_corr)
@@ -139,6 +139,15 @@ class TExTask(Task):
         return Struct(measurement=Measurement(metric_name, np.abs(corr)*u.Unit('')))
 
 
+def isSorted(l):
+    return all(l[i] <= l[i+1] for i in range(len(l)-1))
+
+
+def bins(window, n):
+    delta = window/n
+    return [i*delta for i in range(n+1)]
+
+
 class AMxTaskConfig(Config):
     annulus_r = Field(doc="Radial distance of the annulus in arcmin (5, 20, or 200 for AM1, AM2, AM3)",
                       dtype=float, default=5.)
@@ -152,6 +161,9 @@ class AMxTaskConfig(Config):
     threshAD = Field(doc="Threshold in mas for AFx calculation.", dtype=float, default=20.0)
     threshAF = Field(doc="Percentile of differences that can vary by more than threshAD.",
                      dtype=float, default=10.0)
+    bins = ListField(doc="Bins for histogram.",
+                     dtype=float, minLength=2, maxLength=1500,
+                     listCheck=isSorted, default=bins(30, 200))
 
 
 class AMxTask(Task):
@@ -173,10 +185,15 @@ class AMxTask(Task):
             annulus,
             magRange=magRange)
 
-        if len(rmsDistances) == 0:
-            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+        values, bins = np.histogram(rmsDistances.to(u.marcsec), bins=self.config.bins*u.marcsec)
+        extras = {'bins': Datum(bins, label='binvalues', description='bins'),
+                  'values': Datum(values*u.count, label='counts', description='icounts in bins')}
 
-        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec))))
+        if len(rmsDistances) == 0:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec, extras=extras))
+
+        return Struct(measurement=Measurement(metric_name, np.median(rmsDistances.to(u.marcsec)),
+                                              extras=extras))
 
 
 class ADxTask(Task):

@@ -18,6 +18,15 @@ tasks:
       connections.agg_name: summary
       python: |
         config.agg.summary = 'mean'
+  agg_median_AM1_hist:
+    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM1
+      connections.agg_name: hist_median
+      python: |
+        from metric_pipeline_tasks import HistMedianTask
+        config.agg.retarget(HistMedianTask)
   agg_summary_AM1:
     class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
     config:
