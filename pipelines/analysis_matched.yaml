@@ -41,7 +41,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM1:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AM1
@@ -50,7 +50,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM2:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AM2
@@ -59,7 +59,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 20.0
   AM3:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AM3
@@ -68,7 +68,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 200.0
   AD1_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AD1_design
@@ -79,7 +79,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD2_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AD2_design
@@ -90,7 +90,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD3_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AD3_design
@@ -101,7 +101,7 @@ tasks:
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   AF1_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AF1_design
@@ -112,7 +112,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF2_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AF2_design
@@ -123,7 +123,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF3_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: AF3_design

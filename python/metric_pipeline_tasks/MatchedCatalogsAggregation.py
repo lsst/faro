@@ -22,7 +22,7 @@ from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, Ca
                                       CatalogAggregationBaseTaskConfig)
 
 
-# Dimentions of the Connections class define the iterations of runQuantum
+# Dimensions of the Connections class define the iterations of runQuantum
 class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch",
@@ -41,3 +41,23 @@ class MatchedCatalogsAggregationTask(CatalogsAggregationBaseTask):
 
     ConfigClass = MatchedCatalogsAggregationTaskConfig
     _DefaultName = "matchedCatalogsAggregationTask"
+
+
+class MatchedCatalogsTractAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
+    measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
+                                                  dimensions=("tract", 
+                                                              "instrument", "abstract_filter"),
+                                                  storageClass="MetricValue",
+                                                  name="metricvalue_{package}_{metric}",
+                                                  multiple=True)
+
+
+class MatchedCatalogsTractAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
+                                                pipelineConnections=MatchedCatalogsTractAggregationTaskConnections):
+    pass
+
+
+class MatchedCatalogsTractAggregationTask(CatalogsAggregationBaseTask):
+
+    ConfigClass = MatchedCatalogsTractAggregationTaskConfig
+    _DefaultName = "matchedCatalogsTractAggregationTask"
