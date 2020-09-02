@@ -111,8 +111,6 @@ class MatchedTractBaseTask(pipeBase.PipelineTask):
         tract_info = skymap.generateTract(oid['tract'])
         wcs = tract_info.getWcs()
         tract_box = tract_info.getBBox()
-        # patch_info = tract_info.getPatchInfo(oid['patch'])
-        # patch_box = patch_info.getInnerBBox()
         self.log.info(f"Running tract: {oid['tract']}")
         # Cast to float to handle fractional pixels
         tract_box = geom.Box2D(tract_box)
