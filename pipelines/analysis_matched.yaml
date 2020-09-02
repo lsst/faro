@@ -29,7 +29,7 @@ tasks:
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   AM1_info:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       # Compute this in the info namespace as well so we can
       # show an example of changing the summary aggregation
