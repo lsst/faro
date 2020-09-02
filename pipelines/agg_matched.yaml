@@ -6,18 +6,18 @@ tasks:
       connections.package: validate_drp
       connections.metric: PA1
       connections.agg_name: Mean
-#  agg_mean_AM1t:
-#    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
-#    config:
-#      # The special agg_name summary defaults to median.
-#      # It can be changed via the config.
-#      # This is an example of how to change it.
-#      # It must be a valid atribute of the numpy package.
-#      connections.package: info
-#      connections.metric: AM1
-#      connections.agg_name: summary
-#      python: |
-#        config.agg.summary = 'mean'
+  agg_mean_AM1:
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
+    config:
+      # The special agg_name summary defaults to median.
+      # It can be changed via the config.
+      # This is an example of how to change it.
+      # It must be a valid atribute of the numpy package.
+      connections.package: info
+      connections.metric: AM1
+      connections.agg_name: summary
+      python: |
+        config.agg.summary = 'mean'
   agg_median_AM1_hist:
     class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
@@ -100,13 +100,13 @@ tasks:
       connections.metric: PF1_design_gri
       connections.agg_name: summary
   agg_summary_TE1:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
       connections.agg_name: summary
   agg_summary_TE2:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE2

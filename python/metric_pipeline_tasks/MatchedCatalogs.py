@@ -32,8 +32,7 @@ class MatchedCatalogTractTaskConnections(MatchedBaseTaskConnections,
                                          dimensions=("tract", "abstract_filter",
                                                      "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
-                                                    dimensions=("tract",
-                                                                "instrument", "abstract_filter"),
+                                                    dimensions=("tract", "instrument", "abstract_filter"),
                                                     storageClass="SimpleCatalog",
                                                     name="matchedCatalogTract")
 

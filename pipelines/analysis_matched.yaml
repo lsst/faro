@@ -134,7 +134,7 @@ tasks:
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   TE1:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
@@ -144,7 +144,7 @@ tasks:
         config.measure.annulus_r = 1.0
         config.measure.comparison_operator = "<="
   TE2:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: TE2
