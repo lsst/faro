@@ -43,17 +43,16 @@ class MatchedCatalogsAggregationTask(CatalogsAggregationBaseTask):
     _DefaultName = "matchedCatalogsAggregationTask"
 
 
-class MatchedCatalogsTractAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
+class MchCatTractAggTaskConnections(CatalogsAggregationBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
-                                                  dimensions=("tract", 
-                                                              "instrument", "abstract_filter"),
+                                                  dimensions=("tract", "instrument", "abstract_filter"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)
 
 
 class MatchedCatalogsTractAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
-                                                pipelineConnections=MatchedCatalogsTractAggregationTaskConnections):
+                                                pipelineConnections=MchCatTractAggTaskConnections):
     pass
 
 
