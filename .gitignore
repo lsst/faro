@@ -3,8 +3,8 @@
 .scon*
 _build.*
 config.log
-/bin/
 tests/tmp*
+bin/make_job_document.py
 ups/*.cfgc
 .coverage
 .pytest_cache
