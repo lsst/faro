@@ -3,8 +3,6 @@ echo lsst.obs.hsc.HscMapper > temp_gen2repo/_mapper
 ingestImages.py temp_gen2repo/ $VALIDATION_DATA_HSC_DIR/raw/*
 ln -s $VALIDATION_DATA_HSC_DIR/ref_cats temp_gen2repo/
  
-butler create validation_hsc_gen3/
-butler register-instrument validation_hsc_gen3/ lsst.obs.subaru.HyperSuprimeCam
 butler convert --gen2root temp_gen2repo/ --calibs $VALIDATION_DATA_HSC_DIR/CALIB/ validation_hsc_gen3
 makeGen3Skymap.py validation_hsc_gen3/ -C $METRIC_PIPELINE_TASKS_DIR/config/hsc_sky_map.py skymaps
  
