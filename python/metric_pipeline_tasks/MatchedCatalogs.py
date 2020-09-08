@@ -2,7 +2,7 @@ import lsst.pipe.base as pipeBase
 
 from .MatchedCatalogsBase import (MatchedBaseTaskConnections,
                                   MatchedBaseTaskConfig,
-                                  MatchedBaseTask)
+                                  MatchedBaseTask, MatchedTractBaseTask)
 
 
 # The first thing to do is to define a Connections class. This will define all
@@ -27,7 +27,25 @@ class MatchedCatalogTask(MatchedBaseTask):
     ConfigClass = MatchedCatalogTaskConfig
     _DefaultName = "matchedCatalogTask"
 
-# -------------------------------------------------------------------
+
+class MatchedCatalogTractTaskConnections(MatchedBaseTaskConnections,
+                                         dimensions=("tract", "abstract_filter",
+                                                     "instrument", "skymap")):
+    outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
+                                                    dimensions=("tract", "instrument", "abstract_filter"),
+                                                    storageClass="SimpleCatalog",
+                                                    name="matchedCatalogTract")
+
+
+class MatchedCatalogTractTaskConfig(MatchedBaseTaskConfig,
+                                    pipelineConnections=MatchedCatalogTractTaskConnections):
+    pass
+
+
+class MatchedCatalogTractTask(MatchedTractBaseTask):
+
+    ConfigClass = MatchedCatalogTractTaskConfig
+    _DefaultName = "matchedCatalogTractTask"
 
 
 class MatchedCatalogMultiTaskConnections(MatchedBaseTaskConnections,

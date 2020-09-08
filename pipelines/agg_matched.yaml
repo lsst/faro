@@ -7,7 +7,7 @@ tasks:
       connections.metric: PA1
       connections.agg_name: Mean
   agg_mean_AM1:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       # The special agg_name summary defaults to median.
       # It can be changed via the config.
@@ -19,7 +19,7 @@ tasks:
       python: |
         config.agg.summary = 'mean'
   agg_median_AM1_hist:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM1
@@ -28,55 +28,55 @@ tasks:
         from metric_pipeline_tasks import HistMedianTask
         config.agg.retarget(HistMedianTask)
   agg_summary_AM1:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM1
       connections.agg_name: summary
   agg_summary_AM2:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM2
       connections.agg_name: summary
   agg_summary_AM3:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AM3
       connections.agg_name: summary
   agg_summary_AD1_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AD1_design
       connections.agg_name: summary
   agg_summary_AF1_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AF1_design
       connections.agg_name: summary
   agg_summary_AD2_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AD2_design
       connections.agg_name: summary
   agg_summary_AF2_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AF2_design
       connections.agg_name: summary
   agg_summary_AD3_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AD3_design
       connections.agg_name: summary
   agg_summary_AF3_design:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: AF3_design
@@ -100,13 +100,13 @@ tasks:
       connections.metric: PF1_design_gri
       connections.agg_name: summary
   agg_summary_TE1:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
       connections.agg_name: summary
   agg_summary_TE2:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.MatchedCatalogsTractAggregationTask
     config:
       connections.package: validate_drp
       connections.metric: TE2

@@ -32,6 +32,31 @@ class MatchedCatalogAnalysisTask(CatalogAnalysisBaseTask):
     _DefaultName = "matchedCatalogAnalysisTask"
 
 
+class MatchedCatalogTractAnalysisTaskConnections(MatchedCatalogAnalysisTaskConnections,
+                                                 dimensions=("tract", "instrument",
+                                                             "abstract_filter", "skymap")):
+    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
+                                         dimensions=("tract", "instrument",
+                                                     "abstract_filter"),
+                                         storageClass="SimpleCatalog",
+                                         name="matchedCatalogTract")
+    measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
+                                                  dimensions=("tract",
+                                                              "instrument", "abstract_filter"),
+                                                  storageClass="MetricValue",
+                                                  name="metricvalue_{package}_{metric}")
+
+
+class MatchedCatalogTractAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
+                                            pipelineConnections=MatchedCatalogTractAnalysisTaskConnections):
+    pass
+
+
+class MatchedCatalogTractAnalysisTask(CatalogAnalysisBaseTask):
+    ConfigClass = MatchedCatalogTractAnalysisTaskConfig
+    _DefaultName = "matchedCatalogTractAnalysisTask"
+
+
 class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
                                                  dimensions=("tract", "patch", "abstract_filter",
                                                              "instrument", "skymap")):
