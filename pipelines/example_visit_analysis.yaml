@@ -1,7 +1,7 @@
 description: Compute metrics from single-visit catalogs
 tasks:
   starFracVisit:
-    class: metric_pipeline_tasks.VisitAnalysisTask
+    class: metric_pipeline_tasks.VisitAnalysisTaskWithFilt
     config:
       connections.package: info
       connections.metric: starFracVisit
