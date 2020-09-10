@@ -32,7 +32,6 @@ class PatchAnalysisTask(CatalogAnalysisBaseTask):
     _DefaultName = "patchAnalysisTask"
 
     def run(self, cat, vIds):
-
         return self.measure.run(cat, self.config.connections.metric, vIds)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
