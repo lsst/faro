@@ -8,13 +8,14 @@ class StarFracTask(Task):
     ConfigClass = Config
     _DefaultName = "starFracTask"
 
-    def run(self, catalog, metric_name, filtername):
+    def run(self, catalog, metric_name, vIds):
         self.log.info(f"Measuring {metric_name}")
         if not catalog.isContiguous():
             catalog = catalog.copy(deep=True)
         #import pdb
         #pdb.set_trace()
-        print(filtername)
+        for id in vIds:
+            print(id)#['abstract_filter'])
         extended = catalog.get('base_ClassificationExtendedness_value')
         good_extended = extended[~catalog.get('base_ClassificationExtendedness_flag')]
         n_gals = sum(good_extended)

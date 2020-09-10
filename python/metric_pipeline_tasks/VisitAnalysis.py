@@ -59,9 +59,9 @@ class VisitAnalysisTaskWithFilt(CatalogAnalysisBaseTask):
         for cat in source_catalogs:
             source_catalog.extend(cat)
 
-        filtername = vIds[0]['abstract_filter']
+        # filtername = vIds[0]['abstract_filter']
 
-        return self.measure.run(source_catalog, self.config.connections.metric, filtername)
+        return self.measure.run(source_catalog, self.config.connections.metric, vIds)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         """Do Butler I/O to provide in-memory objects for run.
