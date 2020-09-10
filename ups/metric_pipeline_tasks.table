@@ -1,4 +1,5 @@
 setupRequired(lsst_distrib)
+setupRequired(verify)
 setupOptional(ci_hsc_gen3)
 setupOptional(verify_metrics)
 
