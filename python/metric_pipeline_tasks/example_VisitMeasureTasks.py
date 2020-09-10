@@ -10,7 +10,6 @@ class StarFracTask(Task):
 
     def run(self, catalog, metric_name, vIds):
         self.log.info(f"Measuring {metric_name}")
-        print('DataIds: ',vIds)
         if not catalog.isContiguous():
             catalog = catalog.copy(deep=True)
         extended = catalog.get('base_ClassificationExtendedness_value')
