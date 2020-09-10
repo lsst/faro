@@ -26,3 +26,15 @@ class CatalogAnalysisBaseTask(MetricTask):
 
     def run(self, cat):
         return self.measure.run(cat, self.config.connections.metric)
+
+#    def runQuantum(self, butlerQC, inputRefs, outputRefs):
+#        inputs = butlerQC.get(inputRefs)
+#        # import pdb
+#        # pdb.set_trace()
+#        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.cat.dataId]
+#        outputs = self.run(**inputs)
+#        if outputs.measurement is not None:
+#            butlerQC.put(outputs, outputRefs)
+#        else:
+#            self.log.debugf("Skipping measurement of {!r} on {} "
+#                            "as not applicable.", self, inputRefs)
