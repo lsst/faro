@@ -298,3 +298,54 @@ class AB1Task(Task):
 
         else:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+
+
+class WPerpTaskConfig(Config):
+    bright_mag_cut = Field(doc="Bright limit of catalog entries to include",
+                           dtype=float, default=17.0)
+    faint_mag_cut = Field(doc="Faint limit of catalog entries to include",
+                          dtype=float, default=23.0)
+
+
+class WPerpTask(Task):
+    ConfigClass = WPerpTaskConfig
+    _DefaultName = "WPerpTask"
+
+    def run(self, matchedCatalogTractMulti, metric_name):
+        self.log.info(f"Measuring {metric_name}")
+
+        filteredCat = filterMatches(matchedCatalogTractMulti)
+        stellar_locus_residuals_all = []
+
+        if len(filteredCat) > 0:
+
+            filtnums = [filter_dict['g'], filter_dict['r'], filter_dict['i']]
+
+            for id in filteredCat.ids:
+                grptmp = filteredCat[id]
+                gfiltmch = (grptmp['filt'] == filtnums[0])
+                rfiltmch = (grptmp['filt'] == filtnums[1])
+                ifiltmch = (grptmp['filt'] == filtnums[2])
+                if (len(gfiltmch) > 0) and (len(rfiltmch) > 0) and (len(ifiltmch) > 0):
+                    refVisits.update(set(grptmp[filtmch]['visit']))
+
+            refVisits = list(refVisits)
+
+            magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
+
+            for rv in refVisits:
+                rmsDistances, distancesVisit = calcRmsDistancesVsRef(
+                    filteredCat,
+                    rv,
+                    magRange=magRange)
+                if len(rmsDistances) > 0:
+                    rmsDistancesAll.append(rmsDistances)
+
+            rmsDistancesAll = np.array(rmsDistancesAll)
+
+            if len(rmsDistancesAll) == 0:
+                return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+            return Struct(measurement=Measurement(metric_name, np.nanmean(rmsDistancesAll)*u.marcsec))
+
+        else:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
