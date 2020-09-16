@@ -1,11 +1,12 @@
 from lsst.afw.table import (SchemaMapper, Field,
                             MultiMatch, SimpleRecord,
-                            SourceCatalog)
+                            SourceCatalog, updateSourceCoords)
 
 import numpy as np
 
 
-def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
+def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
+                   apply_external_wcs=False, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -50,7 +51,7 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
     filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                    'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
 
-    for oldSrc, photoCalib, vId in zip(inputs, photoCalibs, vIds):
+    for oldSrc, photoCalib, wcs, vId in zip(inputs, photoCalibs, astromCalibs, vIds):
 
         if logger:
             logger.debug(f"{len(oldSrc)} sources in ccd {vId['detector']}  visit {vId['visit']}")
@@ -64,6 +65,9 @@ def match_catalogs(inputs, photoCalibs, vIds, matchRadius, logger=None):
 
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
             / tmpCat['base_PsfFlux_instFluxErr']
+
+        if apply_external_wcs:
+            updateSourceCoords(wcs, tmpCat)
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")
         tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux']

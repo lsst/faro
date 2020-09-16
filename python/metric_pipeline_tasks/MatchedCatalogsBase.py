@@ -10,7 +10,8 @@ from metric_pipeline_utils.matcher import match_catalogs
 # Should not be used alone, subclasses should define dimensions and output
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
-                                 defaultTemplates={"coaddName": "deep"}):
+                                 defaultTemplates={"coaddName": "deep", "photoCalibName": "calexp.photoCalib",
+                                                   "wcsName": "calexp.wcs"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
                                                                  "detector", "abstract_filter"),
@@ -21,8 +22,14 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                   dimensions=("instrument", "visit",
                                                               "detector", "abstract_filter"),
                                                   storageClass="PhotoCalib",
-                                                  name="calexp.photoCalib",
+                                                  name="{photoCalibName}",
                                                   multiple=True)
+    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
+                                                   dimensions=("instrument", "visit", "skymap", "tract",
+                                                               "detector", "abstract_filter"),
+                                                   storageClass="Wcs",
+                                                   name="{wcsName}",
+                                                   multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
         name="{coaddName}Coadd_skyMap",
@@ -34,6 +41,8 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
+    apply_external_wcs = pexConfig.Field(doc="Apply correction to coordinates with e.g. a jointcal WCS.",
+                                         dtype=bool, default=False)
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
@@ -45,10 +54,11 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
 
-    def run(self, source_catalogs, photo_calibs, vIds, wcs, box):
+    def run(self, source_catalogs, photo_calibs, astrom_calibs, vIds, wcs, box, apply_external_wcs):
         self.log.info(f"Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius, logger=self.log)
+        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
+                                         apply_external_wcs, logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
@@ -75,6 +85,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
         inputs['wcs'] = wcs
         inputs['box'] = patch_box
+        inputs['apply_external_wcs'] = self.config.apply_external_wcs
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
 

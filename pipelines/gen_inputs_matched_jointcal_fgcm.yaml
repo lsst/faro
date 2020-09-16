@@ -1,0 +1,14 @@
+description: Produce matched catalogs
+tasks:
+  matchCatalogs:
+    class: metric_pipeline_tasks.MatchedCatalogTask
+    config:
+      connections.photoCalibName: fgcm_photoCalib
+      connections.wcsName: jointcal_wcs
+      apply_external_wcs: True
+  matchCatalogsTract:
+    class: metric_pipeline_tasks.MatchedCatalogTractTask
+    config:
+      connections.photoCalibName: fgcm_photoCalib
+      connections.wcsName: jointcal_wcs
+      apply_external_wcs: True
