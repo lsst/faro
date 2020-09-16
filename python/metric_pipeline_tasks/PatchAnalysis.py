@@ -4,8 +4,6 @@ from lsst.verify.tasks import MetricConnections
 from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 
-# The first thing to do is to define a Connections class. This will define all
-# the inputs and outputs that our task requires
 class PatchAnalysisTaskConnections(MetricConnections,
                                    dimensions=("tract", "patch", "skymap",
                                                "abstract_filter")):
@@ -32,3 +30,16 @@ class PatchAnalysisTask(CatalogAnalysisBaseTask):
 
     ConfigClass = PatchAnalysisTaskConfig
     _DefaultName = "patchAnalysisTask"
+
+    def run(self, cat, vIds):
+        return self.measure.run(cat, self.config.connections.metric, vIds)
+
+    def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        inputs = butlerQC.get(inputRefs)
+        inputs['vIds'] = inputRefs.cat.dataId
+        outputs = self.run(**inputs)
+        if outputs.measurement is not None:
+            butlerQC.put(outputs, outputRefs)
+        else:
+            self.log.debugf("Skipping measurement of {!r} on {} "
+                            "as not applicable.", self, inputRefs)

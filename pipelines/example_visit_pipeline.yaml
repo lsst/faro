@@ -3,4 +3,4 @@
 description: Visit metrics pipeline
 inherits:
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/example_visit_analysis.yaml
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/visit_agg.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/agg_visit.yaml
