@@ -53,6 +53,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
     def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
+        self.level = "patch"
 
     def run(self, source_catalogs, photo_calibs, astrom_calibs, vIds, wcs, box, apply_external_wcs):
         self.log.info(f"Running catalog matching")
@@ -65,8 +66,16 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         for record in matched:
             if box.contains(wcs.skyToPixel(record.getCoord())):
                 out_matched.append(record)
-        self.log.info(f"{len(out_matched)} sources when trimmed to patch boundaries.")
+        self.log.info(f"{len(out_matched)} sources when trimmed to {self.level} boundaries.")
         return pipeBase.Struct(outputCatalog=out_matched)
+
+    def get_box_wcs(self, skymap, oid):
+        tract_info = skymap.generateTract(oid['tract'])
+        wcs = tract_info.getWcs()
+        patch_info = tract_info.getPatchInfo(oid['patch'])
+        patch_box = patch_info.getInnerBBox()
+        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
+        return patch_box, wcs
 
     def runQuantum(self, butlerQC,
                    inputRefs,
@@ -75,22 +84,18 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         oid = outputRefs.outputCatalog.dataId.byName()
         skymap = inputs['skyMap']
         del inputs['skyMap']
-        tract_info = skymap.generateTract(oid['tract'])
-        wcs = tract_info.getWcs()
-        patch_info = tract_info.getPatchInfo(oid['patch'])
-        patch_box = patch_info.getInnerBBox()
-        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
+        box, wcs = self.get_box_wcs(skymap, oid)
         # Cast to float to handle fractional pixels
-        patch_box = geom.Box2D(patch_box)
+        box = geom.Box2D(box)
         inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
         inputs['wcs'] = wcs
-        inputs['box'] = patch_box
+        inputs['box'] = box
         inputs['apply_external_wcs'] = self.config.apply_external_wcs
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
 
 
-class MatchedTractBaseTask(pipeBase.PipelineTask):
+class MatchedTractBaseTask(MatchedBaseTask):
 
     ConfigClass = MatchedBaseTaskConfig
     _DefaultName = "matchedTractBaseTask"
@@ -98,35 +103,11 @@ class MatchedTractBaseTask(pipeBase.PipelineTask):
     def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
+        self.level = "tract"
 
-    def run(self, source_catalogs, photo_calibs, vIds, wcs, box):
-        self.log.info(f"Running catalog matching")
-        radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, vIds, radius, logger=self.log)
-        # Trim the output to the tract bounding box
-        out_matched = type(matched)(matched.schema)
-        self.log.info(f"{len(matched)} sources in matched catalog.")
-        for record in matched:
-            if box.contains(wcs.skyToPixel(record.getCoord())):
-                out_matched.append(record)
-        self.log.info(f"{len(out_matched)} sources when trimmed to tract boundaries.")
-        return pipeBase.Struct(outputCatalog=out_matched)
-
-    def runQuantum(self, butlerQC,
-                   inputRefs,
-                   outputRefs):
-        inputs = butlerQC.get(inputRefs)
-        oid = outputRefs.outputCatalog.dataId.byName()
-        skymap = inputs['skyMap']
-        del inputs['skyMap']
+    def get_box_wcs(self, skymap, oid):
         tract_info = skymap.generateTract(oid['tract'])
         wcs = tract_info.getWcs()
         tract_box = tract_info.getBBox()
         self.log.info(f"Running tract: {oid['tract']}")
-        # Cast to float to handle fractional pixels
-        tract_box = geom.Box2D(tract_box)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
-        inputs['wcs'] = wcs
-        inputs['box'] = tract_box
-        outputs = self.run(**inputs)
-        butlerQC.put(outputs, outputRefs)
+        return tract_box, wcs
