@@ -50,7 +50,6 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
 
     filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                    'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
-
     for oldSrc, photoCalib, wcs, vId in zip(inputs, photoCalibs, astromCalibs, vIds):
 
         if logger:
@@ -66,7 +65,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
             / tmpCat['base_PsfFlux_instFluxErr']
 
-        if apply_external_wcs:
+        if apply_external_wcs and wcs is not None:
             updateSourceCoords(wcs, tmpCat)
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")

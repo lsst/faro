@@ -4,11 +4,9 @@ tasks:
     class: metric_pipeline_tasks.MatchedCatalogTask
     config:
       connections.photoCalibName: fgcm_photoCalib
-      connections.wcsName: jointcal_wcs
-      apply_external_wcs: True
+      apply_external_wcs: True  # We only support jointcal for now
   matchCatalogsTract:
     class: metric_pipeline_tasks.MatchedCatalogTractTask
     config:
       connections.photoCalibName: fgcm_photoCalib
-      connections.wcsName: jointcal_wcs
-      apply_external_wcs: True
+      apply_external_wcs: True  # We only support jointcal for now

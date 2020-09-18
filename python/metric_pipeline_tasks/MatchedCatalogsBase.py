@@ -10,8 +10,8 @@ from metric_pipeline_utils.matcher import match_catalogs
 # Should not be used alone, subclasses should define dimensions and output
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
-                                 defaultTemplates={"coaddName": "deep", "photoCalibName": "calexp.photoCalib",
-                                                   "wcsName": "calexp.wcs"}):
+                                 defaultTemplates={"coaddName": "deep", "photoCalibName":
+                                                   "calexp.photoCalib"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
                                                                  "detector", "abstract_filter"),
@@ -24,12 +24,13 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                   storageClass="PhotoCalib",
                                                   name="{photoCalibName}",
                                                   multiple=True)
-    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
-                                                   dimensions=("instrument", "visit", "skymap", "tract",
-                                                               "detector", "abstract_filter"),
-                                                   storageClass="Wcs",
-                                                   name="{wcsName}",
-                                                   multiple=True)
+    astrom_calibs = pipeBase.connectionTypes.PrerequisiteInput(doc="WCS for the catalog.",
+                                                               dimensions=("instrument", "visit",
+                                                                           "skymap", "tract",
+                                                                           "detector", "abstract_filter"),
+                                                               storageClass="Wcs",
+                                                               name="jointcal_wcs",
+                                                               multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
         name="{coaddName}Coadd_skyMap",
@@ -91,6 +92,10 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs['wcs'] = wcs
         inputs['box'] = box
         inputs['apply_external_wcs'] = self.config.apply_external_wcs
+        if inputs['apply_external_wcs'] and not inputs['astrom_calibs']:
+            self.log.warn('Task configured to apply an external WCS, but no external WCS datasets found.')
+        if not inputs['astrom_calibs']:  # Fill with None if jointcal wcs doesn't exist
+            inputs['astrom_calibs'] = [None for el in inputs['photo_calibs']]
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
 
