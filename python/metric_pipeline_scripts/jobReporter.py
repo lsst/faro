@@ -29,7 +29,8 @@ class JobReporter:
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
                                     'filter_name': filt,
-                                    'tract': tract}
+                                    'tract': tract,
+                                    'butler_generation': 'Gen3'}
                     # Get dataset_repo_url from repository somehow?
                     jobs[key] = Job(meta=job_metadata, metrics=self.metrics)
                 jobs[key].measurements.insert(m)
