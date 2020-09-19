@@ -10,7 +10,7 @@ class NumSourcesTask(Task):
     ConfigClass = Config
     _DefaultName = "numSourcesTask"
 
-    def run(self, catalog, metric_name, vIds):
+    def run(self, catalog, metric_name, vIds=None):
         self.log.info(f"Measuring {metric_name}")
         nSources = len(catalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
