@@ -23,12 +23,19 @@ class JobReporter:
                 m = self.butler.get(did, collections=self.collection)
                 # make the name the same as what SQuaSH Expects
                 m.metric_name = metric
+                # Grab the physical filter associated with the abstract filter
+                # In general there may be more than one.  Take the shortest assuming
+                # it is the most generic.
+                pfilts = [el.name for el in self.butler.registry.queryDimensionRecords('physical_filter', dataId=did.dataId)]
+                pfilt =  min(pfilts, key=len)
+
                 tract = did.dataId['tract']
-                filt = did.dataId['abstract_filter']
-                key = f"{tract}_{filt}"
+                afilt = did.dataId['abstract_filter']
+                key = f"{tract}_{afilt}"
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
-                                    'filter_name': filt,
+                                    'filter_name': pfilt,
+                                    'abstract_filter': afilt,
                                     'tract': tract,
                                     'butler_generation': 'Gen3'}
                     # Get dataset_repo_url from repository somehow?
