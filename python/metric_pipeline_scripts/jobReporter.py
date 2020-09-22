@@ -26,8 +26,9 @@ class JobReporter:
                 # Grab the physical filter associated with the abstract filter
                 # In general there may be more than one.  Take the shortest assuming
                 # it is the most generic.
-                pfilts = [el.name for el in self.butler.registry.queryDimensionRecords('physical_filter', dataId=did.dataId)]
-                pfilt =  min(pfilts, key=len)
+                pfilts = [el.name for el in self.butler.registry.queryDimensionRecords('physical_filter',
+                                                                                       dataId=did.dataId)]
+                pfilt = min(pfilts, key=len)
 
                 tract = did.dataId['tract']
                 afilt = did.dataId['abstract_filter']
