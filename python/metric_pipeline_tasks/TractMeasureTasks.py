@@ -94,7 +94,7 @@ class WPerpTask(Task):
             p1, p2, p1coeffs, p2coeffs = stellarLocusResid(rgicat['base_PsfFlux_mag_g'],
                                                            rgicat['base_PsfFlux_mag_r'],
                                                            rgicat['base_PsfFlux_mag'])
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
 #            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(gcat_final[qual_cuts], rcat_final[qual_cuts],
 #                                                           icat_final[qual_cuts])
