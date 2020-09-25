@@ -36,7 +36,7 @@ class JobReporter:
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
                                     'filter_name': pfilt,
-                                    'abstract_filter': afilt,
+                                    'band': afilt,
                                     'tract': tract,
                                     'butler_generation': 'Gen3'}
                     # Get dataset_repo_url from repository somehow?
