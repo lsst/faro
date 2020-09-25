@@ -7,7 +7,7 @@ from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, Ca
 class VisitAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
 
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
-                                                  dimensions=("instrument", "visit", "abstract_filter"),
+                                                  dimensions=("instrument", "visit", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)

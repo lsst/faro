@@ -8,11 +8,11 @@ from .GeneralMeasureTasks import NumpyAggTask
 # Dimentions of the Connections class define the iterations of runQuantum
 class CatalogsAggregationBaseTaskConnections(MetricConnections,
                                              defaultTemplates={'agg_name': None},
-                                             dimensions=("abstract_filter", "tract",
+                                             dimensions=("band", "tract",
                                                          "instrument", "skymap")):
     # Make this an LSST verify Measurement
     measurement = pipeBase.connectionTypes.Output(doc="{agg_name} {package}_{metric}.",
-                                                  dimensions=("instrument", "tract", "abstract_filter"),
+                                                  dimensions=("instrument", "tract", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{agg_name}_{package}_{metric}")
 

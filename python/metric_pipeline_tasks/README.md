@@ -9,14 +9,14 @@ You will also have to setup the $METRIC\_PIPE\_DIR environment variable this var
 
 Next, from the `metric-pipeline-tasks` directory, you can execute the full pipeline with the command
 
-`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/metrics_pipeline.yaml -d "abstract_filter = 'r'" -o pipeTest -i shared/ci_hsc_output`
+`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/metrics_pipeline.yaml -d "band = 'r'" -o pipeTest -i shared/ci_hsc_output`
 
 or, if running the pipeline again, use the command
 
-`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/metrics_pipeline.yaml -d "abstract_filter = 'r'" -o pipeTest --replace-run`
+`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/metrics_pipeline.yaml -d "band = 'r'" -o pipeTest --replace-run`
 
 You can execute individual tasks in the pipeline with commands like
 
-`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i shared/ci_hsc_output --register-dataset-types -t MatchedCatalogs.MatchedCatalogTask -d "abstract_filter = 'r'" -o matchedTest`
+`pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i shared/ci_hsc_output --register-dataset-types -t MatchedCatalogs.MatchedCatalogTask -d "band = 'r'" -o matchedTest`
 
 Enjoy!

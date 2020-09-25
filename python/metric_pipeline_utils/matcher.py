@@ -59,7 +59,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)
         tmpCat.extend(oldSrc, mapper=mapper)
 
-        filtnum = filter_dict[vId['abstract_filter']]
+        filtnum = filter_dict[vId['band']]
         tmpCat['filt'] = np.repeat(filtnum, len(oldSrc))
 
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \

@@ -14,13 +14,13 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                    "calexp.photoCalib"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
-                                                                 "detector", "abstract_filter"),
+                                                                 "detector", "band"),
                                                      storageClass="SourceCatalog",
                                                      name="src",
                                                      multiple=True)
     photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
                                                   dimensions=("instrument", "visit",
-                                                              "detector", "abstract_filter"),
+                                                              "detector", "band"),
                                                   storageClass="PhotoCalib",
                                                   name="{photoCalibName}",
                                                   multiple=True)

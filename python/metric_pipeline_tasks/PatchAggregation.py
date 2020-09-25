@@ -8,7 +8,7 @@ class PatchAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
 
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch", "skymap",
-                                                              "abstract_filter"),
+                                                              "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)

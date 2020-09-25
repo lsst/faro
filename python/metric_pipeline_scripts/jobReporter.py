@@ -31,7 +31,7 @@ class JobReporter:
                 pfilt = min(pfilts, key=len)
 
                 tract = did.dataId['tract']
-                afilt = did.dataId['abstract_filter']
+                afilt = did.dataId['band']
                 key = f"{tract}_{afilt}"
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
