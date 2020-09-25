@@ -8,17 +8,17 @@ from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysis
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 class VisitAnalysisTaskConnections(MetricConnections,
-                                   dimensions=("instrument", "visit", "abstract_filter")):
+                                   dimensions=("instrument", "visit", "band")):
 
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
                                                      dimensions=("instrument", "visit",
-                                                                 "detector", "abstract_filter"),
+                                                                 "detector", "band"),
                                                      storageClass="SourceCatalog",
                                                      name="src",
                                                      multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-visit measurement.",
-                                                  dimensions=("instrument", "visit", "abstract_filter"),
+                                                  dimensions=("instrument", "visit", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
 

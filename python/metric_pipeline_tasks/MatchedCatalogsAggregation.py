@@ -1,18 +1,18 @@
 """
 # First run
 pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i nSrc1 --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "abstract_filter='r'" -o meanNSrc1
+-t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'" -o meanNSrc1
 
 pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i pipeTest --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "abstract_filter='r'" -o meanPA1
+-t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'" -o meanPA1
 
 # After the first run
 pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "abstract_filter='r'"\
+-t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'"\
 -o meanNSrc1 --replace-run
 
 pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "abstract_filter='r'"\
+-t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'"\
 -o meanPA1 --replace-run
 """
 
@@ -26,7 +26,7 @@ from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, Ca
 class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch",
-                                                              "instrument", "abstract_filter"),
+                                                              "instrument", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)
@@ -45,7 +45,7 @@ class MatchedCatalogsAggregationTask(CatalogsAggregationBaseTask):
 
 class MchCatTractAggTaskConnections(CatalogsAggregationBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
-                                                  dimensions=("tract", "instrument", "abstract_filter"),
+                                                  dimensions=("tract", "instrument", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}",
                                                   multiple=True)

@@ -8,11 +8,11 @@ from .MatchedCatalogsBase import (MatchedBaseTaskConnections,
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 class MatchedCatalogTaskConnections(MatchedBaseTaskConnections,
-                                    dimensions=("tract", "patch", "abstract_filter",
+                                    dimensions=("tract", "patch", "band",
                                                 "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                     dimensions=("tract", "patch",
-                                                                "instrument", "abstract_filter"),
+                                                                "instrument", "band"),
                                                     storageClass="SimpleCatalog",
                                                     name="matchedCatalog")
 
@@ -29,10 +29,10 @@ class MatchedCatalogTask(MatchedBaseTask):
 
 
 class MatchedCatalogTractTaskConnections(MatchedBaseTaskConnections,
-                                         dimensions=("tract", "abstract_filter",
+                                         dimensions=("tract", "band",
                                                      "instrument", "skymap")):
     outputCatalog = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
-                                                    dimensions=("tract", "instrument", "abstract_filter"),
+                                                    dimensions=("tract", "instrument", "band"),
                                                     storageClass="SimpleCatalog",
                                                     name="matchedCatalogTract")
 

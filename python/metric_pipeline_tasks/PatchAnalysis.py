@@ -6,17 +6,17 @@ from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysis
 
 class PatchAnalysisTaskConnections(MetricConnections,
                                    dimensions=("tract", "patch", "skymap",
-                                               "abstract_filter")):
+                                               "band")):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "patch", "skymap",
-                                                     "abstract_filter"),
+                                                     "band"),
                                          storageClass="SourceCatalog",
                                          name="deepCoadd_forced_src")
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-patch measurement.",
                                                   dimensions=("tract", "patch", "skymap",
-                                                              "abstract_filter"),
+                                                              "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
 
