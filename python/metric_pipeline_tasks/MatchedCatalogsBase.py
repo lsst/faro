@@ -27,7 +27,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
     astrom_calibs = pipeBase.connectionTypes.PrerequisiteInput(doc="WCS for the catalog.",
                                                                dimensions=("instrument", "visit",
                                                                            "skymap", "tract",
-                                                                           "detector", "abstract_filter"),
+                                                                           "detector", "band"),
                                                                storageClass="Wcs",
                                                                name="jointcal_wcs",
                                                                multiple=True)
