@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -e
+
 mkdir temp_gen2repo
 echo lsst.obs.hsc.HscMapper > temp_gen2repo/_mapper
 ingestImages.py temp_gen2repo/ $VALIDATION_DATA_HSC_DIR/raw/*
