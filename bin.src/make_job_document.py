@@ -9,6 +9,8 @@ from metric_pipeline_scripts import JobReporter
 def main(repository, collection, metrics_package, spec):
     jr = JobReporter(repository, collection, metrics_package, spec)
     jobs = jr.run()
+    if len(jobs) == 0:
+        raise RuntimeError('Job reporter returned no jobs.')
     for k, v in jobs.items():
         filename = f"{metrics_package}_{spec}_{k}_{time.time()}.json"
         with open(filename, 'w') as fh:
