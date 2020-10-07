@@ -29,7 +29,7 @@ import random
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import PA1Task
+from metric_pipeline_tasks import PA1Task, PA2Task, PF1Task
 
 # Make sure measurements are deterministic
 random.seed(8675309)
@@ -53,7 +53,15 @@ class Pa1Test(unittest.TestCase):
            state that is used by all test methods.'''
         super().setUpClass()
         cls.file_map = {('PA1', 'i'): ('matchedCatalog_0_85_i.fits.gz', 'PA1_expected_0_85_i.yaml'),
-                        ('PA1', 'r'): ('matchedCatalog_0_85_r.fits.gz', 'PA1_expected_0_85_r.yaml')}
+                        ('PA1', 'r'): ('matchedCatalog_0_85_r.fits.gz', 'PA1_expected_0_85_r.yaml'),
+                        ('PA2', 'i'): ('matchedCatalog_0_85_i.fits.gz',
+                                       'PA2_design_gri_expected_0_85_i.yaml'),
+                        ('PA2', 'r'): ('matchedCatalog_0_85_r.fits.gz',
+                                       'PA2_design_gri_expected_0_85_r.yaml'),
+                        ('PF1', 'i'): ('matchedCatalog_0_85_i.fits.gz',
+                                       'PF1_design_gri_expected_0_85_i.yaml'),
+                        ('PF1', 'r'): ('matchedCatalog_0_85_r.fits.gz',
+                                       'PF1_design_gri_expected_0_85_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):
@@ -68,6 +76,24 @@ class Pa1Test(unittest.TestCase):
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PA1', band))
             result = task.run(catalog, 'validate_drp.PA1')
+            self.assertEqual(result.measurement, expected)
+
+    def test_pa2(self):
+        """Test calculation of pa2 on a known catalog."""
+        config = PA2Task.ConfigClass()
+        task = PA2Task(config=config)
+        for band in ('i', 'r'):
+            catalog, expected = self.load_data(('PA2', band))
+            result = task.run(catalog, 'validate_drp.PA2')
+            self.assertEqual(result.measurement, expected)
+
+    def test_pf1(self):
+        """Test calculation of pf1 on a known catalog."""
+        config = PF1Task.ConfigClass()
+        task = PF1Task(config=config)
+        for band in ('i', 'r'):
+            catalog, expected = self.load_data(('PF1', band))
+            result = task.run(catalog, 'validate_drp.PF1')
             self.assertEqual(result.measurement, expected)
 
 

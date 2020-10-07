@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: 3618f8004b0e41daa94e65dfaa7227fc
+  name: PA2
+identifier: 1a462e171c1441808f4a1587e390f40e
+metric: PA2
+notes: {}
+unit: mmag
+value: 24.3601024849076
