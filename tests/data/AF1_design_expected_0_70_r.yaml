@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: 5014128ebff14207899d880348e1fe8c
+  name: AF1_design
+identifier: 47a11dc246db4a04b5c14dde7afdc8be
+metric: AF1_design
+notes: {}
+unit: '%'
+value: 2.4390243902439024

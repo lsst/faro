@@ -25,10 +25,11 @@
 import unittest
 import yaml
 import os
+import astropy.units as u
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import AMxTask
+from metric_pipeline_tasks import AMxTask, ADxTask, AFxTask, AB1Task
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 
@@ -50,8 +51,14 @@ class AmxTest(unittest.TestCase):
         super().setUpClass()
         cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
                         ('AM1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml'),
-                        ('AM1_hist', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_r.yaml'),
-                        ('AM1_hist', 'i'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_i.yaml')}
+                        ('AD1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AD1_design_expected_0_70_i.yaml'),
+                        ('AD1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AD1_design_expected_0_70_r.yaml'),
+                        ('AF1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AF1_design_expected_0_70_i.yaml'),
+                        ('AF1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AF1_design_expected_0_70_r.yaml'),
+                        ('AB1', 'i'): ('matchedCatalogMulti_0_70.fits.gz',
+                                       'AB1_design_expected_0_70_i.yaml'),
+                        ('AB1', 'r'): ('matchedCatalogMulti_0_70.fits.gz',
+                                       'AB1_design_expected_0_70_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):
@@ -68,18 +75,37 @@ class AmxTest(unittest.TestCase):
             catalog, expected = self.load_data(('AM1', band))
             result = task.run(catalog, 'validate_drp.AM1')
             self.assertEqual(result.measurement.quantity, expected.quantity)
+            self.assertTrue(u.allclose(result.measurement.extras['values'].quantity,
+                            expected.extras['values'].quantity))
 
-    def test_am1_hist(self):
-        """Test calculation of am1 on a known catalog."""
-        config = AMxTask.ConfigClass()
-        config.annulus_r = 5.0  # This is what makes it AM1
-        task = AMxTask(config=config)
+    def test_af1(self):
+        """Test calculation of af1 on a known catalog."""
+        config = AFxTask.ConfigClass()
+        config.annulus_r = 5.0  # This is what makes it AF1
+        task = AFxTask(config=config)
         for band in ('i', 'r'):
-            catalog, expected = self.load_data(('AM1_hist', band))
-            result = task.run(catalog, 'info.AM1_hist')
+            catalog, expected = self.load_data(('AF1', band))
+            result = task.run(catalog, 'validate_drp.AF1')
             self.assertEqual(result.measurement.quantity, expected.quantity)
-            self.assertEqual(result.measurement.extras['values'].quantity, expected.extras['values'].quantity)
-            self.assertEqual(result.measurement.extras['bins'].quantity, expected.extras['bins'].quantity)
+
+    def test_ad1(self):
+        """Test calculation of ad1 on a known catalog."""
+        config = ADxTask.ConfigClass()
+        config.annulus_r = 5.0  # This is what makes it AD1
+        task = ADxTask(config=config)
+        for band in ('i', 'r'):
+            catalog, expected = self.load_data(('AD1', band))
+            result = task.run(catalog, 'validate_drp.AD1')
+            self.assertEqual(result.measurement.quantity, expected.quantity)
+
+    def test_ab1(self):
+        """Test calculation of ab1 on a known catalog."""
+        config = AB1Task.ConfigClass()
+        task = AB1Task(config=config)
+        for band in ('i', 'r'):
+            catalog, expected = self.load_data(('AB1', band))
+            result = task.run(catalog, 'validate_drp.AB1')
+            self.assertEqual(result.measurement.quantity, expected.quantity)
 
 
 if __name__ == "__main__":

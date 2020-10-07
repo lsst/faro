@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: 44ebc05ab85944c7ac85d4b928d22b81
+  name: AB1_design
+identifier: 4a2e6fb41cd1486d8a94dc105e41b7a1
+metric: AB1_design
+notes: {}
+unit: marcsec
+value: 7.965623934179928

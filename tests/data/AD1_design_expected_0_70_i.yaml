@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: d397833831ef45aa8ed60272815241ca
+  name: AD1_design
+identifier: 492255c44ae443c1bee89406197a9a4f
+metric: AD1_design
+notes: {}
+unit: marcsec
+value: 14.101560545288505
