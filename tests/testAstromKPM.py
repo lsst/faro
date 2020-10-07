@@ -81,10 +81,6 @@ class AmxTest(unittest.TestCase):
             self.assertEqual(result.measurement.extras['values'].quantity, expected.extras['values'].quantity)
             self.assertEqual(result.measurement.extras['bins'].quantity, expected.extras['bins'].quantity)
 
-    def test_am2(self):
-        '''A stub function to test AM2 when we have data to do that.'''
-        pass
-
 
 if __name__ == "__main__":
     unittest.main()
