@@ -73,8 +73,8 @@ class AmxTest(unittest.TestCase):
         task = AMxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AM1', band))
-            result = task.run(catalog, 'validate_drp.AM1')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
+            result = task.run(catalog, 'AM1')
+            self.assertEqual(result.measurement, expected)
             self.assertTrue(u.allclose(result.measurement.extras['values'].quantity,
                             expected.extras['values'].quantity))
 
@@ -85,8 +85,8 @@ class AmxTest(unittest.TestCase):
         task = AFxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AF1', band))
-            result = task.run(catalog, 'validate_drp.AF1')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
+            result = task.run(catalog, 'AF1_design')
+            self.assertEqual(result.measurement, expected)
 
     def test_ad1(self):
         """Test calculation of ad1 on a known catalog."""
@@ -95,8 +95,8 @@ class AmxTest(unittest.TestCase):
         task = ADxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AD1', band))
-            result = task.run(catalog, 'validate_drp.AD1')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
+            result = task.run(catalog, 'AD1_design')
+            self.assertEqual(result.measurement, expected)
 
     def test_ab1(self):
         """Test calculation of ab1 on a known catalog."""
@@ -104,8 +104,8 @@ class AmxTest(unittest.TestCase):
         task = AB1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AB1', band))
-            result = task.run(catalog, 'validate_drp.AB1')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
+            result = task.run(catalog, 'AB1_design')
+            self.assertEqual(result.measurement, expected)
 
 
 if __name__ == "__main__":

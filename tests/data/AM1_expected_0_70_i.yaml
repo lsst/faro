@@ -414,9 +414,9 @@ blobs:
       - 0.0
       - 0.0
   identifier: e2f1eed97afc47f6b44c75731157f183
-  name: AM1_hist
+  name: AM1
 identifier: 66dda9109a3242188760d5496f397c0e
-metric: AM1_hist
+metric: AM1
 notes: {}
 unit: marcsec
 value: 7.223182945112229
