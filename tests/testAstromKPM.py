@@ -49,8 +49,8 @@ class AmxTest(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
-                        ('AM1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml'),
+        cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AM1_expected_0_70_i.yaml'),
+                        ('AM1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AM1_expected_0_70_r.yaml'),
                         ('AD1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AD1_design_expected_0_70_i.yaml'),
                         ('AD1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AD1_design_expected_0_70_r.yaml'),
                         ('AF1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AF1_design_expected_0_70_i.yaml'),

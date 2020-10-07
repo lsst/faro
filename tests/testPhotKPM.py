@@ -52,16 +52,16 @@ class Pa1Test(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('PA1', 'i'): ('matchedCatalog_0_85_i.fits.gz', 'PA1_expected_0_85_i.yaml'),
-                        ('PA1', 'r'): ('matchedCatalog_0_85_r.fits.gz', 'PA1_expected_0_85_r.yaml'),
-                        ('PA2', 'i'): ('matchedCatalog_0_85_i.fits.gz',
-                                       'PA2_design_gri_expected_0_85_i.yaml'),
-                        ('PA2', 'r'): ('matchedCatalog_0_85_r.fits.gz',
-                                       'PA2_design_gri_expected_0_85_r.yaml'),
-                        ('PF1', 'i'): ('matchedCatalog_0_85_i.fits.gz',
-                                       'PF1_design_gri_expected_0_85_i.yaml'),
-                        ('PF1', 'r'): ('matchedCatalog_0_85_r.fits.gz',
-                                       'PF1_design_gri_expected_0_85_r.yaml')}
+        cls.file_map = {('PA1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'PA1_expected_0_70_i.yaml'),
+                        ('PA1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'PA1_expected_0_70_r.yaml'),
+                        ('PA2', 'i'): ('matchedCatalog_0_70_i.fits.gz',
+                                       'PA2_design_gri_expected_0_70_i.yaml'),
+                        ('PA2', 'r'): ('matchedCatalog_0_70_r.fits.gz',
+                                       'PA2_design_gri_expected_0_70_r.yaml'),
+                        ('PF1', 'i'): ('matchedCatalog_0_70_i.fits.gz',
+                                       'PF1_design_gri_expected_0_70_i.yaml'),
+                        ('PF1', 'r'): ('matchedCatalog_0_70_r.fits.gz',
+                                       'PF1_design_gri_expected_0_70_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):

@@ -1,5 +1,5 @@
-`ci_hsc_gen3/DATA/hack_1/20200713T23h40m26s/matchedCatalog/0/68`
-I chose the above to start with because it's on the edge and doesn't have a lot of sources.
+`ci_hsc_gen3/DATA/hack_2/20200717T19h08m37s/matchedCatalog/0/68`
+I chose the above to start with because it has non-NaN values for all the measurements I wanted to test.
 
 The process I chose was to copy the matched catalogs for r and i from the above patch.
 These are single band single patch matched catalogs.
