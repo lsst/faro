@@ -31,6 +31,7 @@ from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from metric_pipeline_tasks import PA1Task
 
+# Make sure measurements are deterministic
 random.seed(8675309)
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
@@ -61,7 +62,7 @@ class Pa1Test(unittest.TestCase):
         super().tearDownClass()
 
     def test_pa1(self):
-        """Test calculation of am1 on a known catalog."""
+        """Test calculation of pa1 on a known catalog."""
         config = PA1Task.ConfigClass()
         task = PA1Task(config=config)
         for band in ('i', 'r'):
