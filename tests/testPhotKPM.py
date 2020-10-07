@@ -75,7 +75,7 @@ class Pa1Test(unittest.TestCase):
         task = PA1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PA1', band))
-            result = task.run(catalog, 'validate_drp.PA1')
+            result = task.run(catalog, 'PA1')
             self.assertEqual(result.measurement, expected)
 
     def test_pa2(self):
@@ -84,7 +84,7 @@ class Pa1Test(unittest.TestCase):
         task = PA2Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PA2', band))
-            result = task.run(catalog, 'validate_drp.PA2')
+            result = task.run(catalog, 'PA2')
             self.assertEqual(result.measurement, expected)
 
     def test_pf1(self):
@@ -93,7 +93,7 @@ class Pa1Test(unittest.TestCase):
         task = PF1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PF1', band))
-            result = task.run(catalog, 'validate_drp.PF1')
+            result = task.run(catalog, 'PF1')
             self.assertEqual(result.measurement, expected)
 
 
