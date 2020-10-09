@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit tests for the metrics measurement system: AMx.
+"""Unit tests for the metrics measurement system: TE1.
 """
 
 import unittest
@@ -28,12 +28,13 @@ import os
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import AMxTask
+from metric_pipeline_tasks import TExTask
+
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 
 
-class AmxTest(unittest.TestCase):
+class Te1Test(unittest.TestCase):
 
     def load_data(self, key):
         '''Helper to load data to process and the expected value.'''
@@ -48,10 +49,8 @@ class AmxTest(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_68_i.fits.gz', 'AM1_expected_0_68_i.yaml'),
-                        ('AM1', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_expected_0_68_r.yaml'),
-                        ('AM1_hist', 'r'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_r.yaml'),
-                        ('AM1_hist', 'i'): ('matchedCatalog_0_68_r.fits.gz', 'AM1_hist_expected_0_68_i.yaml')}
+        cls.file_map = {('TE1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'TE1_expected_0_70_i.yaml'),
+                        ('TE1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'TE1_expected_0_70_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):
@@ -59,31 +58,17 @@ class AmxTest(unittest.TestCase):
         del cls.file_map
         super().tearDownClass()
 
-    def test_am1(self):
-        """Test calculation of am1 on a known catalog."""
-        config = AMxTask.ConfigClass()
-        config.annulus_r = 5.0  # This is what makes it AM1
-        task = AMxTask(config=config)
+    def test_te1(self):
+        """Test calculation of TE1 on a known catalog."""
+        config = TExTask.ConfigClass()
+        # This is what makes it TE1
+        config.annulus_r = 1.0
+        config.comparison_operator = '<='
+        task = TExTask(config=config)
         for band in ('i', 'r'):
-            catalog, expected = self.load_data(('AM1', band))
-            result = task.run(catalog, 'validate_drp.AM1')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
-
-    def test_am1_hist(self):
-        """Test calculation of am1 on a known catalog."""
-        config = AMxTask.ConfigClass()
-        config.annulus_r = 5.0  # This is what makes it AM1
-        task = AMxTask(config=config)
-        for band in ('i', 'r'):
-            catalog, expected = self.load_data(('AM1_hist', band))
-            result = task.run(catalog, 'info.AM1_hist')
-            self.assertEqual(result.measurement.quantity, expected.quantity)
-            self.assertEqual(result.measurement.extras['values'].quantity, expected.extras['values'].quantity)
-            self.assertEqual(result.measurement.extras['bins'].quantity, expected.extras['bins'].quantity)
-
-    def test_am2(self):
-        '''A stub function to test AM2 when we have data to do that.'''
-        pass
+            catalog, expected = self.load_data(('TE1', band))
+            result = task.run(catalog, 'TE1')
+            self.assertEqual(result.measurement, expected)
 
 
 if __name__ == "__main__":
