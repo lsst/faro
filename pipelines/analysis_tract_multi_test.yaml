@@ -1,13 +1,5 @@
 description: Compute metrics from multiband matched catalogs
 tasks:
-#  AB1_design:
-#    class: metric_pipeline_tasks.MatchedMultiCatalogAnalysisTask
-#    config:
-#      connections.package: validate_drp
-#      connections.metric: AB1_design
-#      python: |
-#        from metric_pipeline_tasks import AB1Task
-#        config.measure.retarget(AB1Task)
   wPerp:
     class: metric_pipeline_tasks.TractAnalysisMultiFiltTask
     config:
