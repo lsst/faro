@@ -174,10 +174,7 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                     (cat_tmp_final['base_PixelFlags_flag_saturated'] == False) &\
                     (cat_tmp_final['base_PixelFlags_flag_cr'] == False) &\
                     (cat_tmp_final['base_PixelFlags_flag_bad'] == False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_edge'] == False) #&\
-#                    (cat_tmp_final['base_PsfFlux_mag'] < self.config.faint_rmag_cut) &\
-#                    (cat_tmp_final['base_PsfFlux_mag'] > self.config.bright_rmag_cut)
-# Do mag cuts after returning?
+                    (cat_tmp_final['base_PixelFlags_flag_edge'] == False)
         # Put the bandpass name in the column names:
         for c in cat_tmp_final.colnames:
             cat_tmp_final[c].name = c+'_'+str(band)
