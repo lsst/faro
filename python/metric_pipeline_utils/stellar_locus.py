@@ -3,95 +3,82 @@ import scipy.optimize as scipyOptimize
 import scipy.stats as scipyStats
 import scipy.odr as scipyOdr
 from lsst.pipe.base import Struct
+from metric_pipeline_utils.filtermatches import filterMatches
+from lsst.afw.table import GroupView
+import astropy.units as u
+
+
+def stellarLocusResid(gmags, rmags, imags, **filterargs):
+
+    gr = gmags-rmags
+    ri = rmags-imags
+
+    # Also trim large values of r-i, since those will skew the linear regression
+    okfitcolors = (gr < 1.1) & (gr > 0.3) & (np.abs(ri) < 1.0) & np.isfinite(gmags) & np.isfinite(rmags) & np.isfinite(imags)
+    # Eventually switch to using orthogonal regression instead of linear (as in pipe-analysis)?
+
+    slope, intercept, r_value, p_value, std_err = scipyStats.linregress(gr[okfitcolors],
+                                                                        ri[okfitcolors])
+    p2p1coeffs = p2p1CoeffsFromLinearFit(slope, intercept, 0.3, slope*0.3+intercept)
+    p1coeffs = p2p1coeffs.p1Coeffs.copy()
+    # hack to put the zeros in for u, z coeffs
+    p1coeffs.insert(0, 0.0)
+    p1coeffs.insert(4, 0.0)
+    p2coeffs = list(p2p1coeffs.p2Coeffs.copy())
+    p2coeffs.insert(0, 0.0)
+    p2coeffs.insert(4, 0.0)
+    umags = np.zeros(len(gmags))
+    zmags = np.zeros(len(gmags))
+    p1_fit = calcP1P2([umags, gmags, rmags, imags, zmags], p1coeffs)
+    p2_fit = calcP1P2([umags, gmags, rmags, imags, zmags], p2coeffs)
+    okp1_fit = (p1_fit < 0.6) & (p1_fit > -0.2)
+
+    # Do a second iteration, removing large (>3 sigma) outliers in p2:
+    clippedStats = calcQuartileClippedStats(p2_fit[okp1_fit], 3.0) 
+    keep = (np.abs(p2_fit) < clippedStats.clipValue)
+
+    slope, intercept, r_value, p_value, std_err = scipyStats.linregress(gr[okfitcolors & keep],
+                                                                        ri[okfitcolors & keep])
+    p2p1coeffs = p2p1CoeffsFromLinearFit(slope, intercept, 0.3, slope*0.3+intercept)
+    p1coeffs = p2p1coeffs.p1Coeffs.copy()
+    # hack to put the zeros in for u, z coeffs
+    p1coeffs.insert(0, 0.0)
+    p1coeffs.insert(4, 0.0)
+    p2coeffs = list(p2p1coeffs.p2Coeffs.copy())
+    p2coeffs.insert(0, 0.0)
+    p2coeffs.insert(4, 0.0)
+    p1_fit = calcP1P2([umags, gmags, rmags, imags, zmags], p1coeffs)
+    p2_fit = calcP1P2([umags, gmags, rmags, imags, zmags], p2coeffs)
+    okp1_fit = (p1_fit < 0.6) & (p1_fit > -0.2)
+
+    return p1_fit[okp1_fit], p2_fit[okp1_fit], p1coeffs, p2coeffs
 
 
 def calcP1P2(mags, coeffs):
     # P1 =A′u+B′g+C′r+D′i+E′z+F′
     # P2′=Au+Bg+Cr+Di+Ez+F
-    # umag = np.array(mags['umag'],dtype='float')
-    # gmag = np.array(mags['gmag'],dtype='float')
-    # rmag = np.array(mags['rmag'],dtype='float')
-    # imag = np.array(mags['imag'],dtype='float')
-    # zmag = np.array(mags['zmag'],dtype='float')
     p1p2 = float(coeffs[0])*mags[0] + float(coeffs[1])*mags[1] +\
-        float(coeffs[2])*mags[2] + float(coeffs[3])*mags[3] +\
-        float(coeffs[4])*mags[4] + float(coeffs[5])
+           float(coeffs[2])*mags[2] + float(coeffs[3])*mags[3] +\
+           float(coeffs[4])*mags[4] + float(coeffs[5])
     return p1p2
 
 
-# Coefficients from the Ivezic+2004 paper. Warning - if possible, the Coefficients
-# should be derived from a fit to the stellar locus rather than these "fallback" values.
-ivezicCoeffs = {'P1s': [0.91, -0.495, -0.415, 0.0, 0.0, -1.28],
-                'P1w': [0.0, 0.928, -0.556, -0.372, 0.0, -0.425],
-                'P2s': [-0.249, 0.794, -0.555, 0.0, 0.0, 0.234],
-                'P2w': [0.0, -0.227, 0.792, -0.567, 0.0, 0.050]}
-ivezicCoeffsHSC = {'P1s': [0.91, -0.495, -0.415, 0.0, 0.0, -1.28],
-                   'P1w': [0.0, 0.888, -0.427, -0.461, 0.0, -0.478],
-                   'P2s': [-0.249, 0.794, -0.555, 0.0, 0.0, 0.234],
-                   'P2w': [0.0, -0.274, 0.803, -0.529, 0.0, 0.041]}
+def getCoeffs():
+    # Coefficients from the Ivezic+2004 paper. Warning - if possible, the Coefficients
+    # should be derived from a fit to the stellar locus rather than these "fallback" values.
+    ivezicCoeffs = {'P1s': [0.91, -0.495, -0.415, 0.0, 0.0, -1.28],
+                    'P1w': [0.0, 0.928, -0.556, -0.372, 0.0, -0.425],
+                    'P2s': [-0.249, 0.794, -0.555, 0.0, 0.0, 0.234],
+                    'P2w': [0.0, -0.227, 0.792, -0.567, 0.0, 0.050]}
+    ivezicCoeffsHSC = {'P1s': [0.91, -0.495, -0.415, 0.0, 0.0, -1.28],
+                       'P1w': [0.0, 0.888, -0.427, -0.461, 0.0, -0.478],
+                       'P2s': [-0.249, 0.794, -0.555, 0.0, 0.0, 0.234],
+                       'P2w': [0.0, -0.274, 0.803, -0.529, 0.0, 0.041]}
+    return ivezicCoeffs, ivezicCoeffsHSC
 
 
 # Everything below this is copied directly from pipe_analysis/utils.py.
 # Should we move all those functions here once pipe_analysis is rewritten?
-def orthogonalRegression(x, y, order, initialGuess=None):
-    """Perform an Orthogonal Distance Regression on the given data
-    Parameters
-    ----------
-    x, y : `array`
-       Arrays of x and y data to fit
-    order : `int`, optional
-       Order of the polynomial to fit
-    initialGuess : `list` of `float`, optional
-       List of the polynomial coefficients (highest power first) of an initial guess to feed to
-       the ODR fit.  If no initialGuess is provided, a simple linear fit is performed and used
-       as the guess (`None` by default).
-    Returns
-    -------
-    result : `list` of `float`
-       List of the fit coefficients (highest power first to mimic `numpy.polyfit` return).
-    """
-    if initialGuess is None:
-        linReg = scipyStats.linregress(x, y)
-        initialGuess = [linReg[0], linReg[1]]
-        for i in range(order - 1):  # initialGuess here is linear, so need to pad array to match order
-            initialGuess.insert(0, 0.0)
-    if order == 1:
-        odrModel = scipyOdr.Model(fLinear)
-    elif order == 2:
-        odrModel = scipyOdr.Model(fQuadratic)
-    elif order == 3:
-        odrModel = scipyOdr.Model(fCubic)
-    else:
-        raise RuntimeError("Order must be between 1 and 3 (value requested, {:}, not accommodated)".
-                           format(order))
-    odrData = scipyOdr.Data(x, y)
-    orthDist = scipyOdr.ODR(odrData, odrModel, beta0=initialGuess)
-    orthRegFit = orthDist.run()
-
-    return list(reversed(orthRegFit.beta))
-
-
-def distanceSquaredToPoly(x1, y1, x2, poly):
-    """Calculate the square of the distance between point (x1, y1) and poly at x2
-    Parameters
-    ----------
-    x1, y1 : `float`
-       Point from which to calculate the square of the distance to the
-       polynomial ``poly``.
-    x2 : `float`
-       Position on x axis from which to calculate the square of the distance
-       between (``x1``, ``y1``) and ``poly`` (the position of the tangent of
-       the polynomial curve closest to point (``x1``, ``y1``)).
-    poly : `numpy.lib.polynomial.poly1d`
-       Numpy polynomial fit from which to calculate the square of the distance
-       to (``x1``, ``y1``) at ``x2``.
-    Returns
-    -------
-    result : `float`
-       Square of the distance between (``x1``, ``y1``) and ``poly`` at ``x2``
-    """
-    return (x2 - x1)**2 + (poly(x2) - y1)**2
-
 
 def p1CoeffsFromP2x0y0(p2Coeffs, x0, y0):
     """Compute Ivezic P1 coefficients using the P2 coeffs and origin (x0, y0)
@@ -167,68 +154,56 @@ def p2p1CoeffsFromLinearFit(m, b, x0, y0):
     )
 
 
-def lineFromP2Coeffs(p2Coeffs):
-    """Compute P1 line in color-color space for given set P2 coefficients
-    Reference: Ivezic et al. 2004 (2004AN....325..583I)
+def calcQuartileClippedStats(dataArray, nSigmaToClip=3.0):
+    """Calculate the quartile-based clipped statistics of a data array.
+    The difference between quartiles[2] and quartiles[0] is the interquartile
+    distance.  0.74*interquartileDistance is an estimate of standard deviation
+    so, in the case that ``dataArray`` has an approximately Gaussian
+    distribution, this is equivalent to nSigma clipping.
     Parameters
     ----------
-    p2Coeffs : `list` of `float`
-       List of the four P2 coefficients.
+    dataArray : `list` or `numpy.ndarray` of `float`
+        List or array containing the values for which the quartile-based
+        clipped statistics are to be calculated.
+    nSigmaToClip : `float`, optional
+        Number of \"sigma\" outside of which to clip data when computing the
+        statistics.
     Returns
     -------
     result : `lsst.pipe.base.Struct`
-       Result struct with components:
-       - ``mP1`` : associated slope for P1 in color-color coordinates (`float`).
-       - ``bP1`` : associated intercept for P1 in color-color coordinates
-                   (`float`).
+        The quartile-based clipped statistics with ``nSigmaToClip`` clipping.
+        Atributes are:
+        ``median``
+            The median of the full ``dataArray`` (`float`).
+        ``mean``
+            The quartile-based clipped mean (`float`).
+        ``stdDev``
+            The quartile-based clipped standard deviation (`float`).
+        ``rms``
+            The quartile-based clipped root-mean-squared (`float`).
+        ``clipValue``
+            The value outside of which to clip the data before computing the
+            statistics (`float`).
+        ``goodArray``
+            A boolean array indicating which data points in ``dataArray`` were
+            used in the calculation of the statistics, where `False` indicates
+            a clipped datapoint (`numpy.ndarray` of `bool`).
     """
-    mP1 = p2Coeffs[0]/p2Coeffs[2]
-    bP1 = -p2Coeffs[3]*np.sqrt(mP1**2 + (mP1 + 1.0)**2 + 1.0)
+    quartiles = np.percentile(dataArray, [25, 50, 75])
+    assert len(quartiles) == 3
+    median = quartiles[1]
+    interQuartileDistance = quartiles[2] - quartiles[0]
+    clipValue = nSigmaToClip*0.74*interQuartileDistance
+    good = np.logical_not(np.abs(dataArray - median) > clipValue)
+    quartileClippedMean = dataArray[good].mean()
+    quartileClippedStdDev = dataArray[good].std()
+    quartileClippedRms = np.sqrt(np.mean(dataArray[good]**2))
+
     return Struct(
-        mP1=mP1,
-        bP1=bP1,
-    )
-
-
-def linesFromP2P1Coeffs(p2Coeffs, p1Coeffs):
-    """Derive P1/P2 axes in color-color space based on the P2 and P1 coeffs
-    Reference: Ivezic et al. 2004 (2004AN....325..583I)
-    Parameters
-    ----------
-    p2Coeffs : `list` of `float`
-       List of the four P2 coefficients.
-    p1Coeffs : `list` of `float`
-       List of the four P1 coefficients.
-    Returns
-    -------
-    result : `lsst.pipe.base.Struct`
-       Result struct with components:
-       - ``mP2``, ``mP1`` : associated slopes for P2 and P1 in color-color
-                            coordinates (`float`).
-       - ``bP2``, ``bP1`` : associated intercepts for P2 and P1 in color-color
-                            coordinates (`float`).
-       - ``x0``, ``y0`` : x and y coordinates of the P2/P1 axes origin in
-                          color-color coordinates (`float`).
-    """
-    p1Line = lineFromP2Coeffs(p2Coeffs)
-    mP1 = p1Line.mP1
-    bP1 = p1Line.bP1
-
-    cosTheta = np.cos(np.arctan(mP1))
-    sinTheta = np.sin(np.arctan(mP1))
-
-    def func2(x):
-        y = [cosTheta*x[0] + sinTheta*x[1] + p1Coeffs[3], mP1*x[0] - x[1] + bP1]
-        return y
-
-    x0y0 = scipyOptimize.fsolve(func2, [1, 1])
-    mP2 = -1.0/mP1
-    bP2 = x0y0[1] - mP2*x0y0[0]
-    return Struct(
-        mP2=mP2,
-        bP2=bP2,
-        mP1=mP1,
-        bP1=bP1,
-        x0=x0y0[0],
-        y0=x0y0[1],
+        median=median,
+        mean=quartileClippedMean,
+        stdDev=quartileClippedStdDev,
+        rms=quartileClippedRms,
+        clipValue=clipValue,
+        goodArray=good,
     )

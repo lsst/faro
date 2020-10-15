@@ -13,3 +13,5 @@ from .PatchMeasureTasks import *
 from .VisitAggregation import *
 from .VisitAnalysis import *
 from .VisitMeasureTasks import *
+from .TractAnalysis import *
+from .TractMeasureTasks import *
