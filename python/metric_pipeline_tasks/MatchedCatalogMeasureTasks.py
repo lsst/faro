@@ -216,7 +216,7 @@ class ADxTask(Task):
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
             # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
-            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            absDiffsMarcsec = (sepDistances-np.median(sepDistances)).to(u.marcsec)
             return Struct(measurement=Measurement(metric_name, np.percentile(absDiffsMarcsec.value,
                           afPercentile.value)*u.marcsec))
 
@@ -240,7 +240,7 @@ class AFxTask(Task):
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
             # absRmsDiffs = np.abs(rmsDistances - np.median(rmsDistances)).to(u.marcsec)
-            absDiffsMarcsec = sepDistances.to(u.marcsec)
+            absDiffsMarcsec = (sepDistances-np.median(sepDistances)).to(u.marcsec)
             percentileAtADx = 100 * np.mean(np.abs(absDiffsMarcsec.value) > adxThresh.value) * u.percent
             return Struct(measurement=Measurement(metric_name, percentileAtADx))
 
