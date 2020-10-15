@@ -3,9 +3,10 @@ from astropy.table import join
 import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config
-from lsst.verify import Measurement
+from lsst.verify import Measurement, Datum
 from lsst.pex.config import Config, Field, ListField
 from metric_pipeline_utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
+from lsst.sims.catUtils.dust.EBV import EBVbase as ebv
 
 
 class WPerpTaskConfig(Config):
@@ -23,9 +24,30 @@ class WPerpTask(Task):
     def run(self, catalogs, photo_calibs, metric_name, vIds):
         self.log.info(f"Measuring {metric_name}")
         patches = set([p['patch'] for p in vIds])
-        filters = set([f['abstract_filter'] for f in vIds])
+        bands = set([f['abstract_filter'] for f in vIds])
+        # bands = set([f['band'] for f in vIds])
 
-        if ('g' in filters) & ('r' in filters) & ('i' in filters):
+        # Extinction coefficients for HSC filters for conversion from E(B-V) to extinction, A_filter.                                                                             
+        # Numbers provided by Masayuki Tanaka (NAOJ).                                                                                                                             
+        #                                                                                                                                                                         
+        # Band, A_filter/E(B-V)                                                                                                                                                   
+        extinctionCoeffs_HSC = {
+            "g": 3.240,
+            "r": 2.276,
+            "i": 1.633,
+            "z": 1.263,
+            "y": 1.075,
+            "HSC-G": 3.240,
+            "HSC-R": 2.276,
+            "HSC-I": 1.633,
+            "HSC-Z": 1.263,
+            "HSC-Y": 1.075,
+            "NB0387": 4.007,
+            "NB0816": 1.458,
+            "NB0921": 1.187,
+        }
+
+        if ('g' in bands) & ('r' in bands) & ('i' in bands):
             gcat = catalogs[0].copy()
             gcat.clear()
             rcat = catalogs[0].copy()
@@ -41,16 +63,19 @@ class WPerpTask(Task):
 
             for i in range(len(catalogs)):
                 if (vIds[i]['abstract_filter'] in 'g'):
+                # if (vIds[i]['band'] in 'g'):
                     gcat.extend(catalogs[i].copy(deep=True))
                     gmag0 = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                     gmags.append(gmag0[:, 0])
                     gmag_errs.append(gmag0[:, 1])
                 elif (vIds[i]['abstract_filter'] in 'r'):
+                # elif (vIds[i]['band'] in 'r'):
                     rcat.extend(catalogs[i].copy(deep=True))
                     rmag0 = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                     rmags.append(rmag0[:, 0])
                     rmag_errs.append(rmag0[:, 1])
                 elif (vIds[i]['abstract_filter'] in 'i'):
+                # elif (vIds[i]['band'] in 'i'):
                     icat.extend(catalogs[i].copy(deep=True))
                     imag0 = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                     imags.append(imag0[:, 0])
@@ -72,13 +97,6 @@ class WPerpTask(Task):
                 icat_final['base_PsfFlux_mag'] = np.concatenate(imags)
                 icat_final['base_PsfFlux_magErr'] = np.concatenate(imag_errs)
 
-# NEXT:
-###    - apply photocalib to extract mags
-#    - apply external photocalib (FGCM)
-#    - apply extinction correction
-            # rmag0 = photo_calibs[0].instFluxToMagnitude(catalogs[0], 'base_PsfFlux')
-            # rmags = rmag0[:,0]
-
             qual_cuts = (rcat_final['base_ClassificationExtendedness_value'] < 0.5) &\
                         (rcat_final['base_PixelFlags_flag_saturated'] == False) &\
                         (rcat_final['base_PixelFlags_flag_cr'] == False) &\
@@ -90,44 +108,24 @@ class WPerpTask(Task):
             rgcat = join(rcat_final[qual_cuts], gcat_final, keys='id', table_names=['r', 'g'])
             rgicat = join(rgcat, icat_final, keys='id', table_names=['rg', 'i'])
             # Note that the way this was written, the g- and r-band data will have '_g' and
-            #   '_r' appended to column names. Ones with nothing appended are i-band.
-            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(rgicat['base_PsfFlux_mag_g'],
-                                                           rgicat['base_PsfFlux_mag_r'],
-                                                           rgicat['base_PsfFlux_mag'])
-            # import pdb; pdb.set_trace()
+            #   '_r' appended to column names. Ones with nothing appended are i-band. Rename them:
+            rgicat['base_PsfFlux_mag'].name = 'base_PsfFlux_mag_i'
+            rgicat['base_PsfFlux_magErr'].name = 'base_PsfFlux_magErr_i'
 
-#            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(gcat_final[qual_cuts], rcat_final[qual_cuts],
-#                                                           icat_final[qual_cuts])
+            ebvObject = ebv()
+            ebvValues = ebvObject.calculateEbv(equatorialCoordinates=np.array([rgicat['coord_ra'], rgicat['coord_dec']]))
+            A_g = ebvValues*extinctionCoeffs_HSC['HSC-G']
+            A_r = ebvValues*extinctionCoeffs_HSC['HSC-R']
+            A_i = ebvValues*extinctionCoeffs_HSC['HSC-I']
 
-            # gcat_final = gcat[qual_cuts].copy(deep=True)
-            # rcat_final = rcat[qual_cuts].copy(deep=True)
-            # icat_final = icat[qual_cuts].copy(deep=True)
+            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(rgicat['base_PsfFlux_mag_g']-A_g,
+                                                           rgicat['base_PsfFlux_mag_r']-A_r,
+                                                           rgicat['base_PsfFlux_mag_i']-A_i)
+
             if np.size(p2) > 2:
-                # p2_rms = np.sqrt(np.mean((p2-np.mean(p2))**2))
                 p2_rms = calcQuartileClippedStats(p2).rms*u.mag
-                return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag)))
-                # return Struct(measurement=Measurement(metric_name, (p2_rms*1000.0)*u.mmag))
+                extras = {'p1_coeffs': Datum(p1coeffs*u.Unit(''), label='p1_coefficients', description='p1 coeffs from wPerp fit'),
+                          'p2_coeffs': Datum(p2coeffs*u.Unit(''), label='p2_coefficients', description='p2_coeffs from wPerp fit')}
+                return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
             else:
                 return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))
-
-#        filteredCat = filterMatches(matchedCatalogMultiTract)
-#        magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
-#        minMag, maxMag = magRange.to(u.mag).value
-#
-#        def magInRange(cat):
-#            mag = cat.get('base_PsfFlux_mag')
-#            w, = np.where(np.isfinite(mag))
-#            medianMag = np.median(mag[w])
-#            return minMag <= medianMag and medianMag < maxMag
-#
-#        groupViewInMagRange = filteredCat.where(magInRange)
-#
-#        if len(groupViewInMagRange) > 0:
-#            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(groupViewInMagRange)
-#            if np.size(p2) > 2:
-#                p2_rms = np.sqrt(np.mean((p2-np.mean(p2))**2))
-#                return Struct(measurement=Measurement(metric_name, p2_rms*u.mag))
-#            else:
-#                return Struct(measurement=Measurement(metric_name, np.nan*u.mag))
-#        else:
-#            return Struct(measurement=Measurement(metric_name, np.nan*u.mag))
