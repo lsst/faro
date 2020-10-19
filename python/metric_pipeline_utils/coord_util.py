@@ -1,5 +1,7 @@
 import numpy as np
 
+import lsst.geom as geom
+
 def averageRaFromCat(cat):
     """Compute the average right ascension from a catalog of measurements.
     This function is used as an aggregate function to extract just RA
@@ -55,6 +57,30 @@ def averageRaDecFromCat(cat):
         Mean Dec in radians.
     """
     return averageRaDec(cat.get('coord_ra'), cat.get('coord_dec'))
+
+
+def averageRaDec(ra, dec):
+    """Calculate average RA, Dec from input lists using spherical geometry.
+    Parameters
+    ----------
+    ra : `list` [`float`]
+        RA in [radians]
+    dec : `list` [`float`]
+        Dec in [radians]
+    Returns
+    -------
+    float, float
+       meanRa, meanDec -- Tuple of average RA, Dec [radians]
+    """
+    assert(len(ra) == len(dec))
+
+    angleRa = [geom.Angle(r, geom.radians) for r in ra]
+    angleDec = [geom.Angle(d, geom.radians) for d in dec]
+    coords = [geom.SpherePoint(ar, ad, geom.radians) for (ar, ad) in zip(angleRa, angleDec)]
+
+    meanRa, meanDec = geom.averageSpherePoint(coords)
+
+    return meanRa.asRadians(), meanDec.asRadians()
 
 
 def sphDist(ra_mean, dec_mean, ra, dec):
