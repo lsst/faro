@@ -7,8 +7,6 @@ from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
                                                astromResiduals)
 from metric_pipeline_utils.phot_repeat import photRepeat
-#from lsst.validate.drp.calcsrd.tex import (correlation_function_ellipticity_from_matches,
-#                                           select_bin_from_corr)
 from metric_pipeline_utils.tex import (correlation_function_ellipticity_from_matches,
                                        select_bin_from_corr)
 

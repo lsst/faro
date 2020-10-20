@@ -5,7 +5,7 @@ import lsst.geom as geom
 def averageRaFromCat(cat):
     """Compute the average right ascension from a catalog of measurements.
     This function is used as an aggregate function to extract just RA
-    from lsst.validate.drp.matchreduce.build_matched_dataset
+    from a lsst.afw.table.MultiMatch final match catalog.
     The actual computation involves both RA and Dec.
     The intent is to use this for a set of measurements of the same source
     but that's neither enforced nor required.
@@ -25,7 +25,7 @@ def averageRaFromCat(cat):
 def averageDecFromCat(cat):
     """Compute the average declination from a catalog of measurements.
     This function is used as an aggregate function to extract just declination
-    from lsst.validate.drp.matchreduce.build_matched_dataset
+    from a lsst.afw.table.MultiMatch final match catalog.
     The actual computation involves both RA and Dec.
     The intent is to use this for a set of measurements of the same source
     but that's neither enforced nor required.
