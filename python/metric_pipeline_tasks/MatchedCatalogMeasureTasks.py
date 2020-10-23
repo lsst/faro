@@ -258,7 +258,7 @@ class AB1Task(Task):
     ConfigClass = AB1TaskConfig
     _DefaultName = "AB1Task"
 
-    def run(self, matchedCatalogMulti, metric_name):
+    def run(self, matchedCatalogMulti, metric_name, in_id, out_id):
         self.log.info(f"Measuring {metric_name}")
 
         if self.config.ref_filter not in filter_dict:
@@ -281,20 +281,21 @@ class AB1Task(Task):
             refVisits = list(refVisits)
 
             magRange = np.array([self.config.bright_mag_cut, self.config.faint_mag_cut]) * u.mag
-
             for rv in refVisits:
-                rmsDistances, distancesVisit = calcRmsDistancesVsRef(
+                rmsDistances = calcRmsDistancesVsRef(
                     filteredCat,
                     rv,
-                    magRange=magRange)
-                if len(rmsDistances) > 0:
-                    rmsDistancesAll.append(rmsDistances)
+                    magRange=magRange,
+                    band=filter_dict[out_id['band']])
+                finiteEntries = np.where(np.isfinite(rmsDistances))[0]
+                if len(finiteEntries) > 0:
+                    rmsDistancesAll.append(rmsDistances[finiteEntries])
 
             rmsDistancesAll = np.array(rmsDistancesAll)
 
             if len(rmsDistancesAll) == 0:
                 return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
-            return Struct(measurement=Measurement(metric_name, np.nanmean(rmsDistancesAll)*u.marcsec))
+            return Struct(measurement=Measurement(metric_name, np.mean(rmsDistancesAll)*u.marcsec))
 
         else:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))

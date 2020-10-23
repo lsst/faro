@@ -79,3 +79,25 @@ class MatchedMultiCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
 class MatchedMultiCatalogAnalysisTask(CatalogAnalysisBaseTask):
     ConfigClass = MatchedMultiCatalogAnalysisTaskConfig
     _DefaultName = "matchedMultiCatalogAnalysisTask"
+
+    def run(self, cat, in_id, out_id):
+        return self.measure.run(cat, self.config.connections.metric, in_id, out_id)
+
+    def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        """Do Butler I/O to provide in-memory objects for run.
+        This specialization of runQuantum performs error-handling specific to
+        MetricTasks. Most or all of this functionality may be moved to
+        activators in the future.
+        """
+        # Synchronize changes to this method with ApdbMetricTask
+        in_id = butlerQC.registry.expandDataId(inputRefs.cat.dataId)
+        out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
+        inputs = butlerQC.get(inputRefs)
+        inputs['in_id'] = in_id
+        inputs['out_id'] = out_id
+        outputs = self.run(**inputs)
+        if outputs.measurement is not None:
+            butlerQC.put(outputs, outputRefs)
+        else:
+            self.log.debugf("Skipping measurement of {!r} on {} "
+                            "as not applicable.", self, inputRefs)

@@ -252,7 +252,7 @@ def matchVisitComputeDistance(visit_obj1, ra_obj1, dec_obj1,
     return distances
 
 
-def calcRmsDistancesVsRef(groupView, refVisit, magRange, verbose=False):
+def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
     """Calculate the RMS distance of a set of matched objects over visits.
     Parameters
     ----------
@@ -284,46 +284,40 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, verbose=False):
     uniqObj = groupViewInMagRange.ids
     uniqVisits = set()
     for id in uniqObj:
-        uniqVisits.update(set(groupViewInMagRange[id].get('visit')))
+        for v, f in zip(groupViewInMagRange[id].get('visit'),
+                        groupViewInMagRange[id].get('filt')):
+            if f == band:
+                uniqVisits.add(v)
 
     uniqVisits = list(uniqVisits)
 
-    # Pick out the reference band visits:
-    if refVisit is None:
-        # For now, set the "default" visit to be the first in the list:
-        refVisit = uniqVisits[0]
-    else:
-        if not isinstance(refVisit, int):
-            refVisit = int(refVisit)
+    if not isinstance(refVisit, int):
+        refVisit = int(refVisit)
 
-    # Only do the calculation if the object exists in the reference catalog:
     if refVisit in uniqVisits:
         # Remove the reference visit from the set of visits:
         uniqVisits.remove(refVisit)
 
-        rmsDistances = list()
+    rmsDistances = list()
 
-        # Loop over visits, calculating the RMS for each:
-        for vis in uniqVisits:
+    # Loop over visits, calculating the RMS for each:
+    for vis in uniqVisits:
 
-            distancesVisit = list()
+        distancesVisit = list()
 
-            for obj in uniqObj:
-                visMatch = np.where(groupViewInMagRange[obj].get('visit') == vis)
-                refMatch = np.where(groupViewInMagRange[obj].get('visit') == refVisit)
+        for obj in uniqObj:
+            visMatch = np.where(groupViewInMagRange[obj].get('visit') == vis)
+            refMatch = np.where(groupViewInMagRange[obj].get('visit') == refVisit)
 
-                raObj = groupViewInMagRange[obj].get('coord_ra')
-                decObj = groupViewInMagRange[obj].get('coord_dec')
+            raObj = groupViewInMagRange[obj].get('coord_ra')
+            decObj = groupViewInMagRange[obj].get('coord_dec')
 
-                # Require it to have a match in both the reference and visit image:
-                if np.size(visMatch[0]) > 0 and np.size(refMatch[0]) > 0:
-                    distances = sphDist(raObj[refMatch], decObj[refMatch],
-                                        raObj[visMatch], decObj[visMatch])
+            # Require it to have a match in both the reference and visit image:
+            if np.size(visMatch[0]) > 0 and np.size(refMatch[0]) > 0:
+                distances = sphDist(raObj[refMatch], decObj[refMatch],
+                                    raObj[visMatch], decObj[visMatch])
 
-                    distancesVisit.append(distances)
-
-        # Return an array with units
-        distancesVisit = np.array(distancesVisit) * u.radian
+                distancesVisit.append(distances)
 
         finiteEntries = np.where(np.isfinite(distancesVisit))[0]
         # Need at least 2 distances to get a finite sample stdev
@@ -334,14 +328,11 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, verbose=False):
             pos_rms_mas = geom.radToMas(pos_rms_rad)  # milliarcsec
             rmsDistances.append(pos_rms_mas)
 
-        rmsDistances = np.array(rmsDistances) * u.marcsec
-        distancesVisit = distancesVisit.to(u.marcsec)
+        else:
+            rmsDistances.append(np.nan)
 
-    else:
-        rmsDistances = np.array([np.nan]) * u.marcsec
-        distancesVisit = np.array([np.nan]) * u.marcsec
-
-    return rmsDistances, distancesVisit
+    rmsDistances = np.array(rmsDistances) * u.marcsec
+    return rmsDistances
 
 
 def radiansToMilliarcsec(rad):
