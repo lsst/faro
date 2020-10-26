@@ -1,5 +1,7 @@
+import traceback
+
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
+from lsst.verify.tasks import MetricConnections, MetricComputationError
 
 from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
@@ -89,15 +91,20 @@ class MatchedMultiCatalogAnalysisTask(CatalogAnalysisBaseTask):
         MetricTasks. Most or all of this functionality may be moved to
         activators in the future.
         """
-        # Synchronize changes to this method with ApdbMetricTask
-        in_id = butlerQC.registry.expandDataId(inputRefs.cat.dataId)
-        out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
-        inputs = butlerQC.get(inputRefs)
-        inputs['in_id'] = in_id
-        inputs['out_id'] = out_id
-        outputs = self.run(**inputs)
-        if outputs.measurement is not None:
-            butlerQC.put(outputs, outputRefs)
-        else:
-            self.log.debugf("Skipping measurement of {!r} on {} "
-                            "as not applicable.", self, inputRefs)
+        try:
+            in_id = butlerQC.registry.expandDataId(inputRefs.cat.dataId)
+            out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
+            inputs = butlerQC.get(inputRefs)
+            inputs['in_id'] = in_id
+            inputs['out_id'] = out_id
+            outputs = self.run(**inputs)
+            if outputs.measurement is not None:
+                butlerQC.put(outputs, outputRefs)
+            else:
+                self.log.debugf("Skipping measurement of {!r} on {} "
+                                "as not applicable.", self, inputRefs)
+        except MetricComputationError:
+            # Apparently lsst.log doesn't have built-in exception support?
+            self.log.errorf(
+                "Measurement of {!r} failed on {}->{}\n{}",
+                self, inputRefs, outputRefs, traceback.format_exc())
