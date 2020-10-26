@@ -3,6 +3,7 @@ from lsst.afw.table import (SchemaMapper, Field,
                             SourceCatalog, updateSourceCoords)
 
 import numpy as np
+from astropy.table import Table, join
 
 
 def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
@@ -134,3 +135,56 @@ def ellipticity(i_xx, i_xy, i_yy):
     e1 = np.real(e)
     e2 = np.imag(e)
     return e, e1, e2
+
+
+def make_matched_photom(vIds, catalogs, photo_calibs):
+    # inputs: vIds, catalogs, photo_calibs
+
+    # Match all input bands:
+    bands = set([f['band'] for f in vIds])
+
+    # Should probably add an "assert" that requires bands>1...
+
+    empty_cat = catalogs[0].copy()
+    empty_cat.clear()
+
+    mag_cats = np.array(0)
+    cat_dict = {}
+    mags_dict = {}
+    for band in bands:
+        cat_dict[band] = {band, empty_cat}
+        mags_dict[band] = {band, [mag_cats, mag_cats]}
+
+    for i in range(len(catalogs)):
+        for band in bands:
+            if (vIds[i]['band'] in band):
+                cat_dict[band] = cat_dict[band].extend(catalogs[i].copy(deep=True))
+                mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
+                mags_dict[band][0] = np.append(mags_dict[band][0],mags[:,0])
+                mags_dict[band][1] = np.append(mags_dict[band][0],mags[:,1])
+
+    for band in bands:
+        cat_tmp = cat_dict[band]
+        if not cat_tmp.isContiguous():
+            cat_tmp = cat_tmp.copy(deep=True)
+        cat_tmp_final = cat_tmp.asAstropy()
+        cat_tmp_final['base_PsfFlux_mag'] = np.concatenate(mags_dict[band][0])
+        cat_tmp_final['base_PsfFlux_magErr'] = np.concatenate(mags_dict[band][1])
+        qual_cuts = (cat_tmp_final['base_ClassificationExtendedness_value'] < 0.5) &\
+                    (cat_tmp_final['base_PixelFlags_flag_saturated'] == False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_cr'] == False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_bad'] == False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_edge'] == False)
+        # Put the bandpass name in the column names:
+        for c in cat_tmp_final.colnames:
+            cat_tmp_final[c].name = c+'_'+str(band)
+        # Write the new catalog to the dict of catalogs:
+        cat_dict[band] = cat_tmp_final[qual_cuts]
+
+    cat_combined = join(cat_dict[bands[1]], cat_dict[bands][0], keys='id')
+    if len(bands) > 2:
+        for i in range(2, len(bands)):
+            cat_combined = join(cat_combined, cat_dict[bands][i], keys='id')
+
+    # Return the astropy table of matched catalogs:
+    return(cat_combined)
