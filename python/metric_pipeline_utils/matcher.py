@@ -3,7 +3,7 @@ from lsst.afw.table import (SchemaMapper, Field,
                             SourceCatalog, updateSourceCoords)
 
 import numpy as np
-from astropy.table import Table, join
+from astropy.table import join
 
 
 def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
@@ -160,8 +160,8 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
             if (vIds[i]['band'] in band):
                 cat_dict[band] = cat_dict[band].extend(catalogs[i].copy(deep=True))
                 mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
-                mags_dict[band][0] = np.append(mags_dict[band][0],mags[:,0])
-                mags_dict[band][1] = np.append(mags_dict[band][0],mags[:,1])
+                mags_dict[band][0] = np.append(mags_dict[band][0], mags[:, 0])
+                mags_dict[band][1] = np.append(mags_dict[band][0], mags[:, 1])
 
     for band in bands:
         cat_tmp = cat_dict[band]
@@ -171,10 +171,10 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
         cat_tmp_final['base_PsfFlux_mag'] = np.concatenate(mags_dict[band][0])
         cat_tmp_final['base_PsfFlux_magErr'] = np.concatenate(mags_dict[band][1])
         qual_cuts = (cat_tmp_final['base_ClassificationExtendedness_value'] < 0.5) &\
-                    (cat_tmp_final['base_PixelFlags_flag_saturated'] == False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_cr'] == False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_bad'] == False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_edge'] == False)
+                    (cat_tmp_final['base_PixelFlags_flag_saturated'] is False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_cr'] is False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_bad'] is False) &\
+                    (cat_tmp_final['base_PixelFlags_flag_edge'] is False)
         # Put the bandpass name in the column names:
         for c in cat_tmp_final.colnames:
             cat_tmp_final[c].name = c+'_'+str(band)

@@ -6,6 +6,7 @@ import treecorr
 
 from metric_pipeline_utils.coord_util import averageRaFromCat, averageDecFromCat
 
+
 def correlation_function_ellipticity_from_matches(matches, **kwargs):
     """Compute shear-shear correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.
     Convenience function for calling correlation_function_ellipticity.

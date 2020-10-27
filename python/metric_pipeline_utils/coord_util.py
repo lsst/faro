@@ -2,6 +2,7 @@ import numpy as np
 
 import lsst.geom as geom
 
+
 def averageRaFromCat(cat):
     """Compute the average right ascension from a catalog of measurements.
     This function is used as an aggregate function to extract just RA

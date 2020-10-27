@@ -5,6 +5,7 @@ from metric_pipeline_utils.filtermatches import filterMatches
 from metric_pipeline_utils.coord_util import (averageRaFromCat, averageDecFromCat,
                                               sphDist)
 
+
 def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
 

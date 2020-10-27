@@ -20,7 +20,7 @@ def photRepeat(matchedCatalog, **filterargs):
     else:
         return {'nomeas': np.nan*u.mmag}
 
-    
+
 def calcPhotRepeat(matches, magKey, numRandomShuffles=50):
     """Calculate the photometric repeatability of measurements across a set
     of randomly selected pairs of visits.
