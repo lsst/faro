@@ -1,7 +1,7 @@
 description: Compute metrics from matched catalogs
 tasks:
   PA1:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: PA1
@@ -9,7 +9,7 @@ tasks:
         from metric_pipeline_tasks import PA1Task
         config.measure.retarget(PA1Task)
   PA2_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: PA2_design_gri
@@ -19,7 +19,7 @@ tasks:
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   PF1_design:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
       connections.package: validate_drp
       connections.metric: PF1_design_gri
