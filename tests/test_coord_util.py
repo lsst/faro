@@ -37,7 +37,8 @@ from metric_pipeline_utils.coord_util import (averageRaFromCat,
 class CoordUtilTest(unittest.TestCase):
     """Test coordinate utility functions."""
 
-    def makeData(self):
+    def makeDataDiagonal(self):
+        """Make minimal sythetic catalog with simple values."""
         ra_test = np.radians(np.linspace(-10., 10., 101))
         dec_test = np.radians(np.linspace(-10., 10., 101))
         schema = afwTable.SourceTable.makeMinimalSchema()
@@ -48,7 +49,8 @@ class CoordUtilTest(unittest.TestCase):
         cat['coord_dec'][:] = dec_test
         return cat
 
-    def makeData2(self):
+    def makeDataHorizontal(self):
+        """Make minimal sythetic catalog with simple values."""
         ra_test = np.linspace(np.radians(-10.), np.radians(10.), 101)
         dec_test = np.tile(0., 101)
         schema = afwTable.SourceTable.makeMinimalSchema()
@@ -60,34 +62,39 @@ class CoordUtilTest(unittest.TestCase):
         return cat
 
     def test_averageRaFromCat(self):
+        """Test average RA calculation."""
         expected = 0.
-        cat = self.makeData()
+        cat = self.makeDataDiagonal()
         result = averageRaFromCat(cat)
         self.assertAlmostEqual(result, expected, places=15)
 
     def test_averageDecFromCat(self):
+        """Test average declination calculation."""
         expected = 0.
-        cat = self.makeData()
+        cat = self.makeDataDiagonal()
         result = averageDecFromCat(cat)
         self.assertAlmostEqual(result, expected, places=15)
 
     def test_averageRaDecFromCat(self):
+        """Test average RA and declination calculation."""
         expected = (0., 0.)
-        cat = self.makeData()
+        cat = self.makeDataDiagonal()
         result = averageRaDecFromCat(cat)
         self.assertAlmostEqual(result[0], expected[0], places=15)
         self.assertAlmostEqual(result[1], expected[1], places=15)
 
     def test_averageRaDec(self):
+        """Test average RA and declination calculation."""
         expected = (0., 0.)
-        cat = self.makeData()
+        cat = self.makeDataDiagonal()
         result = averageRaDec(cat['coord_ra'], cat['coord_dec'])
         self.assertAlmostEqual(result[0], expected[0], places=15)
         self.assertAlmostEqual(result[1], expected[1], places=15)
 
     def test_sphDist(self):
+        """Test great circle angular separation calculation."""
         expected = np.fabs(np.radians(np.linspace(-10., 10., 101)))
-        cat = self.makeData2()
+        cat = self.makeDataHorizontal()
         ra_mean, dec_mean = (0., 0.)
         result = sphDist(ra_mean, dec_mean, cat['coord_ra'], cat['coord_dec'])
         self.assertTrue(np.allclose(result, expected, atol=1.e-15))

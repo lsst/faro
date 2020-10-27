@@ -29,8 +29,10 @@ import operator
 import astropy.units as u
 
 from lsst.utils import getPackageDir
-from lsst.afw.table import SimpleCatalog
-from metric_pipeline_utils.tex import (select_bin_from_corr,
+from lsst.afw.table import SimpleCatalog, GroupView
+from metric_pipeline_utils.coord_util import averageRaFromCat, averageDecFromCat
+from metric_pipeline_utils.tex import (correlation_function_ellipticity,
+                                       select_bin_from_corr,
                                        medianEllipticity1ResidualsFromCat,
                                        medianEllipticity2ResidualsFromCat)
 
@@ -49,9 +51,29 @@ class TEXUtilTest(unittest.TestCase):
 
         return cat.subset(selection).copy(deep=True)
 
+    def test_correlation_function_ellipticity(self):
+        """Test correlation function calculation."""
+        expected_r = 4.44568063*u.arcmin
+        expected_xip = 0.00075123
+        expected_xip_err = 0.00053537
+
+        cat = self.load_data()
+        matches = GroupView.build(cat)
+
+        ra = matches.aggregate(averageRaFromCat) * u.radian
+        dec = matches.aggregate(averageDecFromCat) * u.radian
+
+        e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
+        e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
+
+        result = correlation_function_ellipticity(ra, dec, e1_res, e2_res)
+        self.assertTrue(u.isclose(np.mean(result[0]), expected_r))
+        self.assertTrue(u.isclose(np.mean(result[1]), expected_xip))
+        self.assertTrue(u.isclose(np.mean(result[2]), expected_xip_err))
+
     def test_select_bin_from_corr(self):
         """Test selection of angular range from correlation function."""
-        
+
         # Test less than or equal to logic
         expected = (4.666666666666667, 1.3820881233139908)
         radius = np.arange(1, 11) * u.arcmin

@@ -37,8 +37,6 @@ from metric_pipeline_utils.phot_repeat import (calcPhotRepeat,
                                                getRandomDiffRmsInMmags,
                                                getRandomDiff)
 
-# Make sure measurements are deterministic
-random.seed(8675309)
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 
@@ -65,6 +63,9 @@ class PhotUtilTest(unittest.TestCase):
     def test_calcPhotRepeat(self):
         """Test photometric repeatability for multiple realizations
         of random pairs of visits."""
+        # Ensure measurements are deterministic
+        random.seed(8675309)
+
         expected = 72.21113484367118 * u.mmag
         matches, magKey = self.load_data()
         result = calcPhotRepeat(matches, magKey)
@@ -73,8 +74,11 @@ class PhotUtilTest(unittest.TestCase):
     def test_calcPhotRepeatSample(self):
         """Test photometric repeatability for one realization
         of random pairs of visits."""
-        expected = pipeBase.Struct(rms=170.6518295830355,
-                                   iqr=64.98483301334444)
+        # Ensure measurements are deterministic
+        random.seed(8675309)
+
+        expected = pipeBase.Struct(rms=163.30045391535035,
+                                   iqr=69.65713175546037)
         matches, magKey = self.load_data()
         result = calcPhotRepeatSample(matches, magKey)
         self.assertEqual(result.rms, expected.rms)
@@ -82,6 +86,9 @@ class PhotUtilTest(unittest.TestCase):
 
     def test_computeWidths(self):
         """Test RMS and the scaled inter-quartile range calculation."""
+        # Ensure measurements are deterministic
+        random.seed(8675309)
+
         expected = (22.54717277176897, 1.8532527731320025)
         mag = np.linspace(20, 25, 101)
         result = computeWidths(mag)
@@ -90,14 +97,20 @@ class PhotUtilTest(unittest.TestCase):
 
     def test_getRandomDiffRmsInMmags(self):
         """Test random sampling of magnitude diffs."""
-        expected = -919.2388155425097
+        # Ensure measurements are deterministic
+        random.seed(8675309)
+
+        expected = 848.5281374238564
         mag = np.linspace(20, 25, 101)
         result = getRandomDiffRmsInMmags(mag)
         self.assertEqual(result, expected)
 
     def test_getRandomDiff(self):
         """Test one random diff"""
-        expected = -1.75
+        # Ensure measurements are deterministic
+        random.seed(8675309)
+
+        expected = 1.1999999999999993
         mag = np.linspace(20, 25, 101)
         result = getRandomDiff(mag)
         self.assertEqual(result, expected)
