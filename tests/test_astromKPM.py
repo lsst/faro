@@ -104,7 +104,8 @@ class AmxTest(unittest.TestCase):
         task = AB1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AB1', band))
-            result = task.run(catalog, 'AB1_design')
+            result = task.run(catalog, 'AB1_design', in_id={'this': 'is ignored'},
+                              out_id={'band': band})
             self.assertEqual(result.measurement, expected)
 
 
