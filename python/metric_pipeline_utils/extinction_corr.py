@@ -1,5 +1,12 @@
 from astropy.coordinates import SkyCoord
-from dustmaps.sfd import SFDQuery
+try:
+    from dustmaps.sfd import SFDQuery
+except ModuleNotFoundError:
+    print("The extinction_corr method is not available without first installing the dustmaps module:\n"
+          "$> pip install --user dustmaps\n\n"
+          "Then in a python interpreter:\n"
+          ">>> import dustmaps.sfd\n"
+          ">>> dustmaps.sfd.fetch()\n")
 
 
 def extinction_corr(catalog, bands):
