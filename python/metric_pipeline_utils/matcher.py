@@ -141,50 +141,62 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
     # inputs: vIds, catalogs, photo_calibs
 
     # Match all input bands:
-    bands = set([f['band'] for f in vIds])
+    bands = list(set([f['band'] for f in vIds]))
 
     # Should probably add an "assert" that requires bands>1...
 
     empty_cat = catalogs[0].copy()
     empty_cat.clear()
 
-    mag_cats = np.array(0)
     cat_dict = {}
     mags_dict = {}
     for band in bands:
-        cat_dict[band] = {band, empty_cat}
-        mags_dict[band] = {band, [mag_cats, mag_cats]}
+        cat_dict[band] = empty_cat.copy()
+        mags_dict[band] = []
 
     for i in range(len(catalogs)):
         for band in bands:
             if (vIds[i]['band'] in band):
-                cat_dict[band] = cat_dict[band].extend(catalogs[i].copy(deep=True))
+                cat_dict[band].extend(catalogs[i].copy(deep=True))
                 mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
-                mags_dict[band][0] = np.append(mags_dict[band][0], mags[:, 0])
-                mags_dict[band][1] = np.append(mags_dict[band][0], mags[:, 1])
+                mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
 
     for band in bands:
         cat_tmp = cat_dict[band]
-        if not cat_tmp.isContiguous():
-            cat_tmp = cat_tmp.copy(deep=True)
+        if np.bool(cat_tmp):
+            if not cat_tmp.isContiguous():
+                cat_tmp = cat_tmp.copy(deep=True)
         cat_tmp_final = cat_tmp.asAstropy()
-        cat_tmp_final['base_PsfFlux_mag'] = np.concatenate(mags_dict[band][0])
-        cat_tmp_final['base_PsfFlux_magErr'] = np.concatenate(mags_dict[band][1])
-        qual_cuts = (cat_tmp_final['base_ClassificationExtendedness_value'] < 0.5) &\
-                    (cat_tmp_final['base_PixelFlags_flag_saturated'] is False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_cr'] is False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_bad'] is False) &\
-                    (cat_tmp_final['base_PixelFlags_flag_edge'] is False)
-        # Put the bandpass name in the column names:
+        cat_tmp_final['base_PsfFlux_mag'] = mags_dict[band]
+         # Put the bandpass name in the column names:
         for c in cat_tmp_final.colnames:
-            cat_tmp_final[c].name = c+'_'+str(band)
+            if c not in 'id':
+                cat_tmp_final[c].name = c+'_'+str(band)
         # Write the new catalog to the dict of catalogs:
-        cat_dict[band] = cat_tmp_final[qual_cuts]
+        cat_dict[band] = cat_tmp_final # [qual_cuts]
 
-    cat_combined = join(cat_dict[bands[1]], cat_dict[bands][0], keys='id')
+    cat_combined = join(cat_dict[bands[1]], cat_dict[bands[0]], keys='id')
     if len(bands) > 2:
         for i in range(2, len(bands)):
-            cat_combined = join(cat_combined, cat_dict[bands][i], keys='id')
+            cat_combined = join(cat_combined, cat_dict[bands[i]], keys='id')
+
+    qual_cuts = (cat_combined['base_ClassificationExtendedness_value_g'] < 0.5) &\
+                (cat_combined['base_PixelFlags_flag_saturated_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_g'] == False) &\
+                (cat_combined['base_ClassificationExtendedness_value_r'] < 0.5) &\
+                (cat_combined['base_PixelFlags_flag_saturated_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_r'] == False) &\
+                (cat_combined['base_ClassificationExtendedness_value_i'] < 0.5) &\
+                (cat_combined['base_PixelFlags_flag_saturated_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_i'] == False)
+
+    # import pdb ; pdb.set_trace()
 
     # Return the astropy table of matched catalogs:
-    return(cat_combined)
+    return(cat_combined[qual_cuts])
