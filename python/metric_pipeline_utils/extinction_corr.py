@@ -1,5 +1,12 @@
-from lsst.sims.catUtils.dust.EBV import EBVbase as Ebv
-import numpy as np
+from astropy.coordinates import SkyCoord
+try:
+    from dustmaps.sfd import SFDQuery
+except ModuleNotFoundError:
+    print("The extinction_corr method is not available without first installing the dustmaps module:\n"
+          "$> pip install --user dustmaps\n\n"
+          "Then in a python interpreter:\n"
+          ">>> import dustmaps.sfd\n"
+          ">>> dustmaps.sfd.fetch()\n")
 
 
 def extinction_corr(catalog, bands):
@@ -24,11 +31,11 @@ def extinction_corr(catalog, bands):
         "NB0921": 1.187,
     }
 
-    ebvObject = Ebv()
+    sfd = SFDQuery()
     coord_string_ra = 'coord_ra_'+str(bands[0])
     coord_string_dec = 'coord_dec_'+str(bands[0])
-    ebvValues = ebvObject.calculateEbv(equatorialCoordinates=np.array([catalog[coord_string_ra],
-                                                                       catalog[coord_string_dec]]))
+    coords = SkyCoord(catalog[coord_string_ra], catalog[coord_string_dec])
+    ebvValues = sfd(coords)
     extinction_dict = {'E(B-V)': ebvValues}
 
     # Create a dict with the extinction values for each band (and E(B-V), too):
