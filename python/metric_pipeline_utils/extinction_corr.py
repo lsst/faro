@@ -31,6 +31,7 @@ def extinction_corr(catalog, bands):
         "NB0921": 1.187,
     }
 
+    bands = list(bands)
     sfd = SFDQuery()
     coord_string_ra = 'coord_ra_'+str(bands[0])
     coord_string_dec = 'coord_dec_'+str(bands[0])

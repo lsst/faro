@@ -41,7 +41,6 @@ class WPerpTask(Task):
                                              description='p1 coeffs from wPerp fit'),
                           'p2_coeffs': Datum(p2coeffs*u.Unit(''), label='p2_coefficients',
                                              description='p2_coeffs from wPerp fit')}
-                import pdb; pdb.set_trace()
 
                 return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
             else:
