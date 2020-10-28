@@ -29,7 +29,6 @@ class WPerpTask(Task):
             magcut = ((rgicat_all['base_PsfFlux_mag_r'] < self.config.faint_rmag_cut)
                       & (rgicat_all['base_PsfFlux_mag_r'] > self.config.bright_rmag_cut))
             rgicat = rgicat_all[magcut]
-
             ext_vals = extinction_corr(rgicat, bands)
 
             p1, p2, p1coeffs, p2coeffs = stellarLocusResid(rgicat['base_PsfFlux_mag_g']-ext_vals['A_g'],
@@ -42,6 +41,8 @@ class WPerpTask(Task):
                                              description='p1 coeffs from wPerp fit'),
                           'p2_coeffs': Datum(p2coeffs*u.Unit(''), label='p2_coefficients',
                                              description='p2_coeffs from wPerp fit')}
+                import pdb; pdb.set_trace()
+
                 return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
             else:
                 return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))
