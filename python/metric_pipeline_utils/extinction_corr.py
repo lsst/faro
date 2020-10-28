@@ -1,9 +1,13 @@
-from lsst.sims.catUtils.dust.EBV import EBVbase as ebv
+from lsst.sims.catUtils.dust.EBV import EBVbase as Ebv
+import numpy as np
 
 
 def extinction_corr(catalog, bands):
 
-    # Extinction coefficients for HSC filters for conversion from E(B-V) to extinction, A_filter.                                                                            # Numbers provided by Masayuki Tanaka (NAOJ).                                                                                                                            #                                                                                                                                                                        # Band, A_filter/E(B-V)                                                                                                                                                   
+    # Extinction coefficients for HSC filters for conversion from E(B-V) to extinction, A_filter.
+    # Numbers provided by Masayuki Tanaka (NAOJ).
+    #
+    # Band, A_filter/E(B-V)
     extinctionCoeffs_HSC = {
         "g": 3.240,
         "r": 2.276,
@@ -20,11 +24,12 @@ def extinction_corr(catalog, bands):
         "NB0921": 1.187,
     }
 
-    ebvObject = ebv()
+    ebvObject = Ebv()
     coord_string_ra = 'coord_ra_'+str(bands[0])
     coord_string_dec = 'coord_dec_'+str(bands[0])
-    ebvValues = ebvObject.calculateEbv(equatorialCoordinates=np.array([catalog[coord_string_ra], catalog[coord_string_dec]]))
-    extinction_dict = {'E(B-V)':ebvValues}
+    ebvValues = ebvObject.calculateEbv(equatorialCoordinates=np.array([catalog[coord_string_ra],
+                                                                       catalog[coord_string_dec]]))
+    extinction_dict = {'E(B-V)': ebvValues}
 
     # Create a dict with the extinction values for each band (and E(B-V), too):
     for band in bands:

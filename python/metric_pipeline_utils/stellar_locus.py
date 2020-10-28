@@ -1,11 +1,6 @@
 import numpy as np
-import scipy.optimize as scipyOptimize
 import scipy.stats as scipyStats
-import scipy.odr as scipyOdr
 from lsst.pipe.base import Struct
-from metric_pipeline_utils.filtermatches import filterMatches
-from lsst.afw.table import GroupView
-import astropy.units as u
 
 
 def stellarLocusResid(gmags, rmags, imags, **filterargs):
@@ -14,7 +9,8 @@ def stellarLocusResid(gmags, rmags, imags, **filterargs):
     ri = rmags-imags
 
     # Also trim large values of r-i, since those will skew the linear regression
-    okfitcolors = (gr < 1.1) & (gr > 0.3) & (np.abs(ri) < 1.0) & np.isfinite(gmags) & np.isfinite(rmags) & np.isfinite(imags)
+    okfitcolors = ((gr < 1.1) & (gr > 0.3) & (np.abs(ri) < 1.0)
+                   & np.isfinite(gmags) & np.isfinite(rmags) & np.isfinite(imags))
     # Eventually switch to using orthogonal regression instead of linear (as in pipe-analysis)?
 
     slope, intercept, r_value, p_value, std_err = scipyStats.linregress(gr[okfitcolors],
@@ -34,7 +30,7 @@ def stellarLocusResid(gmags, rmags, imags, **filterargs):
     okp1_fit = (p1_fit < 0.6) & (p1_fit > -0.2)
 
     # Do a second iteration, removing large (>3 sigma) outliers in p2:
-    clippedStats = calcQuartileClippedStats(p2_fit[okp1_fit], 3.0) 
+    clippedStats = calcQuartileClippedStats(p2_fit[okp1_fit], 3.0)
     keep = (np.abs(p2_fit) < clippedStats.clipValue)
 
     slope, intercept, r_value, p_value, std_err = scipyStats.linregress(gr[okfitcolors & keep],
@@ -57,9 +53,9 @@ def stellarLocusResid(gmags, rmags, imags, **filterargs):
 def calcP1P2(mags, coeffs):
     # P1 =A′u+B′g+C′r+D′i+E′z+F′
     # P2′=Au+Bg+Cr+Di+Ez+F
-    p1p2 = float(coeffs[0])*mags[0] + float(coeffs[1])*mags[1] +\
-           float(coeffs[2])*mags[2] + float(coeffs[3])*mags[3] +\
-           float(coeffs[4])*mags[4] + float(coeffs[5])
+    p1p2 = (float(coeffs[0])*mags[0] + float(coeffs[1])*mags[1]
+            + float(coeffs[2])*mags[2] + float(coeffs[3])*mags[3]
+            + float(coeffs[4])*mags[4] + float(coeffs[5]))
     return p1p2
 
 
