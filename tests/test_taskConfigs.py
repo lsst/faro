@@ -26,7 +26,7 @@ import unittest
 
 from metric_pipeline_tasks import (AMxTask, ADxTask, AFxTask,
                                    PA1Task, PA2Task, PF1Task,
-                                   TExTask, AB1Task)
+                                   TExTask, AB1Task, WPerpTask)
 
 
 class ConfigTest(unittest.TestCase):
@@ -88,7 +88,6 @@ class ConfigTest(unittest.TestCase):
         expected.threshAF = 11.55
         expected.bins = [0.5, 1.6, 3.1, 2.8]
         task = AFxTask(config=expected)
-        self.check_config(task, expected, default, field_list)
         self.check_config(task, expected, default, field_list)
 
     def test_pa1_config(self):
@@ -153,6 +152,16 @@ class ConfigTest(unittest.TestCase):
         expected.faint_mag_cut = 38.2
         expected.ref_filter = 'p'
         task = AB1Task(config=expected)
+        self.check_config(task, expected, default, field_list)
+
+    def test_wperp_config(self):
+        """Test application of config for wPerp task"""
+        default = WPerpTask.ConfigClass()
+        expected = WPerpTask.ConfigClass()
+        field_list = ['bright_rmag_cut', 'faint_rmag_cut']
+        expected.bright_rmag_cut = 25.3
+        expected.faint_rmag_cut = 38.2
+        task = WPerpTask(config=expected)
         self.check_config(task, expected, default, field_list)
 
 

@@ -29,6 +29,7 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from astropy.table import Table
+from metric_pipeline_utils.stellar_locus import stellarLocusResid
 from metric_pipeline_utils.extinction_corr import extinction_corr
 from metric_pipeline_tasks import WPerpTask
 
@@ -69,6 +70,27 @@ class StellarLocusTest(unittest.TestCase):
         task = WPerpTask(config=config)
         result = task.calc_wPerp(cat, ext_vals, 'wPerp')
         self.assertEqual(result.measurement.quantity, expected_wperp)
+
+    def test_stellarLocusResid(self):
+        """Test calculation of stellar locus residuals on a known catalog."""
+        cat = self.load_data()
+        bands = ['r', 'g', 'i']
+        ext_vals = extinction_corr(cat, bands)
+
+        p1, p2, p1coeffs, p2coeffs = stellarLocusResid(cat['base_PsfFlux_mag_g']-ext_vals['A_g'],
+                                                       cat['base_PsfFlux_mag_r']-ext_vals['A_r'],
+                                                       cat['base_PsfFlux_mag_i']-ext_vals['A_i'])
+
+        expected_p1coeffs = [0.0, 0.8865855025842218, -0.424020754027349,
+                             -0.46256474855687274, 0.0, -0.3073194572752734]
+        expected_p2coeffs = [0.0, -0.2754432193878283, 0.8033778833591981,
+                             -0.5279346639713699, 0.0, 0.03544642888292535]
+        expected_p1median = 0.1775458238071685
+        expected_p2median = 4.766061008374539e-05
+        self.assertEqual(np.median(p1), expected_p1median)
+        self.assertEqual(np.median(p2), expected_p2median)
+        self.assertEqual(p1coeffs, expected_p1coeffs)
+        self.assertEqual(p2coeffs, expected_p2coeffs)
 
 
 if __name__ == "__main__":
