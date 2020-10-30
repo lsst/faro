@@ -29,16 +29,8 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from astropy.table import Table
-from metric_pipeline_utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
-from astropy.coordinates import SkyCoord
-try:
-    from dustmaps.sfd import SFDQuery
-except ModuleNotFoundError:
-    print("The extinction_corr method is not available without first installing the dustmaps module:\n"
-          "$> pip install --user dustmaps\n\n"
-          "Then in a python interpreter:\n"
-          ">>> import dustmaps.sfd\n"
-          ">>> dustmaps.sfd.fetch()\n")
+from metric_pipeline_utils.extinction_corr import extinction_corr
+from metric_pipeline_tasks import WPerpTask
 
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
@@ -49,16 +41,17 @@ class StellarLocusTest(unittest.TestCase):
     def load_data(self):
         '''Helper to load data to process.'''
         cat_file = 'tract9813_patches55to72_gri_filtered.fits.gz'
-        # catalog = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
         catalog = Table.read(os.path.join(DATADIR, cat_file))
         return catalog
 
     def test_extinction_corr(self):
         """Test lookup of extinction corrections on a known catalog."""
         cat = self.load_data()
-        coords = SkyCoord(cat['coord_ra_r'], cat['coord_dec_r'])
-        sfd = SFDQuery()
-        ebvValues = sfd(coords)
+        # 'r' must come first, because the coord column is named 'coord_ra_r', and
+        # extinction_corr assumes the first bandpass provided is used for the coord column.
+        bands = ['r', 'g', 'i']
+        ext_vals = extinction_corr(cat, bands)
+        ebvValues = ext_vals['E(B-V)']
         expected_mean_ebv = 0.020206410437822342
         expected_len_ebv = 209
         self.assertEqual(np.mean(ebvValues), expected_mean_ebv)
@@ -67,18 +60,15 @@ class StellarLocusTest(unittest.TestCase):
     def test_wPerp(self):
         """Test calculation of wPerp (stellar locus metric) on a known catalog."""
         cat = self.load_data()
+        bands = ['r', 'g', 'i']
+        ext_vals = extinction_corr(cat, bands)
+
         expected_wperp = 12.18208045737346 * u.mmag
-        coords = SkyCoord(cat['coord_ra_r'], cat['coord_dec_r'])
-        sfd = SFDQuery()
-        ebvValues = sfd(coords)
-        A_g = ebvValues*3.240
-        A_r = ebvValues*2.276
-        A_i = ebvValues*1.633
-        p1, p2, p1coeffs, p2coeffs = stellarLocusResid(cat['base_PsfFlux_mag_g']-A_g,
-                                                       cat['base_PsfFlux_mag_r']-A_r,
-                                                       cat['base_PsfFlux_mag_i']-A_i)
-        p2_rms = calcQuartileClippedStats(p2).rms*u.mag
-        self.assertEqual(p2_rms.to(u.mmag), expected_wperp)
+
+        config = WPerpTask.ConfigClass()
+        task = WPerpTask(config=config)
+        result = task.calc_wPerp(cat, ext_vals, 'wPerp')
+        self.assertEqual(result.measurement.quantity, expected_wperp)
 
 
 if __name__ == "__main__":

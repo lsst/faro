@@ -31,16 +31,23 @@ class WPerpTask(Task):
             rgicat = rgicat_all[magcut]
             ext_vals = extinction_corr(rgicat, bands)
 
-            p1, p2, p1coeffs, p2coeffs = stellarLocusResid(rgicat['base_PsfFlux_mag_g']-ext_vals['A_g'],
-                                                           rgicat['base_PsfFlux_mag_r']-ext_vals['A_r'],
-                                                           rgicat['base_PsfFlux_mag_i']-ext_vals['A_i'])
+            wPerp = self.calc_wPerp(rgicat, ext_vals, metric_name)
+            return wPerp
+        else:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))
 
-            if np.size(p2) > 2:
-                p2_rms = calcQuartileClippedStats(p2).rms*u.mag
-                extras = {'p1_coeffs': Datum(p1coeffs*u.Unit(''), label='p1_coefficients',
-                                             description='p1 coeffs from wPerp fit'),
-                          'p2_coeffs': Datum(p2coeffs*u.Unit(''), label='p2_coefficients',
-                                             description='p2_coeffs from wPerp fit')}
-                return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
-            else:
-                return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))
+    def calc_wPerp(self, phot, extinction_vals, metric_name):
+        p1, p2, p1coeffs, p2coeffs = stellarLocusResid(phot['base_PsfFlux_mag_g']-extinction_vals['A_g'],
+                                                       phot['base_PsfFlux_mag_r']-extinction_vals['A_r'],
+                                                       phot['base_PsfFlux_mag_i']-extinction_vals['A_i'])
+
+        if np.size(p2) > 2:
+            p2_rms = calcQuartileClippedStats(p2).rms*u.mag
+            extras = {'p1_coeffs': Datum(p1coeffs*u.Unit(''), label='p1_coefficients',
+                                         description='p1 coeffs from wPerp fit'),
+                      'p2_coeffs': Datum(p2coeffs*u.Unit(''), label='p2_coefficients',
+                                         description='p2_coeffs from wPerp fit')}
+
+            return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
+        else:
+            return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))

@@ -150,9 +150,11 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
 
     cat_dict = {}
     mags_dict = {}
+    magerrs_dict = {}
     for band in bands:
         cat_dict[band] = empty_cat.copy()
         mags_dict[band] = []
+        magerrs_dict[band] = []
 
     for i in range(len(catalogs)):
         for band in bands:
@@ -160,6 +162,7 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                 cat_dict[band].extend(catalogs[i].copy(deep=True))
                 mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                 mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
+                magerrs_dict[band] = np.append(mags_dict[band], mags[:, 1])
 
     for band in bands:
         cat_tmp = cat_dict[band]
@@ -168,12 +171,13 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                 cat_tmp = cat_tmp.copy(deep=True)
         cat_tmp_final = cat_tmp.asAstropy()
         cat_tmp_final['base_PsfFlux_mag'] = mags_dict[band]
-         # Put the bandpass name in the column names:
+        cat_tmp_final['base_PsfFlux_magErr'] = magerrs_dict[band]
+        # Put the bandpass name in the column names:
         for c in cat_tmp_final.colnames:
             if c not in 'id':
                 cat_tmp_final[c].name = c+'_'+str(band)
         # Write the new catalog to the dict of catalogs:
-        cat_dict[band] = cat_tmp_final # [qual_cuts]
+        cat_dict[band] = cat_tmp_final
 
     cat_combined = join(cat_dict[bands[1]], cat_dict[bands[0]], keys='id')
     if len(bands) > 2:
@@ -195,8 +199,6 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                 (cat_combined['base_PixelFlags_flag_cr_i'] == False) &\
                 (cat_combined['base_PixelFlags_flag_bad_i'] == False) &\
                 (cat_combined['base_PixelFlags_flag_edge_i'] == False)
-
-    # import pdb ; pdb.set_trace()
 
     # Return the astropy table of matched catalogs:
     return(cat_combined[qual_cuts])
