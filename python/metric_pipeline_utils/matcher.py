@@ -184,8 +184,6 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
         for i in range(2, len(bands)):
             cat_combined = join(cat_combined, cat_dict[bands[i]], keys='id')
 
-#                (cat_combined['base_PixelFlags_flag_saturated_g'] == False) &\
-
     qual_cuts = (cat_combined['base_ClassificationExtendedness_value_g'] < 0.5) &\
                 (not cat_combined['base_PixelFlags_flag_saturated_g']) &\
                 (not cat_combined['base_PixelFlags_flag_cr_g']) &\
