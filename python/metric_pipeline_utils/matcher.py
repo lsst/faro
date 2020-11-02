@@ -198,7 +198,7 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                 (cat_combined['base_PixelFlags_flag_saturated_i'] == False) &\
                 (cat_combined['base_PixelFlags_flag_cr_i'] == False) &\
                 (cat_combined['base_PixelFlags_flag_bad_i'] == False) &\
-                (cat_combined['base_PixelFlags_flag_edge_i'] == False) # noqa: E712
+                (cat_combined['base_PixelFlags_flag_edge_i'] == False)  # noqa: E712
 
     # Return the astropy table of matched catalogs:
     return(cat_combined[qual_cuts])
