@@ -162,11 +162,11 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
                 cat_dict[band].extend(catalogs[i].copy(deep=True))
                 mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                 mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
-                magerrs_dict[band] = np.append(mags_dict[band], mags[:, 1])
+                magerrs_dict[band] = np.append(magerrs_dict[band], mags[:, 1])
 
     for band in bands:
         cat_tmp = cat_dict[band]
-        if np.bool(cat_tmp):
+        if cat_tmp:
             if not cat_tmp.isContiguous():
                 cat_tmp = cat_tmp.copy(deep=True)
         cat_tmp_final = cat_tmp.asAstropy()
@@ -185,20 +185,20 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
             cat_combined = join(cat_combined, cat_dict[bands[i]], keys='id')
 
     qual_cuts = (cat_combined['base_ClassificationExtendedness_value_g'] < 0.5) &\
-                (not cat_combined['base_PixelFlags_flag_saturated_g']) &\
-                (not cat_combined['base_PixelFlags_flag_cr_g']) &\
-                (not cat_combined['base_PixelFlags_flag_bad_g']) &\
-                (not cat_combined['base_PixelFlags_flag_edge_g']) &\
+                (cat_combined['base_PixelFlags_flag_saturated_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_g'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_g'] == False) &\
                 (cat_combined['base_ClassificationExtendedness_value_r'] < 0.5) &\
-                (not cat_combined['base_PixelFlags_flag_saturated_r']) &\
-                (not cat_combined['base_PixelFlags_flag_cr_r']) &\
-                (not cat_combined['base_PixelFlags_flag_bad_r']) &\
-                (not cat_combined['base_PixelFlags_flag_edge_r']) &\
+                (cat_combined['base_PixelFlags_flag_saturated_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_r'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_r'] == False) &\
                 (cat_combined['base_ClassificationExtendedness_value_i'] < 0.5) &\
-                (not cat_combined['base_PixelFlags_flag_saturated_i']) &\
-                (not cat_combined['base_PixelFlags_flag_cr_i']) &\
-                (not cat_combined['base_PixelFlags_flag_bad_i']) &\
-                (not cat_combined['base_PixelFlags_flag_edge_i'])
+                (cat_combined['base_PixelFlags_flag_saturated_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_cr_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_bad_i'] == False) &\
+                (cat_combined['base_PixelFlags_flag_edge_i'] == False) # noqa: E712
 
     # Return the astropy table of matched catalogs:
     return(cat_combined[qual_cuts])
