@@ -16,7 +16,7 @@ class JobReporter:
     def run(self):
         jobs = {}
         for metric in self.metrics:
-            data_ids = list(self.registry.queryDatasets((f'metricvalue_summary_{metric.package}'
+            data_ids = list(self.registry.queryDatasets((f'metricvalue_{metric.package}'
                                                          f'_{metric.metric}'),
                             collections=self.collection))
             for did in data_ids:
