@@ -47,7 +47,7 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
         if extended:
             return np.min(ext) > 0.9
         else:
-            return np.min(ext) < 0.9
+            return np.max(ext) < 0.9
 
     def flagFilter(cat):
         if doFlags:
