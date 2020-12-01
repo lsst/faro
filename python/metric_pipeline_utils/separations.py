@@ -206,7 +206,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     # return quantity
     # import pdb; pdb.set_trace()
     if len(sepResiduals) > 0:
-        sepResiduals = np.concatenate(np.array(sepResiduals)) * u.radian
+        sepResiduals = np.concatenate(np.array(sepResiduals, dtype="object")) * u.radian
     return sepResiduals
 
 
