@@ -3,6 +3,7 @@ inherits:
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_matched.yaml
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_matched_multi.yaml
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_visit.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_tract_multi.yaml
   # This pipeline only has data for one patch which causes all other
   # pipelines to run over only that patch
   #- location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_patch.yaml
