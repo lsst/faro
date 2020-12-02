@@ -33,7 +33,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                                multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
-        name="{coaddName}Coadd_skyMap",
+        name="skyMap",
         storageClass="SkyMap",
         dimensions=("skymap",),
     )
