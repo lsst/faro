@@ -3,7 +3,7 @@ from lsst.daf.butler import Butler
 
 
 class JobReporter:
-    def __init__(self, repository, collection, metrics_package, spec):
+    def __init__(self, repository, collection, metrics_package, spec, dataset_name):
         # Hard coding verify_metrics as the packager for now.
         # It would be easy to pass this in as an argument, if necessary.
         self.metrics = MetricSet.load_metrics_package(package_name_or_path='verify_metrics',
@@ -12,6 +12,7 @@ class JobReporter:
         self.registry = self.butler.registry
         self.spec = spec
         self.collection = collection
+        self.dataset_name = dataset_name
 
     def run(self):
         jobs = {}
@@ -35,10 +36,11 @@ class JobReporter:
                 key = f"{tract}_{afilt}"
                 if key not in jobs.keys():
                     job_metadata = {'instrument': did.dataId['instrument'],
-                                    'filter_name': pfilt,
+                                    'filter': pfilt,
                                     'band': afilt,
                                     'tract': tract,
-                                    'butler_generation': 'Gen3'}
+                                    'butler_generation': 'Gen3',
+                                    'ci_dataset': self.dataset_name}
                     # Get dataset_repo_url from repository somehow?
                     jobs[key] = Job(meta=job_metadata, metrics=self.metrics)
                 jobs[key].measurements.insert(m)
