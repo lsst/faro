@@ -1,3 +1,3 @@
 description: Full metrics pipeline
-inherits:
+imports:
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/analysis_tract_multi.yaml
