@@ -6,8 +6,8 @@ import json
 from metric_pipeline_scripts import JobReporter
 
 
-def main(repository, collection, metrics_package, spec):
-    jr = JobReporter(repository, collection, metrics_package, spec)
+def main(repository, collection, metrics_package, spec, dataset_name):
+    jr = JobReporter(repository, collection, metrics_package, spec, dataset_name)
     jobs = jr.run()
     if len(jobs) == 0:
         raise RuntimeError('Job reporter returned no jobs.')
@@ -28,6 +28,8 @@ if __name__ == "__main__":
                         help='Name of metrics package to load')
     parser.add_argument('--spec', type=str, default="design",
                         help='Spec level to apply: minimum, design, or stretch')
+    parser.add_argument('--dataset_name', type=str, default="validation_data_hsc",
+                        help='Name of the dataset for which the report is being generated.')
 
     args = parser.parse_args()
-    main(args.repository, args.collection, args.metrics_package, args.spec)
+    main(args.repository, args.collection, args.metrics_package, args.spec, args.dataset_name)
