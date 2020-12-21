@@ -64,7 +64,6 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
         photoCalib = photoCalibs[ind]
         wcs = astromCalibs[ind]
         vId = vIds[ind]
-        print('vId: ', vId)
 
         if logger:
             logger.debug(f"{len(oldSrc)} sources in ccd {vId['detector']}  visit {vId['visit']}")
