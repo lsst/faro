@@ -291,11 +291,10 @@ class AB1Task(Task):
                 if len(finiteEntries) > 0:
                     rmsDistancesAll.append(rmsDistances[finiteEntries])
 
-            rmsDistancesAll = np.array(np.concatenate(rmsDistancesAll))
-
             if len(rmsDistancesAll) == 0:
                 return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
             else:
+                rmsDistancesAll = np.array(np.concatenate(rmsDistancesAll))
                 return Struct(measurement=Measurement(metric_name, np.mean(rmsDistancesAll)*u.marcsec))
 
         else:
