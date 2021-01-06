@@ -24,13 +24,13 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                   storageClass="PhotoCalib",
                                                   name="{photoCalibName}",
                                                   multiple=True)
-    astrom_calibs = pipeBase.connectionTypes.PrerequisiteInput(doc="WCS for the catalog.",
-                                                               dimensions=("instrument", "visit",
-                                                                           "skymap", "tract",
-                                                                           "detector", "band"),
-                                                               storageClass="Wcs",
-                                                               name="jointcal_wcs",
-                                                               multiple=True)
+    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
+                                                   dimensions=("instrument", "visit",
+                                                               "skymap", "tract",
+                                                               "detector", "band"),
+                                                   storageClass="Wcs",
+                                                   name="jointcal_wcs",
+                                                   multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
         name="skyMap",
