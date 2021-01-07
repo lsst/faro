@@ -59,8 +59,15 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
         else:
             return True
 
+    def isPrimaryFilter(cat):
+        if isPrimary:
+            flag_isPrimary = cat.get("detect_isPrimary")
+            return np.all(flag_isPrimary)
+        else:
+            return True
+
     def fullFilter(cat):
         return nMatchFilter(cat) and snrFilter(cat) and ptsrcFilter(cat)\
-            and flagFilter(cat)
+            and flagFilter(cat) and isPrimaryFilter(cat)
 
     return matchedCat.where(fullFilter)

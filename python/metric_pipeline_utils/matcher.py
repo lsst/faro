@@ -3,7 +3,7 @@ from lsst.afw.table import (SchemaMapper, Field,
                             SourceCatalog, updateSourceCoords)
 
 import numpy as np
-from astropy.table import join
+from astropy.table import join, Table
 
 
 def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
@@ -51,7 +51,19 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
 
     filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                    'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
-    for oldSrc, photoCalib, wcs, vId in zip(inputs, photoCalibs, astromCalibs, vIds):
+
+    # Sort by visit, detector, then filter
+    vislist = [v['visit'] for v in vIds]
+    ccdlist = [v['detector'] for v in vIds]
+    filtlist = [v['band'] for v in vIds]
+    tab_vids = Table([vislist, ccdlist, filtlist], names=['vis', 'ccd', 'filt'])
+    sortinds = np.argsort(tab_vids, order=('vis','ccd','filt'))
+
+    for ind in sortinds:
+        oldSrc = inputs[ind]
+        photoCalib = photoCalibs[ind]
+        wcs = astromCalibs[ind]
+        vId = vIds[ind]
 
         if logger:
             logger.debug(f"{len(oldSrc)} sources in ccd {vId['detector']}  visit {vId['visit']}")
