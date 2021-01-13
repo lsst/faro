@@ -57,7 +57,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
     ccdlist = [v['detector'] for v in vIds]
     filtlist = [v['band'] for v in vIds]
     tab_vids = Table([vislist, ccdlist, filtlist], names=['vis', 'ccd', 'filt'])
-    sortinds = np.argsort(tab_vids, order=('vis','ccd','filt'))
+    sortinds = np.argsort(tab_vids, order=('vis', 'ccd', 'filt'))
 
     for ind in sortinds:
         oldSrc = inputs[ind]
