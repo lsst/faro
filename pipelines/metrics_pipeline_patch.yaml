@@ -1,4 +1,4 @@
 description: Patch metrics pipeline
-inherits:
+imports:
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/analysis_patch.yaml
   - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/agg_patch.yaml
