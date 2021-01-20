@@ -1,3 +1,4 @@
+import functools
 import math
 import numpy as np
 import random
@@ -113,9 +114,7 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     >>>     return np.isfinite(cat.get(magKey)).all()
     >>> repeat = calcPhotRepeat(allMatches.where(matchFilter), magKey)
     """
-    global getRandomDiff
-    getRandomDiff = functools.partial(getRandomDiff, rng=np.random.default_rng(seed))
-    mprSamples = [calcPhotRepeatSample(matches, magKey)
+    mprSamples = [calcPhotRepeatSample(matches, magKey, randomSeed=randomSeed)
                   for _ in range(numRandomShuffles)]
 
     rms = np.array([mpr.rms for mpr in mprSamples]) * u.mmag
@@ -126,7 +125,7 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     return {'rms': rms, 'iqr': iqr, 'magDiff': magDiff, 'magMean': magMean, 'repeatability': repeat}
 
 
-def calcPhotRepeatSample(matches, magKey):
+def calcPhotRepeatSample(matches, magKey, randomSeed=None):
     """Compute one realization of repeatability by randomly sampling pairs of
     visits.
     Parameters
@@ -157,7 +156,8 @@ def calcPhotRepeatSample(matches, magKey):
     calcPhotRepeat : A wrapper that repeatedly calls this function to build
         the repeatability measurement.
     """
-    magDiffs = matches.aggregate(getRandomDiffRmsInMmags, field=magKey)
+    sampler = functools.partial(getRandomDiffRmsInMags, randomSeed=randomSeed)
+    magDiffs = matches.aggregate(sampler, field=magKey)
     magMean = matches.aggregate(np.mean, field=magKey)
     rms, iqr = computeWidths(magDiffs)
     return pipeBase.Struct(rms=rms, iqr=iqr, magDiffs=magDiffs, magMean=magMean,)
@@ -189,7 +189,7 @@ def computeWidths(array):
     return rmsSigma, iqrSigma
 
 
-def getRandomDiffRmsInMmags(array):
+def getRandomDiffRmsInMmags(array, randomSeed=None):
     """Calculate the RMS difference in mmag between a random pairing of
     visits of a source.
     Parameters
@@ -220,10 +220,10 @@ def getRandomDiffRmsInMmags(array):
     212.132034
     """
     thousandDivSqrtTwo = 1000/math.sqrt(2)
-    return thousandDivSqrtTwo * getRandomDiff(array)
+    return thousandDivSqrtTwo * getRandomDiff(array, randomSeed=randomSeed)
 
 
-def getRandomDiff(array, rng=None):
+def getRandomDiff(array, randomSeed=None):
     """Get the difference between two randomly selected elements of an array.
     Parameters
     ----------
@@ -234,7 +234,9 @@ def getRandomDiff(array, rng=None):
     float or int
         Difference between two random elements of the array.
     """
-    if rng is None:
+    if not randomSeed:
         rng = np.random.default_rng()
+    else:
+        rng = np.random.default_rng(randomSeed)
     a, b = rng.choice(range(len(array)), 2)
     return array[a] - array[b]
