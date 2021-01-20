@@ -8,20 +8,20 @@ import lsst.pipe.base as pipeBase
 from metric_pipeline_utils.filtermatches import filterMatches
 
 
-def photRepeat(matchedCatalog, **filterargs):
+def photRepeat(matchedCatalog, randomSeed=None, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
     nMinPhotRepeat = 50
     if filteredCat.count > nMinPhotRepeat:
-        phot_resid_meas = calcPhotRepeat(filteredCat, magKey)
+        phot_resid_meas = calcPhotRepeat(filteredCat, magKey, randomSeed=randomSeed)
         return phot_resid_meas
     else:
         return {'nomeas': np.nan*u.mmag}
 
 
-def calcPhotRepeat(matches, magKey, numRandomShuffles=50):
+def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     """Calculate the photometric repeatability of measurements across a set
     of randomly selected pairs of visits.
     Parameters
@@ -37,6 +37,8 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50):
         `lsst.afw.table.MultiMatch.finish()`.
     numRandomShuffles : int
         Number of times to draw random pairs from the different observations.
+    randomSeed : int
+        Seed for random number generation when choosing samples.
     Returns
     -------
     statistics : `dict`
@@ -111,6 +113,8 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50):
     >>>     return np.isfinite(cat.get(magKey)).all()
     >>> repeat = calcPhotRepeat(allMatches.where(matchFilter), magKey)
     """
+    global getRandomDiff
+    getRandomDiff = functools.partial(getRandomDiff, rng=np.random.default_rng(seed))
     mprSamples = [calcPhotRepeatSample(matches, magKey)
                   for _ in range(numRandomShuffles)]
 
@@ -219,7 +223,7 @@ def getRandomDiffRmsInMmags(array):
     return thousandDivSqrtTwo * getRandomDiff(array)
 
 
-def getRandomDiff(array):
+def getRandomDiff(array, rng=None):
     """Get the difference between two randomly selected elements of an array.
     Parameters
     ----------
@@ -230,5 +234,7 @@ def getRandomDiff(array):
     float or int
         Difference between two random elements of the array.
     """
-    a, b = random.sample(range(len(array)), 2)
+    if rng is None:
+        rng = np.random.default_rng()
+    a, b = rng.choice(range(len(array)), 2)
     return array[a] - array[b]
