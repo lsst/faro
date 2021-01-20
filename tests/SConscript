@@ -3,6 +3,6 @@ import os
 
 from lsst.sconsUtils import env, scripts
 
-ignoreTests = ["test_ellipKPM.py", "test_photKPM.py", "test_astromKPM.py"]
+ignoreTests = ["test_ellipKPM.py", "test_photKPM.py", "test_astromKPM.py", "test_StellarLocus.py"]
 
 scripts.BasicSConscript.tests(ignoreList=ignoreTests)
