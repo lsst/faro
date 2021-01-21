@@ -8,7 +8,6 @@ tasks:
       python: |
         from metric_pipeline_tasks import PA1Task
         config.measure.retarget(PA1Task)
-        config.measure.randomSeed = 12345
   PA2_design:
     class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
@@ -19,7 +18,6 @@ tasks:
         config.measure.retarget(PA2Task)
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
-        config.measure.randomSeed = 12345
   PF1_design:
     class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
@@ -30,7 +28,6 @@ tasks:
         config.measure.retarget(PF1Task)
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
-        config.measure.randomSeed = 12345
   AM1_info:
     class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
     config:
