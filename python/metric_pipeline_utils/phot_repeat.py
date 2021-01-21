@@ -1,7 +1,6 @@
 import functools
 import math
 import numpy as np
-import random
 from scipy.stats import norm
 import astropy.units as u
 
@@ -114,7 +113,8 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     >>>     return np.isfinite(cat.get(magKey)).all()
     >>> repeat = calcPhotRepeat(allMatches.where(matchFilter), magKey)
     """
-    mprSamples = [calcPhotRepeatSample(matches, magKey, randomSeed=randomSeed)
+    rng = np.random.default_rng(randomSeed)
+    mprSamples = [calcPhotRepeatSample(matches, magKey, rng=rng)
                   for _ in range(numRandomShuffles)]
 
     rms = np.array([mpr.rms for mpr in mprSamples]) * u.mmag
@@ -125,7 +125,7 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     return {'rms': rms, 'iqr': iqr, 'magDiff': magDiff, 'magMean': magMean, 'repeatability': repeat}
 
 
-def calcPhotRepeatSample(matches, magKey, randomSeed=None):
+def calcPhotRepeatSample(matches, magKey, rng=None):
     """Compute one realization of repeatability by randomly sampling pairs of
     visits.
     Parameters
@@ -139,6 +139,8 @@ def calcPhotRepeatSample(matches, magKey, randomSeed=None):
         E.g., ``magKey = allMatches.schema.find("base_PsfFlux_mag").key``
         where ``allMatches`` is the result of
         `lsst.afw.table.MultiMatch.finish()`.
+    rng : `numpy.random._generator.Generator`
+        Input random number generator.
     Returns
     -------
     metrics : `lsst.pipe.base.Struct`
@@ -156,7 +158,7 @@ def calcPhotRepeatSample(matches, magKey, randomSeed=None):
     calcPhotRepeat : A wrapper that repeatedly calls this function to build
         the repeatability measurement.
     """
-    sampler = functools.partial(getRandomDiffRmsInMags, randomSeed=randomSeed)
+    sampler = functools.partial(getRandomDiffRmsInMmags, rng=rng)
     magDiffs = matches.aggregate(sampler, field=magKey)
     magMean = matches.aggregate(np.mean, field=magKey)
     rms, iqr = computeWidths(magDiffs)
@@ -189,13 +191,15 @@ def computeWidths(array):
     return rmsSigma, iqrSigma
 
 
-def getRandomDiffRmsInMmags(array, randomSeed=None):
+def getRandomDiffRmsInMmags(array, rng=None):
     """Calculate the RMS difference in mmag between a random pairing of
     visits of a source.
     Parameters
     ----------
     array : `list` or `numpy.ndarray`
         Magnitudes from which to select the pair [mag].
+    rng : `numpy.random._generator.Generator`
+        Input random number generator.
     Returns
     -------
     rmsMmags : `float`
@@ -220,23 +224,23 @@ def getRandomDiffRmsInMmags(array, randomSeed=None):
     212.132034
     """
     thousandDivSqrtTwo = 1000/math.sqrt(2)
-    return thousandDivSqrtTwo * getRandomDiff(array, randomSeed=randomSeed)
+    return thousandDivSqrtTwo * getRandomDiff(array, rng=rng)
 
 
-def getRandomDiff(array, randomSeed=None):
+def getRandomDiff(array, rng=None):
     """Get the difference between two randomly selected elements of an array.
     Parameters
     ----------
     array : `list` or `numpy.ndarray`
         Input array.
+    rng : `numpy.random._generator.Generator`
+        Input random number generator.
     Returns
     -------
     float or int
         Difference between two random elements of the array.
     """
-    if not randomSeed:
+    if not rng:
         rng = np.random.default_rng()
-    else:
-        rng = np.random.default_rng(randomSeed)
     a, b = rng.choice(range(len(array)), 2)
     return array[a] - array[b]
