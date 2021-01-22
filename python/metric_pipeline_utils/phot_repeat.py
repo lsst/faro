@@ -242,5 +242,5 @@ def getRandomDiff(array, rng=None):
     """
     if not rng:
         rng = np.random.default_rng()
-    a, b = rng.choice(range(len(array)), 2)
+    a, b = rng.choice(range(len(array)), 2, replace=False)
     return array[a] - array[b]
