@@ -8,14 +8,14 @@ import lsst.pipe.base as pipeBase
 from metric_pipeline_utils.filtermatches import filterMatches
 
 
-def photRepeat(matchedCatalog, randomSeed=None, **filterargs):
+def photRepeat(matchedCatalog, numRandomShuffles=50, randomSeed=None, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
     nMinPhotRepeat = 50
     if filteredCat.count > nMinPhotRepeat:
-        phot_resid_meas = calcPhotRepeat(filteredCat, magKey, randomSeed=randomSeed)
+        phot_resid_meas = calcPhotRepeat(filteredCat, magKey, numRandomShuffles=50, randomSeed=randomSeed)
         return phot_resid_meas
     else:
         return {'nomeas': np.nan*u.mmag}
