@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: 2458c644ef0c44379d3ee6542ef72b2f
+  name: PF1
+identifier: da3e265290b54d6092053374016f6e15
+metric: PF1
+notes: {}
+unit: '%'
+value: 29.761363636363637

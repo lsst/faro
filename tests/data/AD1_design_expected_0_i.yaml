@@ -2,10 +2,10 @@
 blobs:
 - !<lsst.verify.Blob>
   data: {}
-  identifier: d397833831ef45aa8ed60272815241ca
+  identifier: a4cb7695b4d24106ac0445574ac3cfef
   name: AD1_design
-identifier: 492255c44ae443c1bee89406197a9a4f
+identifier: 9745b2e3949446ffbde14aeecf4ba923
 metric: AD1_design
 notes: {}
 unit: marcsec
-value: 12.080602507497211
+value: 15.940595909513444

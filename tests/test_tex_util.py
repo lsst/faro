@@ -44,7 +44,7 @@ class TEXUtilTest(unittest.TestCase):
 
     def load_data(self):
         '''Helper to load data to process.'''
-        cat_file = 'matchedCatalog_0_70_i.fits.gz'
+        cat_file = 'matchedCatalogTract_0_i.fits.gz'
         cat = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
 
         selection = np.isfinite(cat.get('e1')) & np.isfinite(cat.get('e2'))
@@ -53,9 +53,9 @@ class TEXUtilTest(unittest.TestCase):
 
     def test_correlation_function_ellipticity(self):
         """Test correlation function calculation."""
-        expected_r = 4.44568063*u.arcmin
-        expected_xip = 0.00075123
-        expected_xip_err = 0.00053537
+        expected_r = 4.395319409351799*u.arcmin
+        expected_xip = 0.001867305310370419
+        expected_xip_err = 0.0005348912968829396
 
         cat = self.load_data()
         matches = GroupView.build(cat)
@@ -92,14 +92,14 @@ class TEXUtilTest(unittest.TestCase):
 
     def test_medianEllipticity1ResidualsFromCat(self):
         """Test ellipticity residuals e1."""
-        expected = -0.003309329971670945
+        expected = -0.004235647618770565
         cat = self.load_data()
         result = medianEllipticity1ResidualsFromCat(cat)
         self.assertEqual(result, expected)
 
     def test_medianEllipticity2ResidualsFromCat(self):
         """Test ellipticity residuals e2."""
-        expected = 0.0007216855883598536
+        expected = 0.0008848644793033184
         cat = self.load_data()
         result = medianEllipticity2ResidualsFromCat(cat)
         self.assertEqual(result, expected)

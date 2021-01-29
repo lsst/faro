@@ -49,12 +49,12 @@ class AmxTest(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('AM1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AM1_expected_0_70_i.yaml'),
-                        ('AM1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AM1_expected_0_70_r.yaml'),
-                        ('AD1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AD1_design_expected_0_70_i.yaml'),
-                        ('AD1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AD1_design_expected_0_70_r.yaml'),
-                        ('AF1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'AF1_design_expected_0_70_i.yaml'),
-                        ('AF1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'AF1_design_expected_0_70_r.yaml'),
+        cls.file_map = {('AM1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'AM1_expected_0_i.yaml'),
+                        ('AM1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'AM1_expected_0_r.yaml'),
+                        ('AD1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'AD1_design_expected_0_i.yaml'),
+                        ('AD1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'AD1_design_expected_0_r.yaml'),
+                        ('AF1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'AF1_design_expected_0_i.yaml'),
+                        ('AF1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'AF1_design_expected_0_r.yaml'),
                         ('AB1', 'i'): ('matchedCatalogMulti_0_70.fits.gz',
                                        'AB1_design_expected_0_70_i.yaml'),
                         ('AB1', 'r'): ('matchedCatalogMulti_0_70.fits.gz',
@@ -86,6 +86,8 @@ class AmxTest(unittest.TestCase):
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AF1', band))
             result = task.run(catalog, 'AF1_design')
+            print(result.measurement)
+            print(expected)
             self.assertEqual(result.measurement, expected)
 
     def test_ad1(self):
