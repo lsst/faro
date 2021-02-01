@@ -1,0 +1,11 @@
+!<lsst.verify.Measurement>
+blobs:
+- !<lsst.verify.Blob>
+  data: {}
+  identifier: 2cddabb5c52c4fecb8f81f62a1cd0173
+  name: TE1
+identifier: 75c5258b5e96480e8db44d28b8903fb1
+metric: TE1
+notes: {}
+unit: ''
+value: 1.4510168267751244e-05

@@ -25,7 +25,6 @@
 import unittest
 import os
 import numpy as np
-import random
 import astropy.units as u
 
 from lsst.utils import getPackageDir
@@ -46,7 +45,7 @@ class PhotUtilTest(unittest.TestCase):
 
     def load_data(self):
         '''Helper to load data to process.'''
-        cat_file = 'matchedCatalog_0_70_i.fits.gz'
+        cat_file = 'matchedCatalogTract_0_i.fits.gz'
         catalog = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
         matches = GroupView.build(catalog)
 
@@ -64,31 +63,29 @@ class PhotUtilTest(unittest.TestCase):
         """Test photometric repeatability for multiple realizations
         of random pairs of visits."""
         # Ensure measurements are deterministic
-        random.seed(8675309)
+        seed = 8675309
 
-        expected = 72.21113484367118 * u.mmag
+        expected = 72.79576602821936 * u.mmag
         matches, magKey = self.load_data()
-        result = calcPhotRepeat(matches, magKey)
+        result = calcPhotRepeat(matches, magKey, randomSeed=seed)
         self.assertEqual(result['repeatability'], expected)
 
     def test_calcPhotRepeatSample(self):
         """Test photometric repeatability for one realization
         of random pairs of visits."""
         # Ensure measurements are deterministic
-        random.seed(8675309)
+        seed = 8675309
+        rng = np.random.default_rng(seed)
 
-        expected = pipeBase.Struct(rms=163.30045391535035,
-                                   iqr=69.65713175546037)
+        expected = pipeBase.Struct(rms=168.09034424742475,
+                                   iqr=72.11774706688344)
         matches, magKey = self.load_data()
-        result = calcPhotRepeatSample(matches, magKey)
+        result = calcPhotRepeatSample(matches, magKey, rng=rng)
         self.assertEqual(result.rms, expected.rms)
         self.assertEqual(result.iqr, expected.iqr)
 
     def test_computeWidths(self):
         """Test RMS and the scaled inter-quartile range calculation."""
-        # Ensure measurements are deterministic
-        random.seed(8675309)
-
         expected = (22.54717277176897, 1.8532527731320025)
         mag = np.linspace(20, 25, 101)
         result = computeWidths(mag)
@@ -98,21 +95,23 @@ class PhotUtilTest(unittest.TestCase):
     def test_getRandomDiffRmsInMmags(self):
         """Test random sampling of magnitude diffs."""
         # Ensure measurements are deterministic
-        random.seed(8675309)
+        seed = 8675309
+        rng = np.random.default_rng(seed)
 
-        expected = 848.5281374238564
+        expected = -1237.436867076458
         mag = np.linspace(20, 25, 101)
-        result = getRandomDiffRmsInMmags(mag)
+        result = getRandomDiffRmsInMmags(mag, rng=rng)
         self.assertEqual(result, expected)
 
     def test_getRandomDiff(self):
         """Test one random diff"""
         # Ensure measurements are deterministic
-        random.seed(8675309)
+        seed = 8675309
+        rng = np.random.default_rng(seed)
 
-        expected = 1.1999999999999993
+        expected = -1.75
         mag = np.linspace(20, 25, 101)
-        result = getRandomDiff(mag)
+        result = getRandomDiff(mag, rng=rng)
         self.assertEqual(result, expected)
 
 

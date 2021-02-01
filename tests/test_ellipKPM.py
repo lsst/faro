@@ -49,8 +49,8 @@ class Te1Test(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('TE1', 'i'): ('matchedCatalog_0_70_i.fits.gz', 'TE1_expected_0_70_i.yaml'),
-                        ('TE1', 'r'): ('matchedCatalog_0_70_r.fits.gz', 'TE1_expected_0_70_r.yaml')}
+        cls.file_map = {('TE1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'TE1_expected_0_i.yaml'),
+                        ('TE1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'TE1_expected_0_r.yaml')}
 
     @classmethod
     def tearDownClass(cls):
