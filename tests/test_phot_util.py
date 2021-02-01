@@ -68,7 +68,6 @@ class PhotUtilTest(unittest.TestCase):
         expected = 72.79576602821936 * u.mmag
         matches, magKey = self.load_data()
         result = calcPhotRepeat(matches, magKey, randomSeed=seed)
-        print('LOOK HERE', result['repeatability'])
         self.assertEqual(result['repeatability'], expected)
 
     def test_calcPhotRepeatSample(self):

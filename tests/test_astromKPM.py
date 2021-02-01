@@ -86,8 +86,6 @@ class AmxTest(unittest.TestCase):
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AF1', band))
             result = task.run(catalog, 'AF1_design')
-            print(result.measurement)
-            print(expected)
             self.assertEqual(result.measurement, expected)
 
     def test_ad1(self):

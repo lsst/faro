@@ -10,6 +10,7 @@ required_columns = ['slot_PsfFlux_mag', 'base_PsfFlux_snr', 'base_Classification
                     'base_GaussianFlux_magErr', 'base_GaussianFlux_snr', 'e1', 'e2', 'psf_e1', 'psf_e2',
                     'filt', 'detect_isPrimary']
 
+
 def shrinkCat(infile, outfile, verbose=False):
     cat = SimpleCatalog.readFits(infile)
     for name in cat.schema.getNames():
