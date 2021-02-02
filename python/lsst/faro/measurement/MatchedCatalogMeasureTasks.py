@@ -3,12 +3,13 @@ import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config, Field, ListField
 from lsst.verify import Measurement, ThresholdSpecification, Datum
-from metric_pipeline_utils.filtermatches import filterMatches
-from metric_pipeline_utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
-                                               astromResiduals)
-from metric_pipeline_utils.phot_repeat import photRepeat
-from metric_pipeline_utils.tex import (correlation_function_ellipticity_from_matches,
-                                       select_bin_from_corr)
+from lsst.faro.utils.filtermatches import filterMatches
+from lsst.faro.utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
+                                         astromResiduals)
+from lsst.faro.utils.phot_repeat import photRepeat
+from lsst.faro.utils.tex import (correlation_function_ellipticity_from_matches,
+                                 select_bin_from_corr)
+
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}

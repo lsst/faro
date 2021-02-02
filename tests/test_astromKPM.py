@@ -29,7 +29,7 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import AMxTask, ADxTask, AFxTask, AB1Task
+from lsst.faro.measurement import AMxTask, ADxTask, AFxTask, AB1Task
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 
