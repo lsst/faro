@@ -39,7 +39,7 @@ class PA1Task(Task):
         self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring PA1")
+        self.log.info("Measuring PA1")
 
         pa1 = photRepeat(matchedCatalog, snrMax=self.brightSnrMax, snrMin=self.brightSnrMin,
                          numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
@@ -80,7 +80,7 @@ class PA2Task(Task):
         self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring PA2")
+        self.log.info("Measuring PA2")
         pf1_thresh = self.threshPF1 * u.percent
 
         pa2 = photRepeat(matchedCatalog,
@@ -113,7 +113,7 @@ class PF1Task(Task):
         self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring PF1")
+        self.log.info("Measuring PF1")
         pa2_thresh = self.threshPA2 * u.mmag
 
         pf1 = photRepeat(matchedCatalog,
@@ -157,8 +157,8 @@ class TExTask(Task):
         return Struct(measurement=Measurement(metric_name, np.abs(corr)*u.Unit('')))
 
 
-def isSorted(l):
-    return all(l[i] <= l[i+1] for i in range(len(l)-1))
+def isSorted(a):
+    return all(a[i] <= a[i+1] for i in range(len(a)-1))
 
 
 def bins(window, n):

@@ -34,7 +34,7 @@ class NumpyAggTask(Task):
         self.log.info(f"Computing the {agg} of {package}_{metric} values")
 
         if len(measurements) == 0:
-            self.log.info(f'Recieved zero length measurments list.  Returning NaN.')
+            self.log.info('Recieved zero length measurments list.  Returning NaN.')
             # In the case of an empty list, there is nothing we can do other than
             # to return a NaN
             value = u.Quantity(np.nan)
