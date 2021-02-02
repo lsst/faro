@@ -24,7 +24,7 @@
 
 import unittest
 
-from metric_pipeline_tasks import (AMxTask, ADxTask, AFxTask,
+from lsst.faro.measurement import (AMxTask, ADxTask, AFxTask,
                                    PA1Task, PA2Task, PF1Task,
                                    TExTask, AB1Task, WPerpTask)
 

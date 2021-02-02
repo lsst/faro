@@ -30,11 +30,11 @@ import astropy.units as u
 from lsst.utils import getPackageDir
 import lsst.pipe.base as pipeBase
 from lsst.afw.table import SimpleCatalog, GroupView
-from metric_pipeline_utils.phot_repeat import (calcPhotRepeat,
-                                               calcPhotRepeatSample,
-                                               computeWidths,
-                                               getRandomDiffRmsInMmags,
-                                               getRandomDiff)
+from lsst.faro.utils.phot_repeat import (calcPhotRepeat,
+                                         calcPhotRepeatSample,
+                                         computeWidths,
+                                         getRandomDiffRmsInMmags,
+                                         getRandomDiff)
 
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')

@@ -27,11 +27,11 @@ import numpy as np
 
 import lsst.afw.table as afwTable
 
-from metric_pipeline_utils.coord_util import (averageRaFromCat,
-                                              averageDecFromCat,
-                                              averageRaDecFromCat,
-                                              averageRaDec,
-                                              sphDist)
+from lsst.faro.utils.coord_util import (averageRaFromCat,
+                                        averageDecFromCat,
+                                        averageRaDecFromCat,
+                                        averageRaDec,
+                                        sphDist)
 
 
 class CoordUtilTest(unittest.TestCase):
