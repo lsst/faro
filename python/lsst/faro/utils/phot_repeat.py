@@ -5,7 +5,7 @@ from scipy.stats import norm
 import astropy.units as u
 
 import lsst.pipe.base as pipeBase
-from metric_pipeline_utils.filtermatches import filterMatches
+from lsst.faro.utils.filtermatches import filterMatches
 
 
 def photRepeat(matchedCatalog, numRandomShuffles=50, randomSeed=None, **filterargs):

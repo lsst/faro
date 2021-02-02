@@ -29,7 +29,7 @@ import random
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import PA1Task, PA2Task, PF1Task
+from lsst.faro.measurement import PA1Task, PA2Task, PF1Task
 
 # Make sure measurements are deterministic
 random.seed(8675309)

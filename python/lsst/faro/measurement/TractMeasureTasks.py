@@ -3,9 +3,9 @@ import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 from lsst.pex.config import Config, Field
-from metric_pipeline_utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
-from metric_pipeline_utils.matcher import make_matched_photom
-from metric_pipeline_utils.extinction_corr import extinction_corr
+from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
+from lsst.faro.utils.matcher import make_matched_photom
+from lsst.faro.utils.extinction_corr import extinction_corr
 
 
 class WPerpTaskConfig(Config):

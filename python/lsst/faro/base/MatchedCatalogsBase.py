@@ -57,7 +57,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         self.level = "patch"
 
     def run(self, source_catalogs, photo_calibs, astrom_calibs, vIds, wcs, box, apply_external_wcs):
-        self.log.info(f"Running catalog matching")
+        self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
         srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
                                          apply_external_wcs, logger=self.log)

@@ -30,11 +30,11 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog, GroupView
-from metric_pipeline_utils.coord_util import averageRaFromCat, averageDecFromCat
-from metric_pipeline_utils.tex import (correlation_function_ellipticity,
-                                       select_bin_from_corr,
-                                       medianEllipticity1ResidualsFromCat,
-                                       medianEllipticity2ResidualsFromCat)
+from lsst.faro.utils.coord_util import averageRaFromCat, averageDecFromCat
+from lsst.faro.utils.tex import (correlation_function_ellipticity,
+                                 select_bin_from_corr,
+                                 medianEllipticity1ResidualsFromCat,
+                                 medianEllipticity2ResidualsFromCat)
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
 

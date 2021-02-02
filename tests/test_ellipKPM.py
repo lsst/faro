@@ -28,7 +28,7 @@ import os
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from metric_pipeline_tasks import TExTask
+from lsst.faro.measurement import TExTask
 
 
 DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')

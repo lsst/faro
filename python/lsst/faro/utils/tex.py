@@ -4,7 +4,7 @@ import astropy.units as u
 import numpy as np
 import treecorr
 
-from metric_pipeline_utils.coord_util import averageRaFromCat, averageDecFromCat
+from lsst.faro.utils.coord_util import averageRaFromCat, averageDecFromCat
 
 
 def correlation_function_ellipticity_from_matches(matches, **kwargs):
