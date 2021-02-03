@@ -1,6 +1,6 @@
 import lsst.pipe.base as pipeBase
 
-from lsst/faro/base/MatchedCatalogBase import (MatchedBaseTaskConnections,
+from lsst.faro.base.MatchedCatalogBase import (MatchedBaseTaskConnections,
                                                MatchedBaseTaskConfig,
                                                MatchedBaseTask, MatchedTractBaseTask)
 
