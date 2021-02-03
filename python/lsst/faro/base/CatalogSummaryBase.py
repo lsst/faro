@@ -18,7 +18,7 @@ class CatalogSummaryBaseTaskConnections(MetricConnections,
 
 
 class CatalogSummaryBaseTaskConfig(MetricConfig,
-                                   pipelineConnections=CatalogsSummaryBaseTaskConnections):
+                                   pipelineConnections=CatalogSummaryBaseTaskConnections):
     agg = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.
         # The default task is, therefore, a bit of a place holder.

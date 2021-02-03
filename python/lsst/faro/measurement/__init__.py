@@ -4,7 +4,7 @@ from .MatchedCatalogMetricMeasureTasks import *
 from .PatchMetricMeasureTasks import *
 from .VisitMetricMeasureTasks import *
 from .TractMetricMeasureTasks import *
-from .MatchedCatalogMeasurement.py import *
-from .VisitMeasurement.py import *
-from .TractMeasurement.py import *
-from .PatchMeasurement.py import *
+from .MatchedCatalogMeasurement import *
+from .VisitMeasurement import *
+from .TractMeasurement import *
+from .PatchMeasurement import *
