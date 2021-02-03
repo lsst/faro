@@ -1,29 +1,11 @@
-"""
-# First run
-pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i nSrc1 --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'" -o meanNSrc1
-
-pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -i pipeTest --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'" -o meanPA1
-
-# After the first run
-pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'"\
--o meanNSrc1 --replace-run
-
-pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types\
--t MatchedCatalogsAggregation.MatchedCatalogsAggregationTask -d "band='r'"\
--o meanPA1 --replace-run
-"""
-
 import lsst.pipe.base as pipeBase
 
-from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask,
-                                      CatalogAggregationBaseTaskConfig)
+from .CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
+                                 CatalogSummaryBaseTaskConfig)
 
 
 # Dimensions of the Connections class define the iterations of runQuantum
-class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
+class PatchMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch",
                                                               "instrument", "band"),
@@ -32,18 +14,18 @@ class MatchedCatalogsAggregationTaskConnections(CatalogsAggregationBaseTaskConne
                                                   multiple=True)
 
 
-class MatchedCatalogsAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
-                                           pipelineConnections=MatchedCatalogsAggregationTaskConnections):
+class PatchMatchedSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+                                    pipelineConnections=PatchMatchedSummaryTaskConnections):
     pass
 
 
-class MatchedCatalogsAggregationTask(CatalogsAggregationBaseTask):
+class PatchMatchedSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = MatchedCatalogsAggregationTaskConfig
-    _DefaultName = "matchedCatalogsAggregationTask"
+    ConfigClass = PatchMatchedSummaryTaskConfig
+    _DefaultName = "patchMatchedSummaryTask"
 
 
-class MchCatTractAggTaskConnections(CatalogsAggregationBaseTaskConnections):
+class TractMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "instrument", "band"),
                                                   storageClass="MetricValue",
@@ -51,12 +33,12 @@ class MchCatTractAggTaskConnections(CatalogsAggregationBaseTaskConnections):
                                                   multiple=True)
 
 
-class MatchedCatalogsTractAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
-                                                pipelineConnections=MchCatTractAggTaskConnections):
+class TractMatchedSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+                                    pipelineConnections=TractMatchedSummaryTaskConnections):
     pass
 
 
-class MatchedCatalogsTractAggregationTask(CatalogsAggregationBaseTask):
+class TractMatchedSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = MatchedCatalogsTractAggregationTaskConfig
-    _DefaultName = "matchedCatalogsTractAggregationTask"
+    ConfigClass = TractMatchedSummaryTaskConfig
+    _DefaultName = "tractMatchedSummaryTask"

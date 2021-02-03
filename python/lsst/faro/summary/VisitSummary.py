@@ -1,10 +1,10 @@
 import lsst.pipe.base as pipeBase
 
-from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask,
-                                      CatalogAggregationBaseTaskConfig)
+from .CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
+                                 CatalogSummaryBaseTaskConfig)
 
 
-class VisitAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
+class VisitSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("instrument", "visit", "band"),
@@ -13,12 +13,12 @@ class VisitAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
                                                   multiple=True)
 
 
-class VisitAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
-                                 pipelineConnections=VisitAggregationTaskConnections):
+class VisitSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+                             pipelineConnections=VisitSummaryTaskConnections):
     pass
 
 
-class VisitAggregationTask(CatalogsAggregationBaseTask):
+class VisitSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = VisitAggregationTaskConfig
-    _DefaultName = "visitAggregationTask"
+    ConfigClass = VisitSummaryTaskConfig
+    _DefaultName = "visitSummaryTask"

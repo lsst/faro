@@ -1,10 +1,10 @@
 import lsst.pipe.base as pipeBase
 
-from .CatalogsAggregationBase import (CatalogsAggregationBaseTaskConnections, CatalogsAggregationBaseTask,
-                                      CatalogAggregationBaseTaskConfig)
+from .CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
+                                 CatalogSummaryBaseTaskConfig)
 
 
-class PatchAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
+class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
     measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
                                                   dimensions=("tract", "patch", "skymap",
@@ -14,12 +14,12 @@ class PatchAggregationTaskConnections(CatalogsAggregationBaseTaskConnections):
                                                   multiple=True)
 
 
-class PatchAggregationTaskConfig(CatalogAggregationBaseTaskConfig,
-                                 pipelineConnections=PatchAggregationTaskConnections):
+class PatchSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+                             pipelineConnections=PatchSummaryTaskConnections):
     pass
 
 
-class PatchAggregationTask(CatalogsAggregationBaseTask):
+class PatchSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = PatchAggregationTaskConfig
-    _DefaultName = "patchAggregationTask"
+    ConfigClass = PatchSummaryTaskConfig
+    _DefaultName = "patchSummaryTask"
