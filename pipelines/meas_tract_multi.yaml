@@ -1,10 +1,10 @@
 description: Compute metrics from multiband matched catalogs
 tasks:
   wPerp:
-    class: metric_pipeline_tasks.TractAnalysisMultiFiltTask
+    class: lsst.faro.measurement.TractMultiBandMeasTask
     config:
       connections.package: pipe_analysis
       connections.metric: wPerp
       python: |
-        from metric_pipeline_tasks import WPerpTask
+        from lsst.faro.measurement import WPerpTask
         config.measure.retarget(WPerpTask)

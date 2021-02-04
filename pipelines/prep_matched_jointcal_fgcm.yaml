@@ -1,12 +1,12 @@
 description: Produce matched catalogs
 tasks:
-  matchCatalogs:
-    class: metric_pipeline_tasks.MatchedCatalogTask
+  matchCatalogsPatch:
+    class: lsst.faro.preparation.PatchMatchedPrepTask
     config:
       connections.photoCalibName: fgcm_photoCalib
       apply_external_wcs: True  # We only support jointcal for now
   matchCatalogsTract:
-    class: metric_pipeline_tasks.MatchedCatalogTractTask
+    class: lsst.faro.preparation.TractMatchedPrepTask
     config:
       connections.photoCalibName: fgcm_photoCalib
       apply_external_wcs: True  # We only support jointcal for now

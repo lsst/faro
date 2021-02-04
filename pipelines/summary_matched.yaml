@@ -1,7 +1,7 @@
 description: Compute aggregate tract level measurements from a list of patch level measurements
 tasks:
   agg_sum_nsrc:
-    class: metric_pipeline_tasks.MatchedCatalogsAggregationTask
+    class: metric_pipeline_tasks.PatchMatchedSummaryTask
     config:
       connections.package: info
       connections.metric: nsrcMeas

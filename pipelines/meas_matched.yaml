@@ -1,35 +1,35 @@
 description: Compute metrics from matched catalogs
 tasks:
   PA1:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: PA1
       python: |
-        from metric_pipeline_tasks import PA1Task
+        from lsst.faro.measurement import PA1Task
         config.measure.retarget(PA1Task)
   PA2_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: PA2_design_gri
       python: |
-        from metric_pipeline_tasks import PA2Task
+        from lsst.faro.measurement import PA2Task
         config.measure.retarget(PA2Task)
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   PF1_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: PF1_design_gri
       python: |
-        from metric_pipeline_tasks import PF1Task
+        from lsst.faro.measurement import PF1Task
         config.measure.retarget(PF1Task)
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   AM1_info:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       # Compute this in the info namespace as well so we can
       # show an example of changing the summary aggregation
@@ -37,127 +37,127 @@ tasks:
       connections.package: info
       connections.metric: AM1
       python: |
-        from metric_pipeline_tasks import AMxTask
+        from lsst.faro.measurement import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM1:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AM1
       python: |
-        from metric_pipeline_tasks import AMxTask
+        from lsst.faro.measurement import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM2:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AM2
       python: |
-        from metric_pipeline_tasks import AMxTask
+        from lsst.faro.measurement import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 20.0
   AM3:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AM3
       python: |
-        from metric_pipeline_tasks import AMxTask
+        from lsst.faro.measurement import AMxTask
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 200.0
   AD1_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AD1_design
       python: |
-        from metric_pipeline_tasks import ADxTask
+        from lsst.faro.measurement import ADxTask
         config.measure.retarget(ADxTask)
         config.measure.annulus_r = 5.0
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD2_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AD2_design
       python: |
-        from metric_pipeline_tasks import ADxTask
+        from lsst.faro.measurement import ADxTask
         config.measure.retarget(ADxTask)
         config.measure.annulus_r = 20.0
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD3_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AD3_design
       python: |
-        from metric_pipeline_tasks import ADxTask
+        from lsst.faro.measurement import ADxTask
         config.measure.retarget(ADxTask)
         config.measure.annulus_r = 200.0
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   AF1_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AF1_design
       python: |
-        from metric_pipeline_tasks import AFxTask
+        from lsst.faro.measurement import AFxTask
         config.measure.retarget(AFxTask)
         config.measure.annulus_r = 5.0
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF2_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AF2_design
       python: |
-        from metric_pipeline_tasks import AFxTask
+        from lsst.faro.measurement import AFxTask
         config.measure.retarget(AFxTask)
         config.measure.annulus_r = 20.0
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF3_design:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AF3_design
       python: |
-        from metric_pipeline_tasks import AFxTask
+        from lsst.faro.measurement import AFxTask
         config.measure.retarget(AFxTask)
         config.measure.annulus_r = 200.0
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   TE1:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
       python: |
-        from metric_pipeline_tasks import TExTask
+        from lsst.faro.measurement import TExTask
         config.measure.retarget(TExTask)
         config.measure.annulus_r = 1.0
         config.measure.comparison_operator = "<="
   TE2:
-    class: metric_pipeline_tasks.MatchedCatalogTractAnalysisTask
+    class: lsst.faro.measurement.TractMatchedMeasTask
     config:
       connections.package: validate_drp
       connections.metric: TE2
       python: |
-        from metric_pipeline_tasks import TExTask
-        config.measure.retarget(TExTask)
+        from lsst.faro.measurement import TExTask
+         config.measure.retarget(TExTask)
         config.measure.annulus_r = 5.0
         config.measure.comparison_operator = ">="
   nsrcMeas:
-    class: metric_pipeline_tasks.MatchedCatalogAnalysisTask
+    class: lsst.faro.measurement.PatchMatchedMeasTask
     config:
       connections.package: info
       connections.metric: nsrcMeas
       python: |
-        from metric_pipeline_tasks import NumSourcesTask
+        from lsst.faro.measurement import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

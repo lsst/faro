@@ -1,10 +1,10 @@
 description: Compute metrics from multiband matched catalogs
 tasks:
-  AB1_design:
-    class: metric_pipeline_tasks.MatchedMultiCatalogAnalysisTask
+  AB1:
+    class: metric_pipeline_tasks.PatchMatchedMultiBandMeasTask
     config:
       connections.package: validate_drp
-      connections.metric: AB1_design
+      connections.metric: AB1
       python: |
-        from metric_pipeline_tasks import AB1Task
+        from lsst.faro.measurement.MatchedCatalogMetricMeasureTasks import AB1Task
         config.measure.retarget(AB1Task)
