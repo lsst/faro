@@ -29,7 +29,7 @@ def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     matches : `lsst.afw.table.GroupView`
         `~lsst.afw.table.GroupView` of sources matched between visits,
         from MultiMatch, provided by
-        `metric_pipeline_utils.matcher.match_catalogs`.
+        `lsst.faro.utils.matcher.match_catalogs`.
     magKey : `lsst.afw.table` schema key
         Magnitude column key in the ``groupView``.
         E.g., ``magKey = allMatches.schema.find("slot_ModelFlux_mag").key``
@@ -133,7 +133,7 @@ def calcPhotRepeatSample(matches, magKey, rng=None):
     matches : `lsst.afw.table.GroupView`
         `~lsst.afw.table.GroupView` of sources matched between visits,
         from MultiMatch, provided by
-        `metric_pipeline_utils.matcher.match_catalogs`.
+        `lsst.faro.utils.matcher.match_catalogs`.
     magKey : `lsst.afw.table` schema key
         Magnitude column key in the ``groupView``.
         E.g., ``magKey = allMatches.schema.find("base_PsfFlux_mag").key``
