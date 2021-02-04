@@ -21,7 +21,7 @@ class PatchMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMeasTaskConfig(CatalogMeaureBaseTaskConfig,
+class PatchMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                           pipelineConnections=PatchMeasTaskConnections):
     pass
 
