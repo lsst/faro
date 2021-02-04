@@ -1,7 +1,7 @@
 import lsst.pipe.base as pipeBase
 
-from .CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
-                                 CatalogSummaryBaseTaskConfig)
+from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
+                                               CatalogSummaryBaseTaskConfig)
 
 
 class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
