@@ -24,7 +24,7 @@ class CatalogSummaryBaseTaskConfig(MetricConfig,
         # The default task is, therefore, a bit of a place holder.
         # It is expected that this will be overridden in the pipeline
         # definition in most cases.
-        target=NumpyAggTask,
+        target=NumpySummaryTask,
         doc="Numpy aggregation task")
 
 
