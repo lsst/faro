@@ -1,7 +1,7 @@
 description: Compute metrics from multiband matched catalogs
 tasks:
   AB1:
-    class: metric_pipeline_tasks.PatchMatchedMultiBandMeasTask
+    class: lsst.faro.measurement.PatchMatchedMultiBandMeasTask
     config:
       connections.package: validate_drp
       connections.metric: AB1

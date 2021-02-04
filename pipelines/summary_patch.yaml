@@ -1,7 +1,7 @@
 description: Compute aggregate metrics from a list of individual measurements
 tasks:
   agg_sum_nsrcPatch:
-    class: metric_pipeline_tasks.PatchSummaryTask
+    class: lsst.faro.summary.PatchSummaryTask
     config:
       connections.package: info
       connections.metric: nsrcMeasPatch
