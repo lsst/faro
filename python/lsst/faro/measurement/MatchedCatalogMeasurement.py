@@ -3,7 +3,7 @@ import traceback
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections, MetricComputationError
 
-from lsst.faro.base.CatalogAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
@@ -24,12 +24,12 @@ class PatchMatchedMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMatchedMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class PatchMatchedMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                                  pipelineConnections=PatchMatchedMeasTaskConnections):
     pass
 
 
-class PatchMatchedMeasTask(CatalogAnalysisBaseTask):
+class PatchMatchedMeasTask(CatalogMeasureBaseTask):
     ConfigClass = PatchMatchedMeasTaskConfig
     _DefaultName = "patchMatchedMeasTask"
 
@@ -49,12 +49,12 @@ class TractMatchedMeasTaskConnections(PatchMatchedMeasTaskConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMatchedMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class TractMatchedMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                                  pipelineConnections=TractMatchedMeasTaskConnections):
     pass
 
 
-class TractMatchedMeasTask(CatalogAnalysisBaseTask):
+class TractMatchedMeasTask(CatalogMeasureBaseTask):
     ConfigClass = TractMatchedMeasTaskConfig
     _DefaultName = "tractMatchedMeasTask"
 
@@ -73,12 +73,12 @@ class PatchMatchedMultiBandMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMatchedMultiBandMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class PatchMatchedMultiBandMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                                           pipelineConnections=PatchMatchedMultiBandMeasTaskConnections):
     pass
 
 
-class PatchMatchedMultiBandMeasTask(CatalogAnalysisBaseTask):
+class PatchMatchedMultiBandMeasTask(CatalogMeasureBaseTask):
     ConfigClass = PatchMatchedMultiBandMeasTaskConfig
     _DefaultName = "patchMatchedMultiBandMeasTask"
 

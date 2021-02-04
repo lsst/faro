@@ -2,7 +2,7 @@ import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 from lsst.afw.table import SourceCatalog
 
-from lsst.faro.base.CatalogAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 
 # The first thing to do is to define a Connections class. This will define all
@@ -23,12 +23,12 @@ class VisitMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class VisitMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class VisitMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                           pipelineConnections=VisitMeasTaskConnections):
     pass
 
 
-class VisitMeasTask(CatalogAnalysisBaseTask):
+class VisitMeasTask(CatalogMeasureBaseTask):
     ConfigClass = VisitMeasTaskConfig
     _DefaultName = "visitMeasTask"
 

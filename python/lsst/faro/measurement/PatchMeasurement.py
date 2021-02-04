@@ -1,7 +1,7 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 
 class PatchMeasTaskConnections(MetricConnections,
@@ -21,12 +21,12 @@ class PatchMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class PatchMeasTaskConfig(CatalogMeaureBaseTaskConfig,
                           pipelineConnections=PatchMeasTaskConnections):
     pass
 
 
-class PatchMeasTask(CatalogAnalysisBaseTask):
+class PatchMeasTask(CatalogMeasureBaseTask):
 
     ConfigClass = PatchMeasTaskConfig
     _DefaultName = "patchMeasTask"

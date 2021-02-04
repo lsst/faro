@@ -1,7 +1,7 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 
 class TractMeasTaskConnections(MetricConnections,
@@ -30,12 +30,12 @@ class TractMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class TractMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                           pipelineConnections=TractMeasTaskConnections):
     pass
 
 
-class TractMeasTask(CatalogAnalysisBaseTask):
+class TractMeasTask(CatalogMeasureBaseTask):
 
     ConfigClass = TractMeasTaskConfig
     _DefaultName = "tractMeasTask"
@@ -79,7 +79,7 @@ class TractMultiBandMeasTaskConnections(TractMeasTaskConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMultiBandMeasTaskConfig(CatalogAnalysisBaseTaskConfig,
+class TractMultiBandMeasTaskConfig(CatalogMeasureBaseTaskConfig,
                                    pipelineConnections=TractMultiBandMeasTaskConnections):
     pass
 
