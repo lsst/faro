@@ -1,5 +1,6 @@
 setupRequired(lsst_distrib)
 setupRequired(verify)
+setupRequired(dustmaps_cachedata)
 setupOptional(ci_hsc_gen3)
 setupOptional(verify_metrics)
 
