@@ -2,7 +2,7 @@ from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 
-from .BaseSubTasks import NumpyAggTask
+from .BaseSubTasks import NumpySummaryTask
 
 
 # Dimensions of the Connections class define the iterations of runQuantum

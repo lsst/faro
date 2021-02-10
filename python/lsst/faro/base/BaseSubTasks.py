@@ -17,15 +17,15 @@ class NumSourcesTask(Task):
         return Struct(measurement=meas)
 
 
-class NumpyAggTaskConfig(Config):
+class NumpySummaryTaskConfig(Config):
     summary = Field(dtype=str, default="median",
                     doc="Aggregation to use for summary metrics")
 
 
-class NumpyAggTask(Task):
+class NumpySummaryTask(Task):
 
-    ConfigClass = NumpyAggTaskConfig
-    _DefaultName = "numpyAggTask"
+    ConfigClass = NumpySummaryTaskConfig
+    _DefaultName = "numpySummaryTask"
 
     def run(self, measurements, agg_name, package, metric):
         agg = agg_name.lower()
