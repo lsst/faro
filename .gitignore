@@ -10,4 +10,4 @@ ups/*.cfgc
 .pytest_cache
 tests/.tests
 pytest_session.txt
-python/lsst/metric/pipeline/tasks/version.py
+python/lsst/faro/version.py
