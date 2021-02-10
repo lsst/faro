@@ -34,7 +34,7 @@ from lsst.faro.measurement import PA1Task, PA2Task, PF1Task
 # Make sure measurements are deterministic
 random.seed(8675309)
 
-DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
+DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
 class Pa1Test(unittest.TestCase):

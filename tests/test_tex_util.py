@@ -36,7 +36,7 @@ from lsst.faro.utils.tex import (correlation_function_ellipticity,
                                  medianEllipticity1ResidualsFromCat,
                                  medianEllipticity2ResidualsFromCat)
 
-DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
+DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
 class TEXUtilTest(unittest.TestCase):
