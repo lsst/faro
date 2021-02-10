@@ -2,7 +2,7 @@ import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 from lsst.afw.table import SourceCatalog
 
-from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 
 # The first thing to do is to define a Connections class. This will define all

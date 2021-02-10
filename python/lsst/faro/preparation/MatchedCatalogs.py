@@ -1,8 +1,8 @@
 import lsst.pipe.base as pipeBase
 
-from .MatchedCatalogsBase import (MatchedBaseTaskConnections,
-                                  MatchedBaseTaskConfig,
-                                  MatchedBaseTask, MatchedTractBaseTask)
+from lsst.faro.base.MatchedCatalogsBase import (MatchedBaseTaskConnections,
+                                                MatchedBaseTaskConfig,
+                                                MatchedBaseTask, MatchedTractBaseTask)
 
 
 # The first thing to do is to define a Connections class. This will define all

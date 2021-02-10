@@ -29,12 +29,18 @@ class ImportTest(unittest.TestCase):
 
     def test_import(self):
         """Test the modules can be imported."""
-        import metric_pipeline_tasks as t
-        import metric_pipeline_utils as u
-        import metric_pipeline_scripts as s
-        dir(t)
-        dir(u)
+        import lsst.faro.base as b
+        import lsst.faro.measurement as m
+        import lsst.faro.preparation as p
+        import lsst.faro.scripts as s
+        import lsst.faro.summary as su
+        import lsst.faro.utils as u
+        dir(b)
+        dir(m)
+        dir(p)
         dir(s)
+        dir(su)
+        dir(u)
 
 
 if __name__ == "__main__":
