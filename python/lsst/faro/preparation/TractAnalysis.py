@@ -1,7 +1,7 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 
 class TractAnalysisTaskConnections(MetricConnections,

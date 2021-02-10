@@ -3,7 +3,7 @@ import traceback
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections, MetricComputationError
 
-from .CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires

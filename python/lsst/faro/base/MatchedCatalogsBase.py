@@ -2,7 +2,7 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 import lsst.geom as geom
 
-from metric_pipeline_utils.matcher import match_catalogs
+from lsst.faro.utils.matcher import match_catalogs
 
 
 # The first thing to do is to define a Connections class. This will define all
