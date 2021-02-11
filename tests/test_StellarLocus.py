@@ -29,7 +29,7 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from astropy.table import Table
-from lsst.far.utils.stellar_locus import stellarLocusResid
+from lsst.faro.utils.stellar_locus import stellarLocusResid
 from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.measurement import WPerpTask
 

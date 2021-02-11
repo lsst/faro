@@ -28,7 +28,7 @@ class CatalogSummaryBaseTaskConfig(MetricConfig,
         doc="Numpy aggregation task")
 
 
-class CatalogsSummaryBaseTask(MetricTask):
+class CatalogSummaryBaseTask(MetricTask):
 
     ConfigClass = CatalogSummaryBaseTaskConfig
     _DefaultName = "catalogSummaryBaseTask"
