@@ -3,6 +3,4 @@ import os
 
 from lsst.sconsUtils import env, scripts
 
-ignoreTests = ["test_StellarLocus.py"]
-
-scripts.BasicSConscript.tests(ignoreList=ignoreTests)
+scripts.BasicSConscript.tests(pyList=[])
