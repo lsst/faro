@@ -1,0 +1,4 @@
+description: Produce matched catalogs
+tasks:
+  matchCatalogsPatch: lsst.faro.preparation.PatchMatchedPrepTask
+  matchCatalogsTract: lsst.faro.preparation.TractMatchedPrepTask

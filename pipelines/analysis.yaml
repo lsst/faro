@@ -1,6 +1,0 @@
-description: Complete analysis pipeline
-imports:
-  - location: $METRIC_PIPE_DIR/pipelines/analysis_matched_multi.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/analysis_matched.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/analysis_patch.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/analysis_visit.yaml

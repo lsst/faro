@@ -1,14 +1,14 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 
-class TractAnalysisTaskConnections(MetricConnections,
-                                   dimensions=("tract", "skymap",
-                                               "band"),
-                                   defaultTemplates={"coaddName": "deepCoadd",
-                                                     "photoCalibName": "deepCoadd_calexp.photoCalib"}):
+class TractMeasTaskConnections(MetricConnections,
+                               dimensions=("tract", "skymap",
+                                           "band"),
+                               defaultTemplates={"coaddName": "deepCoadd",
+                                                 "photoCalibName": "deepCoadd_calexp.photoCalib"}):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "skymap",
@@ -30,15 +30,15 @@ class TractAnalysisTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                              pipelineConnections=TractAnalysisTaskConnections):
+class TractMeasTaskConfig(CatalogMeasureBaseTaskConfig,
+                          pipelineConnections=TractMeasTaskConnections):
     pass
 
 
-class TractAnalysisTask(CatalogAnalysisBaseTask):
+class TractMeasTask(CatalogMeasureBaseTask):
 
-    ConfigClass = TractAnalysisTaskConfig
-    _DefaultName = "tractAnalysisTask"
+    ConfigClass = TractMeasTaskConfig
+    _DefaultName = "tractMeasTask"
 
     def run(self, cat, photo_calibs, vIds):
         return self.measure.run(cat, photo_calibs, self.config.connections.metric, vIds)
@@ -54,10 +54,10 @@ class TractAnalysisTask(CatalogAnalysisBaseTask):
                             "as not applicable.", self, inputRefs)
 
 
-class TractAnalysisMultiFiltTaskConnections(TractAnalysisTaskConnections,
-                                            dimensions=("tract", "skymap"),
-                                            defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
-                                                              "deepCoadd_calexp.photoCalib"}):
+class TractMultiBandMeasTaskConnections(TractMeasTaskConnections,
+                                        dimensions=("tract", "skymap"),
+                                        defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
+                                                          "deepCoadd_calexp.photoCalib"}):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "skymap", "patch",
@@ -79,12 +79,12 @@ class TractAnalysisMultiFiltTaskConnections(TractAnalysisTaskConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractAnalysisMultiFiltTaskConfig(CatalogAnalysisBaseTaskConfig,
-                                       pipelineConnections=TractAnalysisMultiFiltTaskConnections):
+class TractMultiBandMeasTaskConfig(CatalogMeasureBaseTaskConfig,
+                                   pipelineConnections=TractMultiBandMeasTaskConnections):
     pass
 
 
-class TractAnalysisMultiFiltTask(TractAnalysisTask):
+class TractMultiBandMeasTask(TractMeasTask):
 
-    ConfigClass = TractAnalysisMultiFiltTaskConfig
-    _DefaultName = "tractAnalysisMultiFiltTask"
+    ConfigClass = TractMultiBandMeasTaskConfig
+    _DefaultName = "tractMultiBandMeasTask"

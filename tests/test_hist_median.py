@@ -26,7 +26,7 @@ import unittest
 import numpy as np
 import astropy.units as u
 
-from lsst.faro.measurement import HistMedianTask
+from lsst.faro.measurement.GeneralMeasureTasks import HistMedianTask
 from lsst.pex.config import Config
 
 

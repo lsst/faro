@@ -1,0 +1,5 @@
+description: Complete aggregation pipeline
+imports:
+  - location: $METRIC_PIPE_DIR/pipelines/summary_matched.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/summary_patch.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/summary_visit.yaml

@@ -1,7 +1,7 @@
 description: Compute aggregate metrics from a list of individual measurements
 tasks:
   agg_sum_nsrcVisit:
-    class: metric_pipeline_tasks.VisitAggregationTask
+    class: lsst.faro.summary.VisitSummaryTask
     config:
       connections.package: info
       connections.metric: nsrcMeasVisit

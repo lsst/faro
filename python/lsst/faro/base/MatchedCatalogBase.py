@@ -5,9 +5,6 @@ import lsst.geom as geom
 from lsst.faro.utils.matcher import match_catalogs
 
 
-# The first thing to do is to define a Connections class. This will define all
-# the inputs and outputs that our task requires
-# Should not be used alone, subclasses should define dimensions and output
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
                                  defaultTemplates={"coaddName": "deep", "photoCalibName":

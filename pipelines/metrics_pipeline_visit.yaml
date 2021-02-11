@@ -1,4 +1,4 @@
 description: Visit metrics pipeline
 imports:
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/analysis_visit.yaml
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/agg_visit.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/meas_visit.yaml
+  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/summary_visit.yaml

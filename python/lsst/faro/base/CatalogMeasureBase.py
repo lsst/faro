@@ -4,8 +4,8 @@ from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from .BaseSubTasks import NumSourcesTask
 
 
-class CatalogAnalysisBaseTaskConfig(MetricConfig,
-                                    pipelineConnections=MetricConnections):
+class CatalogMeasureBaseTaskConfig(MetricConfig,
+                                   pipelineConnections=MetricConnections):
     measure = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.
         # The default task is, therefore, a bit of a place holder.
@@ -15,10 +15,10 @@ class CatalogAnalysisBaseTaskConfig(MetricConfig,
         doc="Measure task")
 
 
-class CatalogAnalysisBaseTask(MetricTask):
+class CatalogMeasureBaseTask(MetricTask):
 
-    ConfigClass = CatalogAnalysisBaseTaskConfig
-    _DefaultName = "catalogAnalysisBaseTask"
+    ConfigClass = CatalogMeasureBaseTaskConfig
+    _DefaultName = "catalogMeasureBaseTask"
 
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)

@@ -37,7 +37,7 @@ from lsst.faro.utils.phot_repeat import (calcPhotRepeat,
                                          getRandomDiff)
 
 
-DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
+DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
 class PhotUtilTest(unittest.TestCase):

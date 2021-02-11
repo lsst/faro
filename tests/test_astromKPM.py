@@ -31,7 +31,7 @@ from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import AMxTask, ADxTask, AFxTask, AB1Task
 
-DATADIR = os.path.join(getPackageDir('metric_pipeline_tasks'), 'tests', 'data')
+DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
 class AmxTest(unittest.TestCase):

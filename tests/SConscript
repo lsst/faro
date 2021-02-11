@@ -3,6 +3,6 @@ import os
 
 from lsst.sconsUtils import env, scripts
 
-ignoreTests = ["test_StellarLocus.py"]
+env['ENV']['DUSTMAPS_CONFIG_FNAME'] = os.environ['DUSTMAPS_CONFIG_FNAME']
 
-scripts.BasicSConscript.tests(ignoreList=ignoreTests)
+scripts.BasicSConscript.tests(pyList=[])

@@ -3,20 +3,20 @@ import traceback
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections, MetricComputationError
 
-from lsst.faro.base.CatalogsAnalysisBase import CatalogAnalysisBaseTaskConfig, CatalogAnalysisBaseTask
+from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
 
-class MatchedCatalogAnalysisTaskConnections(MetricConnections,
-                                            dimensions=("tract", "patch", "band",
-                                                        "instrument", "skymap")):
+class PatchMatchedMeasTaskConnections(MetricConnections,
+                                      dimensions=("tract", "patch", "band",
+                                                  "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument",
                                                      "band"),
                                          storageClass="SimpleCatalog",
-                                         name="matchedCatalog")
+                                         name="matchedCatalogPatch")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
                                                               "instrument", "band"),
@@ -24,19 +24,19 @@ class MatchedCatalogAnalysisTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class MatchedCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                                       pipelineConnections=MatchedCatalogAnalysisTaskConnections):
+class PatchMatchedMeasTaskConfig(CatalogMeasureBaseTaskConfig,
+                                 pipelineConnections=PatchMatchedMeasTaskConnections):
     pass
 
 
-class MatchedCatalogAnalysisTask(CatalogAnalysisBaseTask):
-    ConfigClass = MatchedCatalogAnalysisTaskConfig
-    _DefaultName = "matchedCatalogAnalysisTask"
+class PatchMatchedMeasTask(CatalogMeasureBaseTask):
+    ConfigClass = PatchMatchedMeasTaskConfig
+    _DefaultName = "patchMatchedMeasTask"
 
 
-class MatchedCatalogTractAnalysisTaskConnections(MatchedCatalogAnalysisTaskConnections,
-                                                 dimensions=("tract", "instrument",
-                                                             "band", "skymap")):
+class TractMatchedMeasTaskConnections(PatchMatchedMeasTaskConnections,
+                                      dimensions=("tract", "instrument",
+                                                  "band", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "instrument",
                                                      "band"),
@@ -49,23 +49,23 @@ class MatchedCatalogTractAnalysisTaskConnections(MatchedCatalogAnalysisTaskConne
                                                   name="metricvalue_{package}_{metric}")
 
 
-class MatchedCatalogTractAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                                            pipelineConnections=MatchedCatalogTractAnalysisTaskConnections):
+class TractMatchedMeasTaskConfig(CatalogMeasureBaseTaskConfig,
+                                 pipelineConnections=TractMatchedMeasTaskConnections):
     pass
 
 
-class MatchedCatalogTractAnalysisTask(CatalogAnalysisBaseTask):
-    ConfigClass = MatchedCatalogTractAnalysisTaskConfig
-    _DefaultName = "matchedCatalogTractAnalysisTask"
+class TractMatchedMeasTask(CatalogMeasureBaseTask):
+    ConfigClass = TractMatchedMeasTaskConfig
+    _DefaultName = "tractMatchedMeasTask"
 
 
-class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
-                                                 dimensions=("tract", "patch", "band",
-                                                             "instrument", "skymap")):
+class PatchMatchedMultiBandMeasTaskConnections(MetricConnections,
+                                               dimensions=("tract", "patch", "band",
+                                                           "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument"),
                                          storageClass="SimpleCatalog",
-                                         name="matchedCatalogMulti")
+                                         name="matchedCatalogPatchMultiBand")
     measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
                                                   dimensions=("tract", "patch",
                                                               "instrument", "band"),
@@ -73,14 +73,14 @@ class MatchedMultiCatalogAnalysisTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class MatchedMultiCatalogAnalysisTaskConfig(CatalogAnalysisBaseTaskConfig,
-                                            pipelineConnections=MatchedMultiCatalogAnalysisTaskConnections):
+class PatchMatchedMultiBandMeasTaskConfig(CatalogMeasureBaseTaskConfig,
+                                          pipelineConnections=PatchMatchedMultiBandMeasTaskConnections):
     pass
 
 
-class MatchedMultiCatalogAnalysisTask(CatalogAnalysisBaseTask):
-    ConfigClass = MatchedMultiCatalogAnalysisTaskConfig
-    _DefaultName = "matchedMultiCatalogAnalysisTask"
+class PatchMatchedMultiBandMeasTask(CatalogMeasureBaseTask):
+    ConfigClass = PatchMatchedMultiBandMeasTaskConfig
+    _DefaultName = "patchMatchedMultiBandMeasTask"
 
     def run(self, cat, in_id, out_id):
         return self.measure.run(cat, self.config.connections.metric, in_id, out_id)

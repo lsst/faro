@@ -1,5 +1,0 @@
-description: Generate complete inputs
-
-imports:
-  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs_matched_multi.yaml
-  - location: $METRIC_PIPE_DIR/pipelines/gen_inputs_matched.yaml

@@ -1,3 +1,3 @@
-from .CatalogsAggregationBase import *
-from .CatalogsAnalysisBase import *
-from .MatchedCatalogsBase import *
+from .CatalogSummaryBase import *
+from .CatalogMeasureBase import *
+from .MatchedCatalogBase import *

@@ -1,4 +1,0 @@
-description: Produce matched catalogs
-tasks:
-  matchCatalogs: metric_pipeline_tasks.MatchedCatalogTask
-  matchCatalogsTract: metric_pipeline_tasks.MatchedCatalogTractTask

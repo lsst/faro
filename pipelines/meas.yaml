@@ -1,0 +1,6 @@
+description: Complete measurement pipeline
+imports:
+  - location: $METRIC_PIPE_DIR/pipelines/meas_matched_multi.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/meas_matched.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/meas_patch.yaml
+  - location: $METRIC_PIPE_DIR/pipelines/meas_visit.yaml

@@ -1,3 +1,0 @@
-description: Produce multiband matched catalogs
-tasks:
-  matchCatalogsMulti: metric_pipeline_tasks.MatchedCatalogMultiTask
