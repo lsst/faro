@@ -4,5 +4,5 @@ import os
 from lsst.sconsUtils import env, scripts
 
 env['ENV']['DUSTMAPS_CONFIG_FNAME'] = os.environ['DUSTMAPS_CONFIG_FNAME']
-#env['ENV']['DUSTMAPS_CACHEDATA_DIR'] = os.environ['DUSTMAPS_CACHEDATA_DIR']
+
 scripts.BasicSConscript.tests(pyList=[])
