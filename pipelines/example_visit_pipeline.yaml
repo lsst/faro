@@ -2,5 +2,5 @@
 # pipetask run -j 1 -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml --register-dataset-types -p pipelines/example_visit_pipeline.yaml -d "band = 'r'" -o visit_measurements_new_measurement -i shared/ci_hsc_output
 description: Visit metrics pipeline
 imports:
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/example_visit_meas.yaml
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/summary_visit.yaml
+  - location: $FARO_DIR/pipelines/example_visit_meas.yaml
+  - location: $FARO_DIR/pipelines/summary_visit.yaml

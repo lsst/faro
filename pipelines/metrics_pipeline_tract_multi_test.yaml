@@ -1,3 +1,3 @@
 description: Full metrics pipeline
 imports:
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/meas_tract_multi_test.yaml
+  - location: $FARO_DIR/pipelines/meas_tract_multi_test.yaml
