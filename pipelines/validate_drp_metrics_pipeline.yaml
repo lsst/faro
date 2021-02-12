@@ -1,3 +1,3 @@
 description: Metric measurement pipeline for just the single band matched (this approximates validate_drp)
 imports:
-  - location: $METRIC_PIPELINE_TASKS_DIR/pipelines/metrics_pipeline_matched.yaml
+  - location: $FARO_DIR/pipelines/metrics_pipeline_matched.yaml
