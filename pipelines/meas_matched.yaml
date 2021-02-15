@@ -150,7 +150,7 @@ tasks:
       connections.metric: TE2
       python: |
         from lsst.faro.measurement import TExTask
-         config.measure.retarget(TExTask)
+        config.measure.retarget(TExTask)
         config.measure.annulus_r = 5.0
         config.measure.comparison_operator = ">="
   nsrcMeas:
@@ -159,5 +159,5 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeas
       python: |
-        from lsst.faro.measurement import NumSourcesTask
+        from lsst.faro.base import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
