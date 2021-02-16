@@ -4,6 +4,8 @@ from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement
 
+__all__ = ('NumSourcesTask', 'NumpySummaryTaskConfig', 'NumpySummaryTask')
+
 
 class NumSourcesTask(Task):
 

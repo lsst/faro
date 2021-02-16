@@ -3,6 +3,9 @@ import lsst.pipe.base as pipeBase
 from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
                                                CatalogSummaryBaseTaskConfig)
 
+__all__ = ("PatchMatchedSummaryTaskConnections", "PatchMatchedSummaryTaskConfig", "PatchMatchedSummaryTask",
+           "TractMatchedSummaryTaskConnections", "TractMatchedSummaryTaskConfig", "TractMatchedSummaryTask")
+
 
 # Dimensions of the Connections class define the iterations of runQuantum
 class PatchMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):

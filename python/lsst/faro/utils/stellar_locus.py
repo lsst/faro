@@ -2,6 +2,9 @@ import numpy as np
 import scipy.stats as scipyStats
 from lsst.pipe.base import Struct
 
+__all__ = ("stellarLocusResid", "calcP1P2", "getCoeffs", "p1CoeffsFromP2x0y0",
+           "p2p1CoeffsFromLinearFit", "calcQuartileClippedStats")
+
 
 def stellarLocusResid(gmags, rmags, imags, **filterargs):
 

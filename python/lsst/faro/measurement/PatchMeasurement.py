@@ -3,6 +3,8 @@ from lsst.verify.tasks import MetricConnections
 
 from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
+__all__ = ("PatchMeasTaskConnections", "PatchMeasTaskConfig", "PatchMeasTask")
+
 
 class PatchMeasTaskConnections(MetricConnections,
                                dimensions=("tract", "patch", "skymap",

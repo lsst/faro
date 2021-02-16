@@ -5,6 +5,8 @@ from lsst.afw.table import (SchemaMapper, Field,
 import numpy as np
 from astropy.table import join, Table
 
+__all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matched_photom")
+
 
 def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
                    apply_external_wcs=False, logger=None):

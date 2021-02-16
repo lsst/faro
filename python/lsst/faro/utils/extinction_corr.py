@@ -8,6 +8,8 @@ except ModuleNotFoundError:
           ">>> import dustmaps.sfd\n"
           ">>> dustmaps.sfd.fetch()\n")
 
+__all__ = ("extinction_corr", )
+
 
 def extinction_corr(catalog, bands):
 

@@ -4,6 +4,8 @@ import lsst.pex.config as pexConfig
 
 from .BaseSubTasks import NumpySummaryTask
 
+__all__ = ('CatalogSummaryBaseTaskConnections', 'CatalogSummaryBaseTaskConfig', 'CatalogSummaryBaseTask')
+
 
 # Dimensions of the Connections class define the iterations of runQuantum
 class CatalogSummaryBaseTaskConnections(MetricConnections,

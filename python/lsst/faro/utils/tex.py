@@ -6,6 +6,10 @@ import treecorr
 
 from lsst.faro.utils.coord_util import averageRaFromCat, averageDecFromCat
 
+__all__ = ("correlation_function_ellipticity_from_matches", "correlation_function_ellipticity",
+           "select_bin_from_corr", "medianEllipticity1ResidualsFromCat",
+           "medianEllipticity2ResidualsFromCat")
+
 
 def correlation_function_ellipticity_from_matches(matches, **kwargs):
     """Compute shear-shear correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.

@@ -7,6 +7,8 @@ from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClipped
 from lsst.faro.utils.matcher import make_matched_photom
 from lsst.faro.utils.extinction_corr import extinction_corr
 
+__all__ = ("WPerpTaskConfig", "WPerpTask")
+
 
 class WPerpTaskConfig(Config):
     # These are cuts to apply to the r-band only:

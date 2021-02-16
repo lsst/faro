@@ -3,6 +3,8 @@ import lsst.pipe.base as pipeBase
 from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
                                                CatalogSummaryBaseTaskConfig)
 
+__all__ = ("VisitSummaryTaskConnections", "VisitSummaryTaskConfig", "VisitSummaryTask")
+
 
 class VisitSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 

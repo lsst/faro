@@ -2,6 +2,8 @@ import numpy as np
 
 import lsst.geom as geom
 
+__all__ = ("averageRaFromCat", "averageDecFromCat", "averageRaDecFromCat", "averageRaDec", "sphDist")
+
 
 def averageRaFromCat(cat):
     """Compute the average right ascension from a catalog of measurements.

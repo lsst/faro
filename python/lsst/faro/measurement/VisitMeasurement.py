@@ -4,6 +4,8 @@ from lsst.afw.table import SourceCatalog
 
 from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
+__all__ = ("VisitMeasTaskConfig", "VisitMeasTask")
+
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
