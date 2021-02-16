@@ -24,10 +24,9 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                   multiple=True)
     astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                    dimensions=("instrument", "visit",
-                                                               "skymap", "tract",
                                                                "detector", "band"),
                                                    storageClass="Wcs",
-                                                   name="wcsName",
+                                                   name="{wcsName}",
                                                    multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
@@ -35,6 +34,30 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         storageClass="SkyMap",
         dimensions=("skymap",),
     )
+
+    def __init__(self, *, config=None):
+        """Customize connection for the astrometric calibrations
+
+        Parameters
+        ----------
+        config : `MatchedBaseTaskConfig`
+            A config for `MatchedBaseTask` or one of its subclasses
+        """
+        super().__init__(config=config)
+        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
+            # Hack, this is the only way to get a connection without fixed dims
+            # Inspired by:
+            # https://github.com/lsst/verify/blob/master/python/lsst/verify/tasks/metadataMetricTask.py#L74-L87
+            new_astrom_calibs = pipeBase.connectionTypes.Input(
+                doc=self.astrom_calibs.doc,
+                dimensions=self.astrom_calibs.dimensions,
+                storageClass=self.astrom_calibs.storageClass,
+                name=self.astrom_calibs.name,
+                multiple=self.astrom_calibs.multiple
+            )
+            self.astrom_calibs = new_astrom_calibs
+            self.allConnections['astrom_calibs'] = self.astrom_calibs
+            self.dimensions = config.wcsDimensions
 
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
