@@ -7,8 +7,9 @@ from lsst.faro.utils.matcher import match_catalogs
 
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
-                                 defaultTemplates={"coaddName": "deep", "photoCalibName":
-                                                   "calexp.photoCalib"}):
+                                 defaultTemplates={"coaddName": "deep",
+                                                   "photoCalibName": "calexp.photoCalib",
+                                                   "wcsName": "calexp.wcs"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
                                                                  "detector", "band"),
@@ -26,7 +27,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                                "skymap", "tract",
                                                                "detector", "band"),
                                                    storageClass="Wcs",
-                                                   name="jointcal_wcs",
+                                                   name="wcsName",
                                                    multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
