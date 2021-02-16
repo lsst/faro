@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.base.CatalogSummaryBaseTask
 
-#############
+######################
 CatalogSummaryBaseTask
-#############
+######################
 
 .. _lsst.faro.base.CatalogSummaryBaseTask-api:
 

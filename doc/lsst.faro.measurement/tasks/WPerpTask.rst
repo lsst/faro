@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.WPerpTask
 
-#############
+#########
 WPerpTask
-#############
+#########
 
 .. _lsst.faro.measurement.WPerpTask-api:
 

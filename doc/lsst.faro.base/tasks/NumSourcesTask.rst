@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.base.NumSourcesTask
 
-#############
+##############
 NumSourcesTask
-#############
+##############
 
 .. _lsst.faro.base.NumSourcesTask-api:
 

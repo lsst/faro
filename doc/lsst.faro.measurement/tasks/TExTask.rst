@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.TExTask
 
-#############
+#######
 TExTask
-#############
+#######
 
 .. _lsst.faro.measurement.TExTask-api:
 

@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.summary.VisitSummaryTask
 
-#############
+################
 VisitSummaryTask
-#############
+################
 
 .. _lsst.faro.summary.VisitSummaryTask-api:
 

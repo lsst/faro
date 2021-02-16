@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.PatchMeasTaskConfig
 
-#########
+###################
 PatchMeasTaskConfig
-#########
+###################
 
 .. _lsst.faro.measurement.PatchMeasTaskConfig-configs:
 

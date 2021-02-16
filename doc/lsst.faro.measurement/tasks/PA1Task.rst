@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.PA1Task
 
-#############
+#######
 PA1Task
-#############
+#######
 
 .. _lsst.faro.measurement.PA1Task-api:
 

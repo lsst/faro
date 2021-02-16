@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.TExTaskConfig
 
-#########
+#############
 TExTaskConfig
-#########
+#############
 
 .. _lsst.faro.measurement.TExTaskConfig-configs:
 

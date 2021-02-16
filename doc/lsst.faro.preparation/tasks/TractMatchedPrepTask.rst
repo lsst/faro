@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.preparation.TractMatchedPrepTask
 
-#############
+####################
 TractMatchedPrepTask
-#############
+####################
 
 .. _lsst.faro.preparation.TractMatchedPrepTask-api:
 

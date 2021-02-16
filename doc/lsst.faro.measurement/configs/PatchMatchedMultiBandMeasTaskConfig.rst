@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.PatchMatchedMultiBandMeasTaskConfig
 
-#########
+###################################
 PatchMatchedMultiBandMeasTaskConfig
-#########
+###################################
 
 .. _lsst.faro.measurement.PatchMatchedMultiBandMeasTaskConfig-configs:
 

@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.base.NumpySummaryTask
 
-#############
+################
 NumpySummaryTask
-#############
+################
 
 .. _lsst.faro.base.NumpySummaryTask-api:
 

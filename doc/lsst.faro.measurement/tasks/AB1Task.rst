@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.AB1Task
 
-#############
+#######
 AB1Task
-#############
+#######
 
 .. _lsst.faro.measurement.AB1Task-api:
 

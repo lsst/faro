@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.summary.PatchMatchedSummaryTaskConfig
 
-#########
+#############################
 PatchMatchedSummaryTaskConfig
-#########
+#############################
 
 .. _lsst.faro.summary.PatchMatchedSummaryTaskConfig-configs:
 

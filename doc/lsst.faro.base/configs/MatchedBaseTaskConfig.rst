@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.base.MatchedBaseTaskConfig
 
-#########
+#####################
 MatchedBaseTaskConfig
-#########
+#####################
 
 .. _lsst.faro.base.MatchedBaseTaskConfig-configs:
 

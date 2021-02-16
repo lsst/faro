@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.preparation.PatchMatchedPrepTask
 
-#############
+####################
 PatchMatchedPrepTask
-#############
+####################
 
 .. _lsst.faro.preparation.PatchMatchedPrepTask-api:
 

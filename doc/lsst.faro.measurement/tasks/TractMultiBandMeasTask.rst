@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.TractMultiBandMeasTask
 
-#############
+######################
 TractMultiBandMeasTask
-#############
+######################
 
 .. _lsst.faro.measurement.TractMultiBandMeasTask-api:
 

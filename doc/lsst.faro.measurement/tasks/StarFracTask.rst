@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.StarFracTask
 
-#############
+############
 StarFracTask
-#############
+############
 
 .. _lsst.faro.measurement.StarFracTask-api:
 

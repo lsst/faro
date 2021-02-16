@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.VisitMeasTaskConfig
 
-#########
+###################
 VisitMeasTaskConfig
-#########
+###################
 
 .. _lsst.faro.measurement.VisitMeasTaskConfig-configs:
 

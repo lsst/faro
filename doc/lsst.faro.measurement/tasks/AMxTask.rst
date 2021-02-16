@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.AMxTask
 
-#############
+#######
 AMxTask
-#############
+#######
 
 .. _lsst.faro.measurement.AMxTask-api:
 

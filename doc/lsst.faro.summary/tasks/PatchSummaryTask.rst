@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.summary.PatchSummaryTask
 
-#############
+################
 PatchSummaryTask
-#############
+################
 
 .. _lsst.faro.summary.PatchSummaryTask-api:
 

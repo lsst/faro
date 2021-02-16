@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.base.MatchedTractBaseTask
 
-#############
+####################
 MatchedTractBaseTask
-#############
+####################
 
 .. _lsst.faro.base.MatchedTractBaseTask-api:
 

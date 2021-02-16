@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.PatchMatchedMeasTask
 
-#############
+####################
 PatchMatchedMeasTask
-#############
+####################
 
 .. _lsst.faro.measurement.PatchMatchedMeasTask-api:
 

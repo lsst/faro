@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.AFxTask
 
-#############
+#######
 AFxTask
-#############
+#######
 
 .. _lsst.faro.measurement.AFxTask-api:
 

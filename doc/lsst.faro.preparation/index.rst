@@ -2,9 +2,9 @@
 
 .. _lsst.faro.preparation:
 
-############
+#####################
 lsst.faro.preparation
-############
+#####################
 
 .. Paragraph that describes what this Python module does and links to related modules and frameworks.
 

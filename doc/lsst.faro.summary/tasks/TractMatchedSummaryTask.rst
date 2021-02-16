@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.summary.TractMatchedSummaryTask
 
-#############
+#######################
 TractMatchedSummaryTask
-#############
+#######################
 
 .. _lsst.faro.summary.TractMatchedSummaryTask-api:
 

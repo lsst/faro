@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.preparation.PatchMatchedMultiBandPrepTask
 
-#############
+#############################
 PatchMatchedMultiBandPrepTask
-#############
+#############################
 
 .. _lsst.faro.preparation.PatchMatchedMultiBandPrepTask-api:
 

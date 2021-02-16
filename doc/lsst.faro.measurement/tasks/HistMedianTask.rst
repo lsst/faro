@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.HistMedianTask
 
-#############
+##############
 HistMedianTask
-#############
+##############
 
 .. _lsst.faro.measurement.HistMedianTask-api:
 

@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.base.CatalogSummaryBaseTaskConfig
 
-#########
+############################
 CatalogSummaryBaseTaskConfig
-#########
+############################
 
 .. _lsst.faro.base.CatalogSummaryBaseTaskConfig-configs:
 

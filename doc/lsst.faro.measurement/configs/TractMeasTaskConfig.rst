@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.TractMeasTaskConfig
 
-#########
+###################
 TractMeasTaskConfig
-#########
+###################
 
 .. _lsst.faro.measurement.TractMeasTaskConfig-configs:
 

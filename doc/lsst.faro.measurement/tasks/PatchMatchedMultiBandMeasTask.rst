@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.PatchMatchedMultiBandMeasTask
 
-#############
+#############################
 PatchMatchedMultiBandMeasTask
-#############
+#############################
 
 .. _lsst.faro.measurement.PatchMatchedMultiBandMeasTask-api:
 
