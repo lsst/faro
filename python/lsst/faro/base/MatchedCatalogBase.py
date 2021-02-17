@@ -35,6 +35,9 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         dimensions=("skymap",),
     )
 
+    # Hack, this is the only way to get a connection without fixed dims
+    # Inspired by:
+    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
     def __init__(self, *, config=None):
         """Customize connection for the astrometric calibrations
 
@@ -45,9 +48,6 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         """
         super().__init__(config=config)
         if config and config.wcsDimensions != self.astrom_calibs.dimensions:
-            # Hack, this is the only way to get a connection without fixed dims
-            # Inspired by:
-            # https://github.com/lsst/verify/blob/master/python/lsst/verify/tasks/metadataMetricTask.py#L74-L87
             new_astrom_calibs = pipeBase.connectionTypes.Input(
                 doc=self.astrom_calibs.doc,
                 dimensions=config.wcsDimensions,
