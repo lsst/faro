@@ -7,8 +7,9 @@ from lsst.faro.utils.matcher import match_catalogs
 
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),
-                                 defaultTemplates={"coaddName": "deep", "photoCalibName":
-                                                   "calexp.photoCalib"}):
+                                 defaultTemplates={"coaddName": "deep",
+                                                   "photoCalibName": "calexp.photoCalib",
+                                                   "wcsName": "calexp.wcs"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
                                                                  "detector", "band"),
@@ -23,10 +24,9 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                   multiple=True)
     astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                    dimensions=("instrument", "visit",
-                                                               "skymap", "tract",
                                                                "detector", "band"),
                                                    storageClass="Wcs",
-                                                   name="jointcal_wcs",
+                                                   name="{wcsName}",
                                                    multiple=True)
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
@@ -35,12 +35,38 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         dimensions=("skymap",),
     )
 
+    # Hack, this is the only way to get a connection without fixed dims
+    # Inspired by:
+    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
+    def __init__(self, *, config=None):
+        """Customize connection for the astrometric calibrations
+
+        Parameters
+        ----------
+        config : `MatchedBaseTaskConfig`
+            A config for `MatchedBaseTask` or one of its subclasses
+        """
+        super().__init__(config=config)
+        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
+            new_astrom_calibs = pipeBase.connectionTypes.Input(
+                doc=self.astrom_calibs.doc,
+                dimensions=config.wcsDimensions,
+                storageClass=self.astrom_calibs.storageClass,
+                name=self.astrom_calibs.name,
+                multiple=self.astrom_calibs.multiple
+            )
+            self.astrom_calibs = new_astrom_calibs
+            self.allConnections['astrom_calibs'] = self.astrom_calibs
+
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
     apply_external_wcs = pexConfig.Field(doc="Apply correction to coordinates with e.g. a jointcal WCS.",
                                          dtype=bool, default=False)
+    wcsDimensions = pexConfig.ListField(doc="Override the dimensions of the astrometric calibration objects",
+                                        dtype=str,
+                                        default=MatchedBaseTaskConnections.astrom_calibs.dimensions)
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
