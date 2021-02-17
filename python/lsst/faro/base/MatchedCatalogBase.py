@@ -50,14 +50,13 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
             # https://github.com/lsst/verify/blob/master/python/lsst/verify/tasks/metadataMetricTask.py#L74-L87
             new_astrom_calibs = pipeBase.connectionTypes.Input(
                 doc=self.astrom_calibs.doc,
-                dimensions=self.astrom_calibs.dimensions,
+                dimensions=config.wcsDimensions,
                 storageClass=self.astrom_calibs.storageClass,
                 name=self.astrom_calibs.name,
                 multiple=self.astrom_calibs.multiple
             )
             self.astrom_calibs = new_astrom_calibs
             self.allConnections['astrom_calibs'] = self.astrom_calibs
-            self.dimensions = config.wcsDimensions
 
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
@@ -65,6 +64,9 @@ class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
     apply_external_wcs = pexConfig.Field(doc="Apply correction to coordinates with e.g. a jointcal WCS.",
                                          dtype=bool, default=False)
+    wcsDimensions = pexConfig.ListField(doc="Override the dimensions of the astrometric calibration objects",
+                                        dtype=str,
+                                        default=MatchedBaseTaskConnections.astrom_calibs.dimensions)
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
