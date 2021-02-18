@@ -1,0 +1,9 @@
+html
+xml
+*.tag
+*.inc
+doxygen.conf
+
+# Sphinx products
+_build
+py-api

@@ -5,6 +5,11 @@ from lsst.verify.tasks import MetricConnections, MetricComputationError
 
 from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
 
+__all__ = ("PatchMatchedMeasTaskConnections", "PatchMatchedMeasTaskConfig", "PatchMatchedMeasTask",
+           "TractMatchedMeasTaskConnections", "TractMatchedMeasTaskConfig", "TractMatchedMeasTask",
+           "PatchMatchedMultiBandMeasTaskConnections", "PatchMatchedMultiBandMeasTaskConfig",
+           "PatchMatchedMultiBandMeasTask")
+
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 

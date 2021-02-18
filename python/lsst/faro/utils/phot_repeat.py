@@ -7,6 +7,9 @@ import astropy.units as u
 import lsst.pipe.base as pipeBase
 from lsst.faro.utils.filtermatches import filterMatches
 
+__all__ = ("photRepeat", "calcPhotRepeat", "calcPhotRepeatSample", "computeWidths",
+           "getRandomDiffRmsInMmags", "getRandomDiff")
+
 
 def photRepeat(matchedCatalog, numRandomShuffles=50, randomSeed=None, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)

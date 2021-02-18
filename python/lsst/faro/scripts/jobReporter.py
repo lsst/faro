@@ -1,6 +1,8 @@
 from lsst.verify import Job, MetricSet
 from lsst.daf.butler import Butler
 
+__all__ = ("JobReporter", )
+
 
 class JobReporter:
     def __init__(self, repository, collection, metrics_package, spec, dataset_name):

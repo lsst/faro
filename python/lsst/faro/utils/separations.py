@@ -5,6 +5,9 @@ from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.coord_util import (averageRaFromCat, averageDecFromCat,
                                         sphDist)
 
+__all__ = ("astromRms", "astromRms", "calcRmsDistances", "calcSepOutliers",
+           "matchVisitComputeDistance", "calcRmsDistancesVsRef")
+
 
 def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)

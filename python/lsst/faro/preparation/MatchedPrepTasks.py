@@ -4,6 +4,11 @@ from lsst.faro.base.MatchedCatalogBase import (MatchedBaseTaskConnections,
                                                MatchedBaseTaskConfig,
                                                MatchedBaseTask, MatchedTractBaseTask)
 
+__all__ = ("PatchMatchedPrepTaskConnections", "PatchMatchedPrepTaskConfig", "PatchMatchedPrepTask",
+           "TractMatchedPrepTaskConnections", "TractMatchedPrepTaskConfig", "TractMatchedPrepTask",
+           "PatchMatchedMultiBandPrepTaskConnections", "PatchMatchedMultiBandPrepTaskConfig",
+           "PatchMatchedMultiBandPrepTask")
+
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires

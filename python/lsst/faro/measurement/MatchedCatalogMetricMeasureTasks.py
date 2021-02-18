@@ -10,6 +10,9 @@ from lsst.faro.utils.phot_repeat import photRepeat
 from lsst.faro.utils.tex import (correlation_function_ellipticity_from_matches,
                                  select_bin_from_corr)
 
+__all__ = ("PA1TaskConfig", "PA1Task", "PA2TaskConfig", "PA2Task", "PF1Task", "TExTaskConfig",
+           "TExTask", "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
+
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}

@@ -4,6 +4,8 @@ import lsst.geom as geom
 
 from lsst.faro.utils.matcher import match_catalogs
 
+__all__ = ('MatchedBaseTaskConnections', 'MatchedBaseTaskConfig', 'MatchedBaseTask', 'MatchedTractBaseTask')
+
 
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  dimensions=(),

@@ -1,6 +1,8 @@
 import numpy as np
 from lsst.afw.table import GroupView
 
+__all__ = ("filterMatches", )
+
 
 def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
                   extended=None, doFlags=None, isPrimary=None,

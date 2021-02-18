@@ -3,6 +3,8 @@ from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 
 from .BaseSubTasks import NumSourcesTask
 
+__all__ = ('CatalogMeasureBaseTaskConfig', 'CatalogMeasureBaseTask')
+
 
 class CatalogMeasureBaseTaskConfig(MetricConfig,
                                    pipelineConnections=MetricConnections):

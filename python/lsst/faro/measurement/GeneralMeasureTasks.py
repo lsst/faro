@@ -3,6 +3,8 @@ from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config
 from lsst.verify import Measurement
 
+__all__ = ("HistMedianTask", )
+
 
 class HistMedianTask(Task):
 
