@@ -32,13 +32,11 @@ class ImportTest(unittest.TestCase):
         import lsst.faro.base as b
         import lsst.faro.measurement as m
         import lsst.faro.preparation as p
-        import lsst.faro.scripts as s
         import lsst.faro.summary as su
         import lsst.faro.utils as u
         dir(b)
         dir(m)
         dir(p)
-        dir(s)
         dir(su)
         dir(u)
 
