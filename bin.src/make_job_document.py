@@ -3,7 +3,7 @@ import argparse
 import time
 import json
 
-from metric_pipeline_scripts import JobReporter
+from lsst.faro.scripts import JobReporter
 
 
 def main(repository, collection, metrics_package, spec, dataset_name):
