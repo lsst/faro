@@ -1,17 +1,19 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 
-__all__ = ("TractMeasTaskConnections", "TractMeasTaskConfig", "TractMeasTask",
-           "TractMultiBandMeasTaskConnections", "TractMultiBandMeasTaskConfig", "TractMultiBandMeasTask")
+__all__ = ("TractMeasurementTaskConnections", "TractMeasurementTaskConfig",
+           "TractMeasurementTask",
+           "TractMultiBandMeasurementTaskConnections", "TractMultiBandMeasurementTaskConfig",
+           "TractMultiBandMeasurementTask")
 
 
-class TractMeasTaskConnections(MetricConnections,
-                               dimensions=("tract", "skymap",
-                                           "band"),
-                               defaultTemplates={"coaddName": "deepCoadd",
-                                                 "photoCalibName": "deepCoadd_calexp.photoCalib"}):
+class TractMeasurementTaskConnections(MetricConnections,
+                                      dimensions=("tract", "skymap",
+                                                  "band"),
+                                      defaultTemplates={"coaddName": "deepCoadd",
+                                                        "photoCalibName": "deepCoadd_calexp.photoCalib"}):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "skymap",
@@ -33,15 +35,15 @@ class TractMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMeasTaskConfig(CatalogMeasureBaseTaskConfig,
-                          pipelineConnections=TractMeasTaskConnections):
+class TractMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
+                                 pipelineConnections=TractMeasurementTaskConnections):
     pass
 
 
-class TractMeasTask(CatalogMeasureBaseTask):
+class TractMeasurementTask(CatalogMeasurementBaseTask):
 
-    ConfigClass = TractMeasTaskConfig
-    _DefaultName = "tractMeasTask"
+    ConfigClass = TractMeasurementTaskConfig
+    _DefaultName = "tractMeasurementTask"
 
     def run(self, cat, photo_calibs, vIds):
         return self.measure.run(cat, photo_calibs, self.config.connections.metric, vIds)
@@ -57,10 +59,10 @@ class TractMeasTask(CatalogMeasureBaseTask):
                             "as not applicable.", self, inputRefs)
 
 
-class TractMultiBandMeasTaskConnections(TractMeasTaskConnections,
-                                        dimensions=("tract", "skymap"),
-                                        defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
-                                                          "deepCoadd_calexp.photoCalib"}):
+class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
+                                               dimensions=("tract", "skymap"),
+                                               defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
+                                                                 "deepCoadd_calexp.photoCalib"}):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "skymap", "patch",
@@ -82,12 +84,12 @@ class TractMultiBandMeasTaskConnections(TractMeasTaskConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMultiBandMeasTaskConfig(CatalogMeasureBaseTaskConfig,
-                                   pipelineConnections=TractMultiBandMeasTaskConnections):
+class TractMultiBandMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
+                                          pipelineConnections=TractMultiBandMeasurementTaskConnections):
     pass
 
 
-class TractMultiBandMeasTask(TractMeasTask):
+class TractMultiBandMeasurementTask(TractMeasurementTask):
 
-    ConfigClass = TractMultiBandMeasTaskConfig
-    _DefaultName = "tractMultiBandMeasTask"
+    ConfigClass = TractMultiBandMeasurementTaskConfig
+    _DefaultName = "tractMultiBandMeasurementTask"
