@@ -3,4 +3,4 @@
 description: Visit metrics pipeline
 imports:
   - location: $FARO_DIR/pipelines/example_visit_meas.yaml
-  - location: $FARO_DIR/pipelines/summary_visit.yaml
+  - location: $FARO_DIR/pipelines/summary/summary_visit.yaml

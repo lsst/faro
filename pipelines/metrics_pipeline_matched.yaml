@@ -1,5 +1,5 @@
 description: Full matched metrics pipeline
 imports:
-  - location: $FARO_DIR/pipelines/prep_matched.yaml
-  - location: $FARO_DIR/pipelines/meas_matched.yaml
-  - location: $FARO_DIR/pipelines/summary_matched.yaml
+  - location: $FARO_DIR/pipelines/preparation/preparation_matched.yaml
+  - location: $FARO_DIR/pipelines/measurement/measurement_matched.yaml
+  - location: $FARO_DIR/pipelines/summary/summary_matched.yaml
