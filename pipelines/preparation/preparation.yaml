@@ -1,5 +1,5 @@
 description: Generate complete inputs
 
 imports:
-  - location: $FARO_DIR/pipelines/prep_matched_multi.yaml
-  - location: $FARO_DIR/pipelines/prep_matched.yaml
+  - location: $FARO_DIR/pipelines/preparation/preparation_matched_multi.yaml
+  - location: $FARO_DIR/pipelines/preparation/preparation_matched.yaml
