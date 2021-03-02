@@ -1,7 +1,15 @@
-setupRequired(lsst_distrib)
-setupRequired(verify)
+setupRequired(afw)
+setupRequired(daf_butler)
 setupRequired(dustmaps_cachedata)
+setupRequired(geom)
+setupRequired(pex_config)
+setupRequired(pipe_base)
+setupRequired(sconsUtils)
+setupRequired(utils)
+setupRequired(verify)
 setupOptional(ci_hsc_gen3)
+setupOptional(daf_persistence)  # This is only used in notebooks
+setupOptional(validate_drp)
 setupOptional(verify_metrics)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
