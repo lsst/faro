@@ -14,5 +14,5 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeasVisit
       python: |
-        from lsst.faro.measurement import NumSourcesTask
+        from lsst.faro.base import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

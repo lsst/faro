@@ -1,7 +1,7 @@
 description: Compute metrics from matched catalogs
 tasks:
   PA1:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: PA1
@@ -9,7 +9,7 @@ tasks:
         from lsst.faro.measurement import PA1Task
         config.measure.retarget(PA1Task)
   PA2_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: PA2_design_gri
@@ -19,7 +19,7 @@ tasks:
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   PF1_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: PF1_design_gri
@@ -29,7 +29,7 @@ tasks:
         config.measure.threshPA2 = 15.0
         config.measure.threshPF1 = 10.0
   AM1_info:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       # Compute this in the info namespace as well so we can
       # show an example of changing the summary aggregation
@@ -41,7 +41,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM1:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AM1
@@ -50,7 +50,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 5.0
   AM2:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AM2
@@ -59,7 +59,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 20.0
   AM3:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AM3
@@ -68,7 +68,7 @@ tasks:
         config.measure.retarget(AMxTask)
         config.measure.annulus_r = 200.0
   AD1_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AD1_design
@@ -79,7 +79,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD2_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AD2_design
@@ -90,7 +90,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AD3_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AD3_design
@@ -101,7 +101,7 @@ tasks:
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   AF1_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AF1_design
@@ -112,7 +112,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF2_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AF2_design
@@ -123,7 +123,7 @@ tasks:
         config.measure.threshAD = 20.0
         config.measure.threshAF = 10.0
   AF3_design:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: AF3_design
@@ -134,7 +134,7 @@ tasks:
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
   TE1:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: TE1
@@ -144,7 +144,7 @@ tasks:
         config.measure.annulus_r = 1.0
         config.measure.comparison_operator = "<="
   TE2:
-    class: lsst.faro.measurement.TractMatchedMeasTask
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
       connections.package: validate_drp
       connections.metric: TE2
@@ -154,7 +154,7 @@ tasks:
         config.measure.annulus_r = 5.0
         config.measure.comparison_operator = ">="
   nsrcMeas:
-    class: lsst.faro.measurement.PatchMatchedMeasTask
+    class: lsst.faro.measurement.PatchMatchedMeasurementTask
     config:
       connections.package: info
       connections.metric: nsrcMeas
