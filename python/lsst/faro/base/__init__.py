@@ -1,4 +1,4 @@
 from .CatalogSummaryBase import *
-from .CatalogMeasureBase import *
+from .CatalogMeasurementBase import *
 from .MatchedCatalogBase import *
 from .BaseSubTasks import *

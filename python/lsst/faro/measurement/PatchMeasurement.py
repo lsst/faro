@@ -1,14 +1,15 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
+from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseTaskConfig,
+                                                   CatalogMeasurementBaseTask)
 
-__all__ = ("PatchMeasTaskConnections", "PatchMeasTaskConfig", "PatchMeasTask")
+__all__ = ("PatchMeasurementTaskConnections", "PatchMeasurementTaskConfig", "PatchMeasurementTask")
 
 
-class PatchMeasTaskConnections(MetricConnections,
-                               dimensions=("tract", "patch", "skymap",
-                                           "band")):
+class PatchMeasurementTaskConnections(MetricConnections,
+                                      dimensions=("tract", "patch", "skymap",
+                                                  "band")):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "patch", "skymap",
@@ -23,15 +24,15 @@ class PatchMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMeasTaskConfig(CatalogMeasureBaseTaskConfig,
-                          pipelineConnections=PatchMeasTaskConnections):
+class PatchMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
+                                 pipelineConnections=PatchMeasurementTaskConnections):
     pass
 
 
-class PatchMeasTask(CatalogMeasureBaseTask):
+class PatchMeasurementTask(CatalogMeasurementBaseTask):
 
-    ConfigClass = PatchMeasTaskConfig
-    _DefaultName = "patchMeasTask"
+    ConfigClass = PatchMeasurementTaskConfig
+    _DefaultName = "patchMeasurementTask"
 
     def run(self, cat, vIds):
         return self.measure.run(cat, self.config.connections.metric, vIds)

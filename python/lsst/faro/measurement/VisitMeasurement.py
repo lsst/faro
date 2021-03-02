@@ -2,15 +2,15 @@ import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 from lsst.afw.table import SourceCatalog
 
-from lsst.faro.base.CatalogMeasureBase import CatalogMeasureBaseTaskConfig, CatalogMeasureBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 
-__all__ = ("VisitMeasTaskConfig", "VisitMeasTask")
+__all__ = ("VisitMeasurementTaskConfig", "VisitMeasurementTask")
 
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-class VisitMeasTaskConnections(MetricConnections,
-                               dimensions=("instrument", "visit", "band")):
+class VisitMeasurementTaskConnections(MetricConnections,
+                                      dimensions=("instrument", "visit", "band")):
 
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
                                                      dimensions=("instrument", "visit",
@@ -25,14 +25,14 @@ class VisitMeasTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class VisitMeasTaskConfig(CatalogMeasureBaseTaskConfig,
-                          pipelineConnections=VisitMeasTaskConnections):
+class VisitMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
+                                 pipelineConnections=VisitMeasurementTaskConnections):
     pass
 
 
-class VisitMeasTask(CatalogMeasureBaseTask):
-    ConfigClass = VisitMeasTaskConfig
-    _DefaultName = "visitMeasTask"
+class VisitMeasurementTask(CatalogMeasurementBaseTask):
+    ConfigClass = VisitMeasurementTaskConfig
+    _DefaultName = "visitMeasurementTask"
 
     def run(self, source_catalogs, vIds):
 

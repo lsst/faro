@@ -1,10 +1,10 @@
 description: Compute metrics from patch forced catalogs
 tasks:
   nsrcMeasPatch:
-    class: lsst.faro.measurement.PatchMeasTask
+    class: lsst.faro.measurement.PatchMeasurementTask
     config:
       connections.package: info
       connections.metric: nsrcMeasPatch
       python: |
-        from lsst.faro.measurement import NumSourcesTask
+        from lsst.faro.base import NumSourcesTask
         config.measure.retarget(NumSourcesTask)

@@ -1,3 +1,0 @@
-description: Produce multiband matched catalogs
-tasks:
-  matchCatalogPatchMultiBand: lsst.faro.preparation.PatchMatchedMultiBandPrepTask

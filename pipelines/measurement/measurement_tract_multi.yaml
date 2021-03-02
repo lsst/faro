@@ -1,7 +1,7 @@
 description: Compute metrics from multiband matched catalogs
 tasks:
   wPerp:
-    class: lsst.faro.measurement.TractMultiBandMeasTask
+    class: lsst.faro.measurement.TractMultiBandMeasurementTask
     config:
       connections.package: pipe_analysis
       connections.metric: wPerp
