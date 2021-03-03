@@ -53,9 +53,9 @@ class TEXUtilTest(unittest.TestCase):
 
     def test_correlation_function_ellipticity(self):
         """Test correlation function calculation."""
-        expected_r = 4.395319409351799*u.arcmin
-        expected_xip = 0.001867305310370419
-        expected_xip_err = 0.0005348912968829396
+        expected_r = 4.394963986052715*u.arcmin
+        expected_xip = 0.0012692726448193844
+        expected_xip_err = 0.0004931737255066678
 
         cat = self.load_data()
         matches = GroupView.build(cat)
@@ -66,7 +66,7 @@ class TEXUtilTest(unittest.TestCase):
         e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
         e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
 
-        result = correlation_function_ellipticity(ra, dec, e1_res, e2_res)
+        result = correlation_function_ellipticity(ra, dec, e1_res, e2_res, bin_slop=0)
         self.assertTrue(u.isclose(np.mean(result[0]), expected_r))
         self.assertTrue(u.isclose(np.mean(result[1]), expected_xip))
         self.assertTrue(u.isclose(np.mean(result[2]), expected_xip_err))
