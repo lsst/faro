@@ -34,7 +34,8 @@ def correlation_function_ellipticity_from_matches(matches, **kwargs):
 
 def correlation_function_ellipticity(ra, dec, e1_res, e2_res,
                                      nbins=20, min_sep=0.25, max_sep=20,
-                                     sep_units='arcmin', verbose=False):
+                                     sep_units='arcmin', verbose=False,
+                                     bin_slop=None):
     """Compute shear-shear correlation function from ra, dec, g1, g2.
     Default parameters for nbins, min_sep, max_sep chosen to cover
        an appropriate range to calculate TE1 (<=1 arcmin) and TE2 (>=5 arcmin).
@@ -59,6 +60,12 @@ def correlation_function_ellipticity(ra, dec, e1_res, e2_res,
     verbose : bool
         Request verbose output from `treecorr`.
         verbose=True will use verbose=2 for `treecorr.GGCorrelation`.
+    bin_slop : float
+        If specified, this allows tuning of how `treecorr` chooses bins.
+        The value should be between 0 and 1.  Higher values allow more
+        slop, but are faster.  If not specified, treecorr will compute
+        an appropriate value.  For non-zero values, details of results
+        may not agree between runs on different architectures.
     Returns
     -------
     r, xip, xip_err : each a np.array(dtype=float)
@@ -74,9 +81,14 @@ def correlation_function_ellipticity(ra, dec, e1_res, e2_res,
 
     catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
                                dec_units='radian', ra_units='radian')
-    gg = treecorr.GGCorrelation(nbins=nbins, min_sep=min_sep, max_sep=max_sep,
-                                sep_units=sep_units,
-                                verbose=verbose_level)
+    if bin_slop is not None:
+        gg = treecorr.GGCorrelation(nbins=nbins, min_sep=min_sep, max_sep=max_sep,
+                                    sep_units=sep_units, verbose=verbose_level,
+                                    bin_slop=bin_slop)
+    else:
+        gg = treecorr.GGCorrelation(nbins=nbins, min_sep=min_sep, max_sep=max_sep,
+                                    sep_units=sep_units,
+                                    verbose=verbose_level)
     gg.process(catTree)
     r = np.exp(gg.meanlogr) * u.arcmin
     xip = gg.xip * u.Unit('')
