@@ -8,8 +8,6 @@ setupRequired(pipe_base)
 setupRequired(sconsUtils)
 setupRequired(utils)
 setupRequired(verify)
-setupOptional(ci_hsc_gen3)
-setupOptional(daf_persistence)  # This is only used in notebooks
 setupOptional(validate_drp)
 setupOptional(verify_metrics)
 
