@@ -316,7 +316,7 @@ class AB1Task(Task):
                 return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
             else:
                 rmsDistancesAll = np.concatenate(rmsDistancesAll)
-                return Struct(measurement=Measurement(metric_name, np.mean(rmsDistancesAll)*u.marcsec))
+                return Struct(measurement=Measurement(metric_name, np.mean(rmsDistancesAll)))
 
         else:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
