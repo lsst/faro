@@ -1,3 +1,7 @@
 description: Produce multiband matched catalogs
 tasks:
-  matchCatalogPatchMultiBand: lsst.faro.preparation.PatchMatchedMultiBandPreparationTask
+  matchCatalogsPatchMultiBand:
+    class: lsst.faro.preparation.PatchMatchedMultiBandPreparationTask
+    config:
+      connections.photoCalibName: fgcm_photoCalib
+      apply_external_wcs: True  # We only support jointcal for now
