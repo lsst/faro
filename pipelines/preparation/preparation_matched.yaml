@@ -2,11 +2,5 @@ description: Produce matched catalogs
 tasks:
   matchCatalogsPatch:
     class: lsst.faro.preparation.PatchMatchedPreparationTask
-    config:
-      connections.photoCalibName: fgcm_photoCalib
-      apply_external_wcs: True  # We only support jointcal for now
   matchCatalogsTract:
     class: lsst.faro.preparation.TractMatchedPreparationTask
-    config:
-      connections.photoCalibName: fgcm_photoCalib
-      apply_external_wcs: True  # We only support jointcal for now
