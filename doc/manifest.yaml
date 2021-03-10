@@ -6,7 +6,6 @@ modules:
   - "lsst.faro.base"
   - "lsst.faro.measurement"
   - "lsst.faro.preparation"
-  - "lsst.faro.scripts"
   - "lsst.faro.summary"
   - "lsst.faro.utils"
 
