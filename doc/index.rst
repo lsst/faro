@@ -12,6 +12,5 @@ faro documentation
    lsst.faro.base/index
    lsst.faro.measurement/index
    lsst.faro.preparation/index
-   lsst.faro.scripts/index
    lsst.faro.summary/index
    lsst.faro.utils/index
