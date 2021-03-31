@@ -1,29 +1,50 @@
-import functools
-import math
+# import functools
+# import math
 import numpy as np
-from scipy.stats import norm
+# from scipy.stats import norm
 import astropy.units as u
 
-import lsst.pipe.base as pipeBase
+# import lsst.pipe.base as pipeBase
 from lsst.faro.utils.filtermatches import filterMatches
 
-__all__ = ("photRepeat", "calcPhotRepeat", "calcPhotRepeatSample", "computeWidths",
-           "getRandomDiffRmsInMmags", "getRandomDiff")
+__all__ = ("photRepeat", "calcPhotRepeat", "cal_RMS")
 
 
-def photRepeat(matchedCatalog, numRandomShuffles=50, randomSeed=None, **filterargs):
+def photRepeat(matchedCatalog, nMinPhotRepeat=3, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
-    nMinPhotRepeat = 50
+    print('filteredCat.count: ',filteredCat.count)
     if filteredCat.count > nMinPhotRepeat:
-        phot_resid_meas = calcPhotRepeat(filteredCat, magKey, numRandomShuffles=50, randomSeed=randomSeed)
+        phot_resid_meas = calcPhotRepeat(filteredCat, magKey)
         return phot_resid_meas
     else:
         return {'nomeas': np.nan*u.mmag}
 
 
+def cal_RMS(x):
+    return np.sqrt(np.mean((x-np.mean(x))**2))
+
+
+def calcPhotRepeat(matches, magKey):
+    matches_rms = matches.aggregate(cal_RMS, field=magKey)*1000.0*u.mmag
+    matches_count = matches.aggregate(np.count_nonzero, field=magKey)
+    matches_mean = matches.aggregate(np.mean, field=magKey)*u.mag
+    magDiffs = []
+    for gp in matches.groups:
+        magDiffs.append((gp[magKey]-np.mean(gp[magKey]))*1000.0*u.mmag)
+    # import pdb; pdb.set_trace()
+    okrms = (matches_count > 2)
+    if np.sum(okrms) > 0:
+        return {'count': matches_count, 'magMean': matches_mean, 'rms': matches_rms,
+                'repeatability': np.median(matches_rms[okrms]), 'magDiffs': magDiffs}
+    else:
+        return {'count': 0, 'magMean': np.nan*u.mag, 'rms': np.nan*u.mmag,
+                'repeatability': np.nan*u.mmag, 'magDiffs': 0*u.mmag}
+
+
+'''
 def calcPhotRepeat(matches, magKey, numRandomShuffles=50, randomSeed=None):
     """Calculate the photometric repeatability of measurements across a set
     of randomly selected pairs of visits.
@@ -247,3 +268,4 @@ def getRandomDiff(array, rng=None):
         rng = np.random.default_rng()
     a, b = rng.choice(range(len(array)), 2, replace=False)
     return array[a] - array[b]
+'''

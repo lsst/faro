@@ -20,13 +20,15 @@ filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
 
 class PA1TaskConfig(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
-                         dtype=float, default=50)
+                         dtype=float, default=200)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                          dtype=float, default=np.Inf)
-    numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
-                              dtype=int, default=50)
-    randomSeed = Field(doc="Random seed for sampling.",
-                       dtype=int, default=12345)
+    nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
+                           dtype=int, default=3)
+    # numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
+    #                          dtype=int, default=50)
+    # randomSeed = Field(doc="Random seed for sampling.",
+    #                   dtype=int, default=12345)
 
 
 class PA1Task(Task):
@@ -38,16 +40,18 @@ class PA1Task(Task):
         super().__init__(*args, config=config, **kwargs)
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
+        self.nMinPhotRepeat = self.config.nMinPhotRepeat
+        # self.numRandomShuffles = self.config.numRandomShuffles
+        # self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
         self.log.info("Measuring PA1")
 
-        pa1 = photRepeat(matchedCatalog, snrMax=self.brightSnrMax, snrMin=self.brightSnrMin,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
+        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
+                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+#                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
 
-        if 'magDiff' in pa1.keys():
+        if 'magMean' in pa1.keys():
             return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
