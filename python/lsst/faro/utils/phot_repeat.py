@@ -1,10 +1,6 @@
-# import functools
-# import math
 import numpy as np
-# from scipy.stats import norm
 import astropy.units as u
 
-# import lsst.pipe.base as pipeBase
 from lsst.faro.utils.filtermatches import filterMatches
 
 __all__ = ("photRepeat", "calcPhotRepeat", "cal_RMS")
