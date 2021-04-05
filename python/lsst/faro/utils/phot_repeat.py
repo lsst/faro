@@ -10,12 +10,11 @@ from lsst.faro.utils.filtermatches import filterMatches
 __all__ = ("photRepeat", "calcPhotRepeat", "cal_RMS")
 
 
-def photRepeat(matchedCatalog, nMinPhotRepeat=3, **filterargs):
+def photRepeat(matchedCatalog, nMinPhotRepeat=50, **filterargs):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
-    print('filteredCat.count: ',filteredCat.count)
     if filteredCat.count > nMinPhotRepeat:
         phot_resid_meas = calcPhotRepeat(filteredCat, magKey)
         return phot_resid_meas
@@ -31,9 +30,12 @@ def calcPhotRepeat(matches, magKey):
     matches_rms = matches.aggregate(cal_RMS, field=magKey)*1000.0*u.mmag
     matches_count = matches.aggregate(np.count_nonzero, field=magKey)
     matches_mean = matches.aggregate(np.mean, field=magKey)*u.mag
-    magDiffs = []
+    magDiff = []
     for gp in matches.groups:
-        magDiffs.append((gp[magKey]-np.mean(gp[magKey]))*1000.0*u.mmag)
+        magDiff.append((gp[magKey]-np.mean(gp[magKey]))*1000.0*u.mmag)
+    # magDiffs = np.array([gp[magKey]-np.mean(gp[magKey]) for gp in matches.groups]) * 1000.0 * u.mmag
+    magDiffs = np.array(magDiff, dtype='object')
+    # magDiffs = np.concatenate(magDiff)
     # import pdb; pdb.set_trace()
     okrms = (matches_count > 2)
     if np.sum(okrms) > 0:

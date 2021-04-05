@@ -10,7 +10,7 @@ from lsst.faro.utils.phot_repeat import photRepeat
 from lsst.faro.utils.tex import (correlation_function_ellipticity_from_matches,
                                  select_bin_from_corr)
 
-__all__ = ("PA1TaskConfig", "PA1Task", "PA2TaskConfig", "PA2Task", "PF1Task", "TExTaskConfig",
+__all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task", "TExTaskConfig",
            "TExTask", "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
 
 
@@ -24,11 +24,7 @@ class PA1TaskConfig(Config):
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                          dtype=float, default=np.Inf)
     nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
-                           dtype=int, default=3)
-    # numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
-    #                          dtype=int, default=50)
-    # randomSeed = Field(doc="Random seed for sampling.",
-    #                   dtype=int, default=12345)
+                           dtype=int, default=50)
 
 
 class PA1Task(Task):
@@ -41,15 +37,12 @@ class PA1Task(Task):
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
         self.nMinPhotRepeat = self.config.nMinPhotRepeat
-        # self.numRandomShuffles = self.config.numRandomShuffles
-        # self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
         self.log.info("Measuring PA1")
 
         pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
                          snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
-#                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
 
         if 'magMean' in pa1.keys():
             return Struct(measurement=Measurement("PA1", pa1['repeatability']))
@@ -57,6 +50,7 @@ class PA1Task(Task):
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
 
 
+'''
 class PA2TaskConfig(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
                          dtype=float, default=50)
@@ -103,33 +97,46 @@ class PA2Task(Task):
                           pf1Percentile.value) * magDiffs.unit))
         else:
             return Struct(measurement=Measurement("PA2", np.nan*u.mmag))
+'''
+
+
+class PF1TaskConfig(Config):
+    brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
+                         dtype=float, default=200)
+    brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
+                         dtype=float, default=np.Inf)
+    nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
+                           dtype=int, default=50)
+    # The defaults for threshPA2 and threshPF1 correspond to the SRD "design" thresholds.
+    threshPA2 = Field(doc="Threshold in mmag for PF1 calculation.", dtype=float, default=15.0)
 
 
 class PF1Task(Task):
 
-    ConfigClass = PA2TaskConfig
+    ConfigClass = PF1TaskConfig
     _DefaultName = "PF1Task"
 
-    def __init__(self, config: PA2TaskConfig, *args, **kwargs):
+    def __init__(self, config: PF1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
+        self.nMinPhotRepeat = self.config.nMinPhotRepeat
         self.threshPA2 = self.config.threshPA2
-        self.threshPF1 = self.config.threshPF1
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
 
     def run(self, matchedCatalog, metric_name):
         self.log.info("Measuring PF1")
         pa2_thresh = self.threshPA2 * u.mmag
 
-        pf1 = photRepeat(matchedCatalog,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
+        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
+                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
 
-        if 'magDiff' in pf1.keys():
+        if 'magDiffs' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
-            magDiffs = pf1['magDiff']
+            # Keep only stars with > 2 observations:
+            okrms = (pf1['count'] > 2)
+            magDiffs0 = pf1['magDiffs']
+            magDiffs = np.concatenate(magDiffs0[okrms])
 
             percentileAtPA2 = 100 * np.mean(np.abs(magDiffs.value) > pa2_thresh.value) * u.percent
 

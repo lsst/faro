@@ -29,7 +29,7 @@ import random
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
-from lsst.faro.measurement import PA1Task, PA2Task, PF1Task
+from lsst.faro.measurement import PA1Task, PF1Task
 
 # Make sure measurements are deterministic
 random.seed(8675309)
@@ -54,10 +54,6 @@ class Pa1Test(unittest.TestCase):
         super().setUpClass()
         cls.file_map = {('PA1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'PA1_expected_0_i.yaml'),
                         ('PA1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'PA1_expected_0_r.yaml'),
-                        ('PA2', 'i'): ('matchedCatalogTract_0_i.fits.gz',
-                                       'PA2_expected_0_i.yaml'),
-                        ('PA2', 'r'): ('matchedCatalogTract_0_r.fits.gz',
-                                       'PA2_expected_0_r.yaml'),
                         ('PF1', 'i'): ('matchedCatalogTract_0_i.fits.gz',
                                        'PF1_expected_0_i.yaml'),
                         ('PF1', 'r'): ('matchedCatalogTract_0_r.fits.gz',
@@ -76,15 +72,6 @@ class Pa1Test(unittest.TestCase):
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PA1', band))
             result = task.run(catalog, 'PA1')
-            self.assertEqual(result.measurement, expected)
-
-    def test_pa2(self):
-        """Test calculation of pa2 on a known catalog."""
-        config = PA2Task.ConfigClass()
-        task = PA2Task(config=config)
-        for band in ('i', 'r'):
-            catalog, expected = self.load_data(('PA2', band))
-            result = task.run(catalog, 'PA2')
             self.assertEqual(result.measurement, expected)
 
     def test_pf1(self):
