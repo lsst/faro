@@ -2,10 +2,10 @@
 blobs:
 - !<lsst.verify.Blob>
   data: {}
-  identifier: 1dadafd1dac24cfe9f4c39c5011e07e2
+  identifier: dfa39d621b0a4c1080d578a781dafac6
   name: PA1
-identifier: 420960a0146b43d098e54c3fa4a04e98
+identifier: 170536d3e32d491ba65b0e86651672b9
 metric: PA1
 notes: {}
 unit: mmag
-value: 13.820912720667566
+value: 5.870064170916189

@@ -1,4 +1,4 @@
-# This file is part of <REPLACE WHEN RENAMED>.
+# This file is part of faro.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -30,12 +30,7 @@ import astropy.units as u
 from lsst.utils import getPackageDir
 import lsst.pipe.base as pipeBase
 from lsst.afw.table import SimpleCatalog, GroupView
-from lsst.faro.utils.phot_repeat import (calcPhotRepeat,
-                                         calcPhotRepeatSample,
-                                         computeWidths,
-                                         getRandomDiffRmsInMmags,
-                                         getRandomDiff)
-
+from lsst.faro.utils.phot_repeat import (cal_RMS, calcPhotRepeat)
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -62,58 +57,20 @@ class PhotUtilTest(unittest.TestCase):
     def test_calcPhotRepeat(self):
         """Test photometric repeatability for multiple realizations
         of random pairs of visits."""
-        # Ensure measurements are deterministic
-        seed = 8675309
 
-        expected = 72.79576602821936 * u.mmag
+        expected = 56.069126 * u.mmag
         matches, magKey = self.load_data()
-        result = calcPhotRepeat(matches, magKey, randomSeed=seed)
+        result = calcPhotRepeat(matches, magKey)
         self.assertEqual(result['repeatability'], expected)
 
-    def test_calcPhotRepeatSample(self):
-        """Test photometric repeatability for one realization
-        of random pairs of visits."""
-        # Ensure measurements are deterministic
-        seed = 8675309
-        rng = np.random.default_rng(seed)
+    def test_calRMS(self):
+        """Test function that calculates the RMS."""
 
-        expected = pipeBase.Struct(rms=168.09034424742475,
-                                   iqr=72.11774706688344)
+        expected = 70.014987 * u.mmag
         matches, magKey = self.load_data()
-        result = calcPhotRepeatSample(matches, magKey, rng=rng)
-        self.assertEqual(result.rms, expected.rms)
-        self.assertEqual(result.iqr, expected.iqr)
-
-    def test_computeWidths(self):
-        """Test RMS and the scaled inter-quartile range calculation."""
-        expected = (22.54717277176897, 1.8532527731320025)
-        mag = np.linspace(20, 25, 101)
-        result = computeWidths(mag)
-        self.assertEqual(result[0], expected[0])
-        self.assertEqual(result[1], expected[1])
-
-    def test_getRandomDiffRmsInMmags(self):
-        """Test random sampling of magnitude diffs."""
-        # Ensure measurements are deterministic
-        seed = 8675309
-        rng = np.random.default_rng(seed)
-
-        expected = -1237.436867076458
-        mag = np.linspace(20, 25, 101)
-        result = getRandomDiffRmsInMmags(mag, rng=rng)
-        self.assertEqual(result, expected)
-
-    def test_getRandomDiff(self):
-        """Test one random diff"""
-        # Ensure measurements are deterministic
-        seed = 8675309
-        rng = np.random.default_rng(seed)
-
-        expected = -1.75
-        mag = np.linspace(20, 25, 101)
-        result = getRandomDiff(mag, rng=rng)
-        self.assertEqual(result, expected)
-
+        result = calcPhotRepeat(matches, magKey)
+        rms_result = cal_RMS(result['magDiffs'][0])
+        self.assertEqual(rms_result, expected)
 
 if __name__ == "__main__":
     unittest.main()
