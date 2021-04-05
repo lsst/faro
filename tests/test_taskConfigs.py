@@ -95,7 +95,7 @@ class ConfigTest(unittest.TestCase):
         default = PA1Task.ConfigClass()
         expected = PA1Task.ConfigClass()
         field_list = ['brightSnrMin', 'brightSnrMax']
-        expected.brightSnrMin = 200.0
+        expected.brightSnrMin = 23.1
         expected.brightSnrMax = 31415.9
         task = PA1Task(config=expected)
         # Some config attriutes are also used to populate task attriubtes
@@ -107,8 +107,8 @@ class ConfigTest(unittest.TestCase):
         """Test application of config for PF1 task"""
         default = PF1Task.ConfigClass()
         expected = PF1Task.ConfigClass()
-        field_list = ['brightSnrMin', 'brightSnrMax', 'threshPA2', 'threshPF1']
-        expected.brightSnrMin = 200.0
+        field_list = ['brightSnrMin', 'brightSnrMax', 'threshPA2']
+        expected.brightSnrMin = 23.1
         expected.brightSnrMax = 31415.9
         expected.threshPA2 = 17.47
         task = PF1Task(config=expected)

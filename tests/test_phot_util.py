@@ -58,7 +58,7 @@ class PhotUtilTest(unittest.TestCase):
         """Test photometric repeatability for multiple realizations
         of random pairs of visits."""
 
-        expected = 56.069126 * u.mmag
+        expected = 56.069125538189226 * u.mmag
         matches, magKey = self.load_data()
         result = calcPhotRepeat(matches, magKey)
         self.assertEqual(result['repeatability'], expected)
@@ -66,7 +66,7 @@ class PhotUtilTest(unittest.TestCase):
     def test_calRMS(self):
         """Test function that calculates the RMS."""
 
-        expected = 70.014987 * u.mmag
+        expected = 70.01498720091526 * u.mmag
         matches, magKey = self.load_data()
         result = calcPhotRepeat(matches, magKey)
         rms_result = cal_RMS(result['magDiffs'][0])
