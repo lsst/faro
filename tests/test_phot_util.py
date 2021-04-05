@@ -28,7 +28,6 @@ import numpy as np
 import astropy.units as u
 
 from lsst.utils import getPackageDir
-import lsst.pipe.base as pipeBase
 from lsst.afw.table import SimpleCatalog, GroupView
 from lsst.faro.utils.phot_repeat import (cal_RMS, calcPhotRepeat)
 
@@ -71,6 +70,7 @@ class PhotUtilTest(unittest.TestCase):
         result = calcPhotRepeat(matches, magKey)
         rms_result = cal_RMS(result['magDiffs'][0])
         self.assertEqual(rms_result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
