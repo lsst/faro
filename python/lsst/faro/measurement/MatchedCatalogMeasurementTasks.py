@@ -25,6 +25,8 @@ class PA1TaskConfig(Config):
                          dtype=float, default=np.Inf)
     nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
                            dtype=int, default=50)
+    writeExtras = Field(doc="Write out the magnitude residuals and rms values for debugging.",
+                        dtype=bool, default=False)
 
 
 class PA1Task(Task):
@@ -45,59 +47,23 @@ class PA1Task(Task):
                          snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
 
         if 'magMean' in pa1.keys():
-            return Struct(measurement=Measurement("PA1", pa1['repeatability']))
+            if writeExtras:
+                extras = {}
+                extras['rms'] = Datum(pa1['rms'], label='RMS',
+                                      description='Photometric repeatability rms for each star.')
+                extras['count'] = Datum(pa1['count'], label='count',
+                                        description='Number of detections used to calculate '
+                                        'repeatability.')
+                extras['mean_mag'] = Datum(pa1['magMean'], label='mean_mag',
+                                           description='Mean magnitude of each star.')
+                extras['mag_resid'] = Datum(pa1['magResid'], label='mag_resid',
+                                            description='Magnitude residuals relative to the mean '
+                                            'magnitude for each star.')
+                return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras)
+            else:
+                return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
-
-
-'''
-class PA2TaskConfig(Config):
-    brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
-                         dtype=float, default=50)
-    brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
-                         dtype=float, default=np.Inf)
-    # The defaults for threshPA2 and threshPF1 correspond to the SRD "design" thresholds.
-    threshPA2 = Field(doc="Threshold in mmag for PF1 calculation.", dtype=float, default=15.0)
-    threshPF1 = Field(doc="Percentile of differences that can vary by more than threshPA2.",
-                      dtype=float, default=10.0)
-    numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
-                              dtype=int, default=50)
-    randomSeed = Field(doc="Random seed for sampling.",
-                       dtype=int, default=12345)
-
-
-class PA2Task(Task):
-
-    ConfigClass = PA2TaskConfig
-    _DefaultName = "PA2Task"
-
-    def __init__(self, config: PA2TaskConfig, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.threshPA2 = self.config.threshPA2
-        self.threshPF1 = self.config.threshPF1
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PA2")
-        pf1_thresh = self.threshPF1 * u.percent
-
-        pa2 = photRepeat(matchedCatalog,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
-
-        if 'magDiff' in pa2.keys():
-            # Previously, validate_drp used the first random sample from PA1 measurement
-            # Now, use all of them.
-            magDiffs = pa2['magDiff']
-
-            pf1Percentile = 100.*u.percent - pf1_thresh
-            return Struct(measurement=Measurement("PA2", np.percentile(np.abs(magDiffs.value),
-                          pf1Percentile.value) * magDiffs.unit))
-        else:
-            return Struct(measurement=Measurement("PA2", np.nan*u.mmag))
-'''
 
 
 class PF1TaskConfig(Config):
@@ -130,15 +96,15 @@ class PF1Task(Task):
         pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
                          snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
 
-        if 'magDiffs' in pf1.keys():
+        if 'magResid' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
             # Keep only stars with > 2 observations:
             okrms = (pf1['count'] > 2)
-            magDiffs0 = pf1['magDiffs']
-            magDiffs = np.concatenate(magDiffs0[okrms])
+            magResid0 = pf1['magResid']
+            magResid = np.concatenate(magResid0[okrms])
 
-            percentileAtPA2 = 100 * np.mean(np.abs(magDiffs.value) > pa2_thresh.value) * u.percent
+            percentileAtPA2 = 100 * np.mean(np.abs(magResid.value) > pa2_thresh.value) * u.percent
 
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:

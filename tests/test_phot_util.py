@@ -29,7 +29,7 @@ import astropy.units as u
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog, GroupView
-from lsst.faro.utils.phot_repeat import (cal_RMS, calcPhotRepeat)
+from lsst.faro.utils.phot_repeat import calcPhotRepeat
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -61,15 +61,6 @@ class PhotUtilTest(unittest.TestCase):
         matches, magKey = self.load_data()
         result = calcPhotRepeat(matches, magKey)
         self.assertEqual(result['repeatability'], expected)
-
-    def test_calRMS(self):
-        """Test function that calculates the RMS."""
-
-        expected = 70.01498720091526 * u.mmag
-        matches, magKey = self.load_data()
-        result = calcPhotRepeat(matches, magKey)
-        rms_result = cal_RMS(result['magDiffs'][0])
-        self.assertEqual(rms_result, expected)
 
 
 if __name__ == "__main__":
