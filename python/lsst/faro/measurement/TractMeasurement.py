@@ -13,20 +13,29 @@ class TractMeasurementTaskConnections(MetricConnections,
                                       dimensions=("tract", "skymap",
                                                   "band"),
                                       defaultTemplates={"coaddName": "deepCoadd",
-                                                        "photoCalibName": "deepCoadd_calexp.photoCalib"}):
+                                                        "photoCalibName": "deepCoadd_calexp.photoCalib",
+                                                        "wcsName": "deepCoadd_calexp.wcs"}):
 
-    cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
-                                         dimensions=("tract", "skymap",
-                                                     "band"),
-                                         storageClass="SourceCatalog",
-                                         name="deepCoadd_forced_src")
+    catalogs = pipeBase.connectionTypes.Input(doc="Object catalog.",
+                                              dimensions=("tract", "patch",
+                                                          "skymap", "band"),
+                                              storageClass="SourceCatalog",
+                                              name="deepCoadd_forced_src",
+                                              multiple=True)
 
     photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                  dimensions=("tract", "skymap",
-                                                              "band"),
+                                                  dimensions=("tract", "patch",
+                                                              "skymap", "band"),
                                                   storageClass="PhotoCalib",
                                                   name="{photoCalibName}",
                                                   multiple=True)
+    
+    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
+                                                   dimensions=("tract", "patch",
+                                                               "skymap", "band"),
+                                                   storageClass="Wcs",
+                                                   name="{wcsName}",
+                                                   multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-tract measurement.",
                                                   dimensions=("tract", "skymap",
@@ -45,19 +54,18 @@ class TractMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = TractMeasurementTaskConfig
     _DefaultName = "tractMeasurementTask"
 
-    def run(self, cat, photo_calibs, vIds):
-        return self.measure.run(cat, photo_calibs, self.config.connections.metric, vIds)
+    def run(self, catalogs, photo_calibs, astrom_calibs, data_ids):
+        return self.measure.run(self.config.connections.metric, catalogs, photo_calibs, astrom_calibs, data_ids)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.cat]
+        inputs['data_ids'] = [butlerQC.registry.expandDataId(cat.dataId) for cat in inputRefs.catalogs]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
             self.log.debugf("Skipping measurement of {!r} on {} "
                             "as not applicable.", self, inputRefs)
-
 
 class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
                                                dimensions=("tract", "skymap"),

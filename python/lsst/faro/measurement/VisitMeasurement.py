@@ -3,21 +3,36 @@ from lsst.verify.tasks import MetricConnections
 from lsst.afw.table import SourceCatalog
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.utils.matcher import merge_catalogs
 
 __all__ = ("VisitMeasurementTaskConfig", "VisitMeasurementTask")
 
 
-# The first thing to do is to define a Connections class. This will define all
-# the inputs and outputs that our task requires
 class VisitMeasurementTaskConnections(MetricConnections,
-                                      dimensions=("instrument", "visit", "band")):
+                                      dimensions=("instrument", "visit", "band"),
+                                      defaultTemplates={"photoCalibName": "calexp.photoCalib",
+                                                        "wcsName": "calexp.wcs"}):
 
-    source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
-                                                     dimensions=("instrument", "visit",
-                                                                 "detector", "band"),
-                                                     storageClass="SourceCatalog",
-                                                     name="src",
-                                                     multiple=True)
+    catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
+                                              dimensions=("instrument", "visit",
+                                                          "detector", "band"),
+                                              storageClass="SourceCatalog",
+                                              name="src",
+                                              multiple=True)
+    
+    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                  dimensions=("instrument", "visit",
+                                                              "detector", "band"),
+                                                  storageClass="PhotoCalib",
+                                                  name="{photoCalibName}",
+                                                  multiple=True)
+    
+    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
+                                                   dimensions=("instrument", "visit",
+                                                               "detector", "band"),
+                                                   storageClass="Wcs",
+                                                   name="{wcsName}",
+                                                   multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-visit measurement.",
                                                   dimensions=("instrument", "visit", "band"),
@@ -34,21 +49,12 @@ class VisitMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = VisitMeasurementTaskConfig
     _DefaultName = "visitMeasurementTask"
 
-    def run(self, source_catalogs, vIds):
-
-        # Concatenate catalogs
-        schema = source_catalogs[0].schema
-        size = sum([len(cat) for cat in source_catalogs])
-        source_catalog = SourceCatalog(schema)
-        source_catalog.reserve(size)
-        for cat in source_catalogs:
-            source_catalog.extend(cat)
-
-        return self.measure.run(source_catalog, self.config.connections.metric, vIds)
+    def run(self, catalogs, photo_calibs, astrom_calibs, data_ids):
+        return self.measure.run(self.config.connections.metric, catalogs, photo_calibs, astrom_calibs, data_ids)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
+        inputs['data_ids'] = [butlerQC.registry.expandDataId(c.dataId) for c in inputRefs.catalogs]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
