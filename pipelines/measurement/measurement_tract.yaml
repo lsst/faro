@@ -1,28 +1,28 @@
-description: Compute metrics from single-visit catalogs
+description: Compute metrics from tract catalogs
 tasks:
-#  nsrcMeasVisit:
-#    class: lsst.faro.measurement.VisitMeasurementTask
+#  nsrcMeasTract:
+#    class: lsst.faro.measurement.TractMeasurementTask
 #    config:
 #      connections.package: info
-#      connections.metric: nsrcMeasVisit
+#      connections.metric: nsrcMeasTract
 #      python: |
 #        from lsst.faro.base import NumSourcesMergeTask
 #        config.measure.retarget(NumSourcesMergeTask)
-  TE3:
-    class: lsst.faro.measurement.VisitMeasurementTask
+  TE1:
+    class: lsst.faro.measurement.TractMeasurementTask
     config:
       connections.package: validate_drp
-      connections.metric: TE3
+      connections.metric: TE1
       python: |
         from lsst.faro.measurement import TExTask
         config.measure.retarget(TExTask)
         config.measure.min_sep = 0.25
-        config.measure.max_sep = 5.0
-  TE4:
-    class: lsst.faro.measurement.VisitMeasurementTask
+        config.measure.max_sep = 1.0
+  TE2:
+    class: lsst.faro.measurement.TractMeasurementTask
     config:
       connections.package: validate_drp
-      connections.metric: TE4
+      connections.metric: TE2
       python: |
         from lsst.faro.measurement import TExTask
         config.measure.retarget(TExTask)

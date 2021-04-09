@@ -1,13 +1,15 @@
 import astropy.units as u
 import numpy as np
+
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 from lsst.pex.config import Config, Field
 from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
 from lsst.faro.utils.matcher import make_matched_photom
 from lsst.faro.utils.extinction_corr import extinction_corr
+from lsst.faro.utils.tex import calculate_tex
 
-__all__ = ("WPerpTaskConfig", "WPerpTask")
+__all__ = ("WPerpTaskConfig", "WPerpTask", "TExTaskConfig", "TExTask")
 
 
 class WPerpTaskConfig(Config):
@@ -22,12 +24,12 @@ class WPerpTask(Task):
     ConfigClass = WPerpTaskConfig
     _DefaultName = "WPerpTask"
 
-    def run(self, catalogs, photo_calibs, metric_name, vIds):
+    def run(self, catalogs, photo_calibs, metric_name, dataIds):
         self.log.info(f"Measuring {metric_name}")
-        bands = set([f['band'] for f in vIds])
+        bands = set([f['band'] for f in dataIds])
 
         if ('g' in bands) & ('r' in bands) & ('i' in bands):
-            rgicat_all = make_matched_photom(vIds, catalogs, photo_calibs)
+            rgicat_all = make_matched_photom(dataIds, catalogs, photo_calibs)
             magcut = ((rgicat_all['base_PsfFlux_mag_r'] < self.config.faint_rmag_cut)
                       & (rgicat_all['base_PsfFlux_mag_r'] > self.config.bright_rmag_cut))
             rgicat = rgicat_all[magcut]
@@ -53,3 +55,44 @@ class WPerpTask(Task):
             return Struct(measurement=Measurement(metric_name, p2_rms.to(u.mmag), extras=extras))
         else:
             return Struct(measurement=Measurement(metric_name, np.nan*u.mmag))
+
+
+class TExTaskConfig(Config):
+    min_sep = Field(doc="Inner radius of the annulus in arcmin",
+                    dtype=float, default=0.25)
+    max_sep = Field(doc="Outer radius of the annulus in arcmin",
+                    dtype=float, default=1.)
+    nbins = Field(doc="Number of log-spaced angular bins",
+                  dtype=int, default=10)
+    rho_stat = Field(doc="Rho statistic to be computed",
+                     dtype=int, default=1)
+    ellipticity_convention = Field(doc="Ellipticity convention to use (distortion or shear)",
+                                   dtype=str, default="distortion")
+    column_psf = Field(doc="Column to use for PSF model shape moments",
+                       dtype=str, default='slot_PsfShape')
+    column = Field(doc="Column to use for shape moments",
+                   dtype=str, default='slot_Shape')
+    # Eventually want to add option to use only PSF reserve stars
+
+
+class TExTask(Task):
+    ConfigClass = TExTaskConfig
+    _DefaultName = "TExTask"
+
+    def run(self, metric_name, catalogs, photo_calibs, astrom_calibs, data_ids):
+        self.log.info(f"Measuring {metric_name}")
+
+        result = calculate_tex(catalogs, photo_calibs, astrom_calibs, self.config)
+
+        write_extras = True
+        if write_extras:
+            extras = {}
+            extras['radius'] = Datum(result['radius'], label='radius',
+                                     description='Separation (arcmin).')
+            extras['corr'] = Datum(result['corr'], label='Correlation',
+                                   description='Correlation.')
+            extras['corr_err'] = Datum(result['corr_err'], label='Correlation Uncertianty',
+                                       description='Correlation Uncertainty.')
+        else:
+            extras=None
+        return Struct(measurement=Measurement(metric_name, np.mean(np.abs(result['corr'])), extras=extras))
