@@ -79,7 +79,7 @@ class TExTask(Task):
     ConfigClass = TExTaskConfig
     _DefaultName = "TExTask"
 
-    def run(self, metric_name, catalogs, photo_calibs, astrom_calibs, data_ids):
+    def run(self, metric_name, catalogs, photo_calibs=None, astrom_calibs=None, data_ids=None):
         self.log.info(f"Measuring {metric_name}")
 
         result = calculate_tex(catalogs, photo_calibs, astrom_calibs, self.config)

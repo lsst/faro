@@ -219,7 +219,8 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
     return(cat_combined[qual_cuts])
 
 
-def merge_catalogs(catalogs, photo_calibs, astrom_calibs,
+def merge_catalogs(catalogs,
+                   photo_calibs=None, astrom_calibs=None,
                    models=['slot_PsfFlux'], apply_external_wcs=False):
     """Merge catalogs and apply photometric and astrometric calibrations.
     """
@@ -243,19 +244,20 @@ def merge_catalogs(catalogs, photo_calibs, astrom_calibs,
         
     for ii in range(0, len(catalogs)):
         cat = catalogs[ii]
-        photo_calib = photo_calibs[ii]
-        wcs = astrom_calibs[ii]
         
         # Create temporary catalog. Is this step needed?
         temp_cat = SourceCatalog(SourceCatalog(new_schema).table)
         temp_cat.extend(cat, mapper=mapper)
         
-        if apply_external_wcs and wcs is not None:
+        if apply_external_wcs and astrom_calibs is not None:
+            wcs = astrom_calibs[ii]
             updateSourceCoords(wcs, temp_cat)
         
-        for model in models:
-            model_name = alias_map[model] if model in alias_map.keys() else model
-            photo_calib.instFluxToMagnitude(temp_cat, model_name, model_name)
+        if photo_calibs is not None:
+            photo_calib = photo_calibs[ii]
+            for model in models:
+                model_name = alias_map[model] if model in alias_map.keys() else model
+                photo_calib.instFluxToMagnitude(temp_cat, model_name, model_name)
         
         catalog.extend(temp_cat)
         
