@@ -24,7 +24,7 @@ class WPerpTask(Task):
     ConfigClass = WPerpTaskConfig
     _DefaultName = "WPerpTask"
 
-    def run(self, catalogs, photo_calibs, metric_name, dataIds):
+    def run(self, metric_name, catalogs, photo_calibs=None, astrom_calibs=None, dataIds=None):
         self.log.info(f"Measuring {metric_name}")
         bands = set([f['band'] for f in dataIds])
 

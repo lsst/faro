@@ -222,7 +222,7 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
 def merge_catalogs(catalogs,
                    photo_calibs=None, astrom_calibs=None,
                    models=['slot_PsfFlux'], apply_external_wcs=False):
-    """Merge catalogs and apply photometric and astrometric calibrations.
+    """Merge catalogs and optionally apply photometric and astrometric calibrations.
     """
     
     schema = catalogs[0].schema
