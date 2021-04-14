@@ -39,7 +39,7 @@ DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 class TEXUtilTest(unittest.TestCase):
     """Test TEX utility functions."""
 
-    def load_data(self):
+    def loadData(self):
         """Helper to load data to process."""
         cat_file = 'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'
         cat = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
@@ -49,21 +49,21 @@ class TEXUtilTest(unittest.TestCase):
 
         return cat.subset(selection).copy(deep=True)
 
-    def test_ellipticity_definitions(self):
+    def testEllipticityDefinitions(self):
         """Test ellipticity functors."""
 
-        cat = self.load_data()
+        cat = self.loadData()
 
         column = 'slot_Shape'
-        column_psf = 'slot_PsfShape'
+        columnPsf = 'slot_PsfShape'
 
         trace = TraceSize(column)
         result = np.nanmean(trace(cat))
         expected = 4.36377821335775
         self.assertEqual(result, expected)
 
-        trace_diff = PsfTraceSizeDiff(column, column_psf)
-        result = np.nanmean(trace_diff(cat))
+        traceDiff = PsfTraceSizeDiff(column, columnPsf)
+        result = np.nanmean(traceDiff(cat))
         expected = 25.301812428201995
         self.assertEqual(result, expected)
 
@@ -72,35 +72,45 @@ class TEXUtilTest(unittest.TestCase):
         expected = 0.0012636175684993878
         self.assertEqual(result, expected)
 
+        e1 = E1(column, shearConvention=True)
+        result = np.nanmean(e1(cat))
+        expected = 0.00043009504274617235
+        self.assertEqual(result, expected)
+
         e2 = E2(column)
         result = np.nanmean(e2(cat))
         expected = 0.080076033827269
-        self.assertTrue(result, expected)
+        self.assertEqual(result, expected)
 
-        e1_resids = E1Resids(column, column_psf)
-        result = np.nanmean(e1_resids(cat))
+        e2 = E2(column, shearConvention=True)
+        result = np.nanmean(e2(cat))
+        expected = 0.04194134295796996
+        self.assertEqual(result, expected)
+
+        e1Resids = E1Resids(column, columnPsf)
+        result = np.nanmean(e1Resids(cat))
         expected = -0.0009098947676481413
         self.assertEqual(result, expected)
 
-        e2_resids = E2Resids(column, column_psf)
-        result = np.nanmean(e2_resids(cat))
+        e2Resids = E2Resids(column, columnPsf)
+        result = np.nanmean(e2Resids(cat))
         expected = -0.02280606766168935
         self.assertEqual(result, expected)
 
-    def test_rho_stats(self):
+    def testRhoStats(self):
         """Compute six Rho statistics."""
 
-        cat = self.load_data()
+        cat = self.loadData()
         column = 'slot_Shape'
-        column_psf = 'slot_PsfShape'
+        columnPsf = 'slot_PsfShape'
 
-        treecorr_kwargs = dict(nbins=5,
-                               min_sep=0.25,
-                               max_sep=1,
-                               sep_units='arcmin',
-                               brute=True)
-        rho_statistics = RhoStatistics(column, column_psf, **treecorr_kwargs)
-        result = rho_statistics(cat)
+        treecorrKwargs = dict(nbins=5,
+                              min_sep=0.25,
+                              max_sep=1,
+                              sep_units='arcmin',
+                              brute=True)
+        rhoStatistics = RhoStatistics(column, columnPsf, **treecorrKwargs)
+        result = rhoStatistics(cat)
 
         expected = [0.2344471639428089,
                     0.0010172306766334468,

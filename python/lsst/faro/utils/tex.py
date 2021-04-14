@@ -4,7 +4,7 @@ import astropy.units as u
 import numpy as np
 import treecorr
 
-from lsst.faro.utils.matcher import merge_catalogs
+from lsst.faro.utils.matcher import mergeCatalogs
 
 
 __all__ = ("TraceSize", "PsfTraceSizeDiff", "E1", "E2", "E1Resids", "E2Resids", 
@@ -358,36 +358,36 @@ def corrSpin2(ra, dec, g1a, g2a, g1b=None, g2b=None, raUnits="degrees", decUnits
 
     return xy
 
-def calculate_tex(catalogs, photo_calibs, astrom_calibs, config):
+def calculateTEx(catalogs, photoCalibs, astromCalibs, config):
     """Compute ellipticity residual correlation metrics.
     """
     
-    catalog = merge_catalogs(catalogs, photo_calibs, astrom_calibs)
+    catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
         
     # Filtering should be pulled out into a separate function for standard quality selections
-    snr_min = 50
+    snrMin = 50
     selection = (catalog['base_ClassificationExtendedness_value'] < 0.5) \
-        & ((catalog['slot_PsfFlux_instFlux'] / catalog['slot_PsfFlux_instFluxErr']) > snr_min) \
+        & ((catalog['slot_PsfFlux_instFlux'] / catalog['slot_PsfFlux_instFluxErr']) > snrMin) \
         & (catalog['deblend_nChild'] == 0)
     
-    n_min_sources = 50
-    if np.sum(selection) < n_min_sources:
-        return Struct(measurement=Measurement(metric_name, np.nan*u.Unit('')))
+    nMinSources = 50
+    if np.sum(selection) < nMinSources:
+        return {'nomeas': np.nan * u.Unit('')}
     
-    treecorr_kwargs = dict(nbins=config.nbins, 
-                           min_sep=config.min_sep, 
-                           max_sep=config.max_sep, 
-                           sep_units='arcmin')
-    rho_statistics = RhoStatistics(config.column, config.column_psf, config.shearConvention, **treecorr_kwargs)
-    xy = rho_statistics(catalog[selection])[config.rho_stat]
+    treecorrKwargs = dict(nbins=config.nbins, 
+                          min_sep=config.minSep, 
+                          max_sep=config.maxSep, 
+                          sep_units='arcmin')
+    rhoStatistics = RhoStatistics(config.column, config.columnPsf, config.shearConvention, **treecorrKwargs)
+    xy = rhoStatistics(catalog[selection])[config.rhoStat]
     
     radius = np.exp(xy.meanlogr) * u.arcmin
-    if config.rho_stat == 0:
+    if config.rhoStat == 0:
         corr = xy.xi * u.Unit('')
-        corr_err = np.sqrt(xy.varxip) * u.Unit('')
+        corrErr = np.sqrt(xy.varxip) * u.Unit('')
     else:
         corr = xy.xip * u.Unit('')
-        corr_err = np.sqrt(xy.varxip) * u.Unit('')
+        corrErr = np.sqrt(xy.varxip) * u.Unit('')
         
-    result = dict(radius=radius, corr=corr, corr_err=corr_err)
+    result = dict(radius=radius, corr=corr, corrErr=corrErr)
     return result

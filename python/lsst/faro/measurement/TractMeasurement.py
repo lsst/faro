@@ -23,19 +23,19 @@ class TractMeasurementTaskConnections(MetricConnections,
                                               name="deepCoadd_forced_src",
                                               multiple=True)
 
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+    photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                 dimensions=("tract", "patch",
+                                                             "skymap", "band"),
+                                                 storageClass="PhotoCalib",
+                                                 name="{photoCalibName}",
+                                                 multiple=True)
+    
+    astromCalibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                   dimensions=("tract", "patch",
                                                               "skymap", "band"),
-                                                  storageClass="PhotoCalib",
-                                                  name="{photoCalibName}",
+                                                  storageClass="Wcs",
+                                                  name="{wcsName}",
                                                   multiple=True)
-    
-    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
-                                                   dimensions=("tract", "patch",
-                                                               "skymap", "band"),
-                                                   storageClass="Wcs",
-                                                   name="{wcsName}",
-                                                   multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-tract measurement.",
                                                   dimensions=("tract", "skymap",
@@ -54,12 +54,12 @@ class TractMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = TractMeasurementTaskConfig
     _DefaultName = "tractMeasurementTask"
 
-    def run(self, catalogs, photo_calibs, astrom_calibs, data_ids):
-        return self.measure.run(self.config.connections.metric, catalogs, photo_calibs, astrom_calibs, data_ids)
+    def run(self, catalogs, photoCalibs, astromCalibs, dataIds):
+        return self.measure.run(self.config.connections.metric, catalogs, photoCalibs, astromCalibs, dataIds)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['data_ids'] = [butlerQC.registry.expandDataId(cat.dataId) for cat in inputRefs.catalogs]
+        inputs['dataIds'] = [butlerQC.registry.expandDataId(cat.dataId) for cat in inputRefs.catalogs]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
@@ -79,12 +79,12 @@ class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
                                          name="deepCoadd_forced_src",
                                          multiple=True)
 
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                  dimensions=("tract", "skymap",
-                                                              "patch", "band"),
-                                                  storageClass="PhotoCalib",
-                                                  name="{photoCalibName}",
-                                                  multiple=True)
+    photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                 dimensions=("tract", "skymap",
+                                                             "patch", "band"),
+                                                 storageClass="PhotoCalib",
+                                                 name="{photoCalibName}",
+                                                 multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-tract measurement.",
                                                   dimensions=("tract", "skymap"),

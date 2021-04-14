@@ -63,8 +63,8 @@ class Te1Test(unittest.TestCase):
         """Test calculation of TE1 on a known catalog."""
         config = TExTask.ConfigClass()
         # This is what makes it TE1
-        config.max_sep = 0.25
-        config.max_sep = 1.0
+        config.minSep = 0.25
+        config.maxSep = 1.0
         task = TExTask(config=config)
         for band in ('i'):
             catalog, expected = self.load_data(('TE1', band))
