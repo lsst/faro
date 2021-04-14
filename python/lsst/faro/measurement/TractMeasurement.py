@@ -29,7 +29,7 @@ class TractMeasurementTaskConnections(MetricConnections,
                                                  storageClass="PhotoCalib",
                                                  name="{photoCalibName}",
                                                  multiple=True)
-    
+
     astromCalibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                   dimensions=("tract", "patch",
                                                               "skymap", "band"),
@@ -66,6 +66,7 @@ class TractMeasurementTask(CatalogMeasurementBaseTask):
         else:
             self.log.debugf("Skipping measurement of {!r} on {} "
                             "as not applicable.", self, inputRefs)
+
 
 class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
                                                dimensions=("tract", "skymap"),

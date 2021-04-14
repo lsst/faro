@@ -1,9 +1,7 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
-from lsst.afw.table import SourceCatalog
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
-from lsst.faro.utils.matcher import mergeCatalogs
 
 __all__ = ("VisitMeasurementTaskConfig", "VisitMeasurementTask")
 
@@ -19,18 +17,18 @@ class VisitMeasurementTaskConnections(MetricConnections,
                                               storageClass="SourceCatalog",
                                               name="src",
                                               multiple=True)
-    
+
     photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
                                                  dimensions=("instrument", "visit",
                                                              "detector", "band"),
-                                                 storageClass="PhotoCalib", 
+                                                 storageClass="PhotoCalib",
                                                  name="{photoCalibName}",
                                                  multiple=True)
-    
+
     astromCalibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                   dimensions=("instrument", "visit",
                                                               "detector", "band"),
-                                                  storageClass="Wcs", 
+                                                  storageClass="Wcs",
                                                   name="{wcsName}",
                                                   multiple=True)
 

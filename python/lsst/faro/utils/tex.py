@@ -1,5 +1,3 @@
-import operator
-
 import astropy.units as u
 import numpy as np
 import treecorr
@@ -7,8 +5,8 @@ import treecorr
 from lsst.faro.utils.matcher import mergeCatalogs
 
 
-__all__ = ("TraceSize", "PsfTraceSizeDiff", "E1", "E2", "E1Resids", "E2Resids", 
-           "RhoStatistics", "corrSpin0", "corrSpin2", "calculate_tex")
+__all__ = ("TraceSize", "PsfTraceSizeDiff", "E1", "E2", "E1Resids", "E2Resids",
+           "RhoStatistics", "corrSpin0", "corrSpin2", "calculateTEx")
 
 
 class TraceSize(object):
@@ -35,7 +33,7 @@ class PsfTraceSizeDiff(object):
         psfSize = np.sqrt(0.5*(catalog[self.psfColumn + "_xx"] + catalog[self.psfColumn + "_yy"]))
         sizeDiff = 100*(srcSize - psfSize)/(0.5*(srcSize + psfSize))
         return np.array(sizeDiff)
-    
+
 
 class E1(object):
     """Function to calculate e1 ellipticities from a given catalog.
@@ -186,7 +184,7 @@ class E2Resids(object):
         e2Resids = srcE2 - psfE2
         return e2Resids
 
-    
+
 class RhoStatistics(object):
     """Functor to compute Rho statistics given star catalog and PSF model.
     For detailed description of Rho statistics, refer to
@@ -265,7 +263,7 @@ class RhoStatistics(object):
         rhoStats[0] = corrSpin0(ra, dec, *(args[0]), raUnits="arcmin", decUnits="arcmin", **self.kwargs)
 
         return rhoStats
-    
+
 
 def corrSpin0(ra, dec, k1, k2=None, raUnits="degrees", decUnits="degrees", **treecorrKwargs):
     """Function to compute correlations between at most two scalar fields.
@@ -358,29 +356,30 @@ def corrSpin2(ra, dec, g1a, g2a, g1b=None, g2b=None, raUnits="degrees", decUnits
 
     return xy
 
+
 def calculateTEx(catalogs, photoCalibs, astromCalibs, config):
     """Compute ellipticity residual correlation metrics.
     """
-    
+
     catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
-        
+
     # Filtering should be pulled out into a separate function for standard quality selections
     snrMin = 50
     selection = (catalog['base_ClassificationExtendedness_value'] < 0.5) \
         & ((catalog['slot_PsfFlux_instFlux'] / catalog['slot_PsfFlux_instFluxErr']) > snrMin) \
         & (catalog['deblend_nChild'] == 0)
-    
+
     nMinSources = 50
     if np.sum(selection) < nMinSources:
         return {'nomeas': np.nan * u.Unit('')}
-    
-    treecorrKwargs = dict(nbins=config.nbins, 
-                          min_sep=config.minSep, 
-                          max_sep=config.maxSep, 
+
+    treecorrKwargs = dict(nbins=config.nbins,
+                          min_sep=config.minSep,
+                          max_sep=config.maxSep,
                           sep_units='arcmin')
     rhoStatistics = RhoStatistics(config.column, config.columnPsf, config.shearConvention, **treecorrKwargs)
     xy = rhoStatistics(catalog[selection])[config.rhoStat]
-    
+
     radius = np.exp(xy.meanlogr) * u.arcmin
     if config.rhoStat == 0:
         corr = xy.xi * u.Unit('')
@@ -388,6 +387,6 @@ def calculateTEx(catalogs, photoCalibs, astromCalibs, config):
     else:
         corr = xy.xip * u.Unit('')
         corrErr = np.sqrt(xy.varxip) * u.Unit('')
-        
+
     result = dict(radius=radius, corr=corr, corrErr=corrErr)
     return result

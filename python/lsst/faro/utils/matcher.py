@@ -224,7 +224,7 @@ def mergeCatalogs(catalogs,
                   models=['slot_PsfFlux'], applyExternalWcs=False):
     """Merge catalogs and optionally apply photometric and astrometric calibrations.
     """
-    
+
     schema = catalogs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -241,24 +241,24 @@ def mergeCatalogs(catalogs,
     size = sum([len(cat) for cat in catalogs])
     catalog = SourceCatalog(newSchema)
     catalog.reserve(size)
-        
+
     for ii in range(0, len(catalogs)):
         cat = catalogs[ii]
-        
+
         # Create temporary catalog. Is this step needed?
         tempCat = SourceCatalog(SourceCatalog(newSchema).table)
         tempCat.extend(cat, mapper=mapper)
-        
+
         if applyExternalWcs and astromCalibs is not None:
             wcs = astromCalibs[ii]
             updateSourceCoords(wcs, tempCat)
-        
+
         if photoCalibs is not None:
             photoCalib = photoCalibs[ii]
             for model in models:
                 modelName = aliasMap[model] if model in aliasMap.keys() else model
                 photoCalib.instFluxToMagnitude(tempCat, modelName, modelName)
-        
+
         catalog.extend(tempCat)
-        
+
     return catalog

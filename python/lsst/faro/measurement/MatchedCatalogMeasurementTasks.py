@@ -2,7 +2,7 @@ import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config, Field, ListField
-from lsst.verify import Measurement, ThresholdSpecification, Datum
+from lsst.verify import Measurement, Datum
 from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
                                          astromResiduals)

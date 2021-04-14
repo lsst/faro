@@ -21,9 +21,9 @@ class NumSourcesTask(Task):
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 
-    
+
 class NumSourcesMergeTask(Task):
-    
+
     ConfigClass = Config
     _DefaultName = "numSourcesMergeTask"
 

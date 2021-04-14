@@ -84,7 +84,7 @@ class TExTask(Task):
 
         result = calculateTEx(catalogs, photoCalibs, astromCalibs, self.config)
         if 'corr' not in result.keys():
-            return Struct(measurement=Measurement(metric_name, np.nan*u.Unit('')))
+            return Struct(measurement=Measurement(metricName, np.nan*u.Unit('')))
 
         writeExtras = True
         if writeExtras:
@@ -96,5 +96,5 @@ class TExTask(Task):
             extras['corrErr'] = Datum(result['corrErr'], label='Correlation Uncertianty',
                                       description='Correlation Uncertainty.')
         else:
-            extras=None
+            extras = None
         return Struct(measurement=Measurement(metricName, np.mean(np.abs(result['corr'])), extras=extras))
