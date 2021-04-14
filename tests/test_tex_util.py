@@ -51,7 +51,7 @@ class TEXUtilTest(unittest.TestCase):
 
     def test_ellipticity_definitions(self):
         """Test ellipticity functors."""
-        
+
         cat = self.load_data()
 
         column = 'slot_Shape'

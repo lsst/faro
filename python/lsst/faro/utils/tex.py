@@ -48,20 +48,28 @@ class E1(object):
         PSF ellipticities.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
+    shearConvention: `bool`, optional
+        Option to use shear convention. When set to False, the distortion
+        convention is used.
     Returns
     -------
     e1 : `numpy.array`
         A numpy array of e1 ellipticity values.
     """
-    def __init__(self, column, unitScale=1.0):
+    def __init__(self, column, unitScale=1.0, shearConvention=False):
         self.column = column
         self.unitScale = unitScale
+        self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        e1 = ((catalog[self.column + "_xx"]
-               - catalog[self.column + "_yy"])/(catalog[self.column + "_xx"]
-                                                + catalog[self.column + "_yy"]))
-        return np.array(e1)*self.unitScale
+        xx = catalog[self.column + "_xx"]
+        yy = catalog[self.column + "_yy"]
+        if self.shearConvention:
+            xy = catalog[self.column + "_xy"]
+            e1 = (xx - yy) / (xx + yy + 2. * np.sqrt(xx * yy - xy**2))
+        else:
+            e1 = (xx - yy) / (xx + yy)
+        return np.array(e1) * self.unitScale
 
 
 class E2(object):
@@ -75,17 +83,27 @@ class E2(object):
         PSF ellipticities.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
+    shearConvention: `bool`, optional
+        Option to use shear convention. When set to False, the distortion
+        convention is used.
     Returns
     -------
     e2 : `numpy.array`
         A numpy array of e2 ellipticity values.
     """
-    def __init__(self, column, unitScale=1.0):
+    def __init__(self, column, unitScale=1.0, shearConvention=False):
         self.column = column
         self.unitScale = unitScale
+        self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        e2 = (2.0*catalog[self.column + "_xy"]/(catalog[self.column + "_xx"] + catalog[self.column + "_yy"]))
+        xx = catalog[self.column + "_xx"]
+        yy = catalog[self.column + "_yy"]
+        xy = catalog[self.column + "_xy"]
+        if self.shearConvention:
+            e2 = (2. * xy) / (xx + yy + 2. * np.sqrt(xx * yy - xy**2))
+        else:
+            e2 = (2. * xy) / (xx + yy)
         return np.array(e2)*self.unitScale
 
 
@@ -104,19 +122,23 @@ class E1Resids(object):
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
         ellipticities.
+    shearConvention: `bool`, optional
+        Option to use shear convention. When set to False, the distortion
+        convention is used.
     Returns
     -------
     e1Resids : `numpy.array`
         A numpy array of e1 residual ellipticity values.
     """
-    def __init__(self, column, psfColumn, unitScale=1.0):
+    def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
         self.column = column
         self.psfColumn = psfColumn
         self.unitScale = unitScale
+        self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE1func = E1(self.column, self.unitScale)
-        psfE1func = E1(self.psfColumn, self.unitScale)
+        srcE1func = E1(self.column, self.unitScale, self.shearConvention)
+        psfE1func = E1(self.psfColumn, self.unitScale, self.shearConvention)
 
         srcE1 = srcE1func(catalog)
         psfE1 = psfE1func(catalog)
@@ -140,19 +162,23 @@ class E2Resids(object):
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
         ellipticities.
+    shearConvention: `bool`, optional
+        Option to use shear convention. When set to False, the distortion
+        convention is used.
     Returns
     -------
     e2Resids : `numpy.array`
         A numpy array of e2 residual ellipticity values.
     """
-    def __init__(self, column, psfColumn, unitScale=1.0):
+    def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
         self.column = column
         self.psfColumn = psfColumn
         self.unitScale = unitScale
+        self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE2func = E2(self.column, self.unitScale)
-        psfE2func = E2(self.psfColumn, self.unitScale)
+        srcE2func = E2(self.column, self.unitScale, self.shearConvention)
+        psfE2func = E2(self.psfColumn, self.unitScale, self.shearConvention)
 
         srcE2 = srcE2func(catalog)
         psfE2 = psfE2func(catalog)
@@ -174,6 +200,9 @@ class RhoStatistics(object):
         The name used for PSF shape measurements from the same algorithm.
         It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
         and correspond to the algorithm name specified for ``column``.
+    shearConvention: `bool`, optional
+        Option to use shear convention. When set to False, the distortion
+        convention is used.
     **kwargs
         Additional keyword arguments passed to treecorr. See
         https://rmjarvis.github.io/TreeCorr/_build/html/gg.html for details.
@@ -186,13 +215,14 @@ class RhoStatistics(object):
         to Rho statistic indices. rho0 corresponds to autocorrelation function
         of PSF size residuals.
     """
-    def __init__(self, column, psfColumn, **kwargs):
+    def __init__(self, column, psfColumn, shearConvention=False, **kwargs):
         self.column = column
         self.psfColumn = psfColumn
-        self.e1Func = E1(self.psfColumn)
-        self.e2Func = E2(self.psfColumn)
-        self.e1ResidsFunc = E1Resids(self.column, self.psfColumn)
-        self.e2ResidsFunc = E2Resids(self.column, self.psfColumn)
+        self.shearConvention = shearConvention
+        self.e1Func = E1(self.psfColumn, shearConvention=self.shearConvention)
+        self.e2Func = E2(self.psfColumn, shearConvention=self.shearConvention)
+        self.e1ResidsFunc = E1Resids(self.column, self.psfColumn, shearConvention=self.shearConvention)
+        self.e2ResidsFunc = E2Resids(self.column, self.psfColumn, shearConvention=self.shearConvention)
         self.traceSizeFunc = TraceSize(self.column)
         self.psfTraceSizeFunc = TraceSize(self.psfColumn)
         self.kwargs = kwargs
@@ -348,7 +378,7 @@ def calculate_tex(catalogs, photo_calibs, astrom_calibs, config):
                            min_sep=config.min_sep, 
                            max_sep=config.max_sep, 
                            sep_units='arcmin')
-    rho_statistics = RhoStatistics(config.column, config.column_psf, **treecorr_kwargs)
+    rho_statistics = RhoStatistics(config.column, config.column_psf, config.shearConvention, **treecorr_kwargs)
     xy = rho_statistics(catalog[selection])[config.rho_stat]
     
     radius = np.exp(xy.meanlogr) * u.arcmin

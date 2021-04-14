@@ -66,8 +66,8 @@ class TExTaskConfig(Config):
                   dtype=int, default=10)
     rho_stat = Field(doc="Rho statistic to be computed",
                      dtype=int, default=1)
-    ellipticity_convention = Field(doc="Ellipticity convention to use (distortion or shear)",
-                                   dtype=str, default="distortion")
+    shearConvention = Field(doc="Use shear ellipticity convention rather than distortion",
+                            dtype=bool, default=False)
     column_psf = Field(doc="Column to use for PSF model shape moments",
                        dtype=str, default='slot_PsfShape')
     column = Field(doc="Column to use for shape moments",
