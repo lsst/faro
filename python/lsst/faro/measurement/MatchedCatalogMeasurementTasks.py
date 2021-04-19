@@ -19,6 +19,8 @@ filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
 
 
 class PA1TaskConfig(Config):
+    """Config fields for the PA1 photometric repeatability metric.
+    """
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
                          dtype=float, default=200)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
@@ -30,6 +32,14 @@ class PA1TaskConfig(Config):
 
 
 class PA1Task(Task):
+    """A Task that computes the PA1 photometric repeatability metric from an
+    input set of multiple visits of the same field.
+    Notes
+    -----
+    The intended usage is to retarget the run method of
+    `lsst.faro.measurement.TractMatchedMeasurementTask` to PA1Task.
+    This metric is calculated on a set of matched visits, and aggregated at the tract level.
+    """
 
     ConfigClass = PA1TaskConfig
     _DefaultName = "PA1Task"
@@ -39,27 +49,40 @@ class PA1Task(Task):
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
         self.nMinPhotRepeat = self.config.nMinPhotRepeat
+        self.writeExtras = self.config.writeExtras
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PA1")
+        """Calculate the photometric repeatability.
+
+        Parameters
+        ----------
+        matchedCatalog : `lsst.afw.table.base.Catalog`
+            `~lsst.afw.table.base.Catalog` object as created by
+            `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+        metric_name : `str`
+            The name of the metric.
+
+        Returns
+        -------
+        measurement : `lsst.verify.Measurement`
+        Measurement of the repeatability and its associated metadata.
+        """
+        self.log.info(f"Measuring {metric_name}")
 
         pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
                          snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
 
         if 'magMean' in pa1.keys():
-            if writeExtras:
+            if self.writeExtras:
                 extras = {}
                 extras['rms'] = Datum(pa1['rms'], label='RMS',
                                       description='Photometric repeatability rms for each star.')
-                extras['count'] = Datum(pa1['count'], label='count',
+                extras['count'] = Datum(pa1['count']*u.count, label='count',
                                         description='Number of detections used to calculate '
                                         'repeatability.')
                 extras['mean_mag'] = Datum(pa1['magMean'], label='mean_mag',
                                            description='Mean magnitude of each star.')
-                extras['mag_resid'] = Datum(pa1['magResid'], label='mag_resid',
-                                            description='Magnitude residuals relative to the mean '
-                                            'magnitude for each star.')
-                return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras)
+                return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras))
             else:
                 return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
@@ -78,7 +101,16 @@ class PF1TaskConfig(Config):
 
 
 class PF1Task(Task):
+    """A Task that computes PF1, the percentage of photometric repeatability measurements
+    that deviate by more than PA2 mmag from the mean.
 
+    Notes
+    -----
+    The intended usage is to retarget the run method of
+    `lsst.faro.measurement.TractMatchedMeasurementTask` to PF1Task. This Task uses the
+    same set of photometric residuals that are calculated for the PA1 metric.
+    This metric is calculated on a set of matched visits, and aggregated at the tract level.
+    """
     ConfigClass = PF1TaskConfig
     _DefaultName = "PF1Task"
 
@@ -90,7 +122,22 @@ class PF1Task(Task):
         self.threshPA2 = self.config.threshPA2
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PF1")
+        """Calculate the percentage of outliers in the photometric repeatability values.
+
+        Parameters
+        ----------
+        matchedCatalog : `lsst.afw.table.base.Catalog`
+            `~lsst.afw.table.base.Catalog` object as created by
+            `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+        metric_name : `str`
+            The name of the metric.
+
+        Returns
+        -------
+        measurement : `lsst.verify.Measurement`
+        Measurement of the percentage of repeatability outliers, and associated metadata.
+        """
+        self.log.info(f"Measuring {metric_name}")
         pa2_thresh = self.threshPA2 * u.mmag
 
         pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,

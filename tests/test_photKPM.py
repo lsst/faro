@@ -68,6 +68,7 @@ class Pa1Test(unittest.TestCase):
     def test_pa1(self):
         """Test calculation of pa1 on a known catalog."""
         config = PA1Task.ConfigClass()
+        config.nMinPhotRepeat = 10
         task = PA1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PA1', band))
@@ -77,6 +78,7 @@ class Pa1Test(unittest.TestCase):
     def test_pf1(self):
         """Test calculation of pf1 on a known catalog."""
         config = PF1Task.ConfigClass()
+        config.nMinPhotRepeat = 10
         task = PF1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('PF1', band))
