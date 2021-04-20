@@ -47,23 +47,3 @@ Adding a metric to faro
   :maxdepth: 1
 
   metrics.rst
-  
-.. _lsst.faro.api-ref:
-
-Python API reference
-====================
-
-.. automodapi:: lsst.faro.base
-   :no-main-docstr:
-
-.. automodapi:: lsst.faro.preparation
-   :no-main-docstr:
-
-.. automodapi:: lsst.faro.measurement
-   :no-main-docstr:
-
-.. automodapi:: lsst.faro.summary
-   :no-main-docstr:
-
-.. automodapi:: lsst.faro.utils
-   :no-main-docstr:
