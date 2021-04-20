@@ -21,19 +21,22 @@ This section provides a conceptual overview of the faro package
 Faro is a packge for computing scientific performance metrics 
 It is run as an afgterburner
 
-.. _lsst.daf.design:
 
-Faro Design Concepts
-====================
+.. _lsst.daf.add-metric:
 
-This section provides a details of the faro design concepts and archirtecture
+Adding a metric to faro
+=======================
 
-  design.rst
+.. toctree::
+  :maxdepth: 1
+
+  metrics.rst
 
 .. _lsst.faro.running:
 
 Running faro
 ============
+
 
 .. toctree::
   :maxdepth: 1
