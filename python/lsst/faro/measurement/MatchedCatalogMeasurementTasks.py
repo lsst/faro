@@ -34,6 +34,7 @@ class PA1TaskConfig(Config):
 class PA1Task(Task):
     """A Task that computes the PA1 photometric repeatability metric from an
     input set of multiple visits of the same field.
+
     Notes
     -----
     The intended usage is to retarget the run method of
@@ -51,7 +52,7 @@ class PA1Task(Task):
         self.nMinPhotRepeat = self.config.nMinPhotRepeat
         self.writeExtras = self.config.writeExtras
 
-    def run(self, matchedCatalog, metric_name):
+    def run(self, matchedCatalog, metricName):
         """Calculate the photometric repeatability.
 
         Parameters
@@ -59,15 +60,15 @@ class PA1Task(Task):
         matchedCatalog : `lsst.afw.table.base.Catalog`
             `~lsst.afw.table.base.Catalog` object as created by
             `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
-        metric_name : `str`
+        metricName : `str`
             The name of the metric.
 
         Returns
         -------
         measurement : `lsst.verify.Measurement`
-        Measurement of the repeatability and its associated metadata.
+            Measurement of the repeatability and its associated metadata.
         """
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info(f"Measuring {metricName}")
 
         pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
                          snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
@@ -121,7 +122,7 @@ class PF1Task(Task):
         self.nMinPhotRepeat = self.config.nMinPhotRepeat
         self.threshPA2 = self.config.threshPA2
 
-    def run(self, matchedCatalog, metric_name):
+    def run(self, matchedCatalog, metricName):
         """Calculate the percentage of outliers in the photometric repeatability values.
 
         Parameters
@@ -129,15 +130,15 @@ class PF1Task(Task):
         matchedCatalog : `lsst.afw.table.base.Catalog`
             `~lsst.afw.table.base.Catalog` object as created by
             `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
-        metric_name : `str`
+        metricName : `str`
             The name of the metric.
 
         Returns
         -------
         measurement : `lsst.verify.Measurement`
-        Measurement of the percentage of repeatability outliers, and associated metadata.
+            Measurement of the percentage of repeatability outliers, and associated metadata.
         """
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info(f"Measuring {metricName}")
         pa2_thresh = self.threshPA2 * u.mmag
 
         pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
