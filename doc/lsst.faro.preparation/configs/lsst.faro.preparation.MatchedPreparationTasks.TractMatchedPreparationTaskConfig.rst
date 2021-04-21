@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.preparation.MatchedPreparationTasks.TractMatchedPreparationTaskConfig
 
-##########################
+#################################
 TractMatchedPreparationTaskConfig
-##########################
+#################################
 
 .. _lsst.faro.preparation.MatchedPreparationTasks.TractMatchedPreparationTaskConfig-configs:
 
