@@ -25,7 +25,7 @@
 import unittest
 
 from lsst.faro.measurement import (AMxTask, ADxTask, AFxTask,
-                                   PA1Task, PA2Task, PF1Task,
+                                   PA1Task, PF1Task,
                                    TExTask, AB1Task, WPerpTask)
 
 
@@ -103,34 +103,19 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(task.config.brightSnrMax, expected.brightSnrMax)
         self.check_config(task, expected, default, field_list)
 
-    def test_pa2_config(self):
-        """Test application of config for PA2 task"""
-        default = PA2Task.ConfigClass()
-        expected = PA2Task.ConfigClass()
-        field_list = ['brightSnrMin', 'brightSnrMax']
-        expected.brightSnrMin = 100.0
-        expected.brightSnrMax = 31415.9
-        task = PA2Task(config=expected)
-        # Some config attriutes are also used to populate task attriubtes
-        self.assertEqual(task.config.brightSnrMin, expected.brightSnrMin)
-        self.assertEqual(task.config.brightSnrMax, expected.brightSnrMax)
-        self.check_config(task, expected, default, field_list)
-
     def test_pf1_config(self):
         """Test application of config for PF1 task"""
         default = PF1Task.ConfigClass()
         expected = PF1Task.ConfigClass()
-        field_list = ['brightSnrMin', 'brightSnrMax', 'threshPA2', 'threshPF1']
+        field_list = ['brightSnrMin', 'brightSnrMax', 'threshPA2']
         expected.brightSnrMin = 100.0
         expected.brightSnrMax = 31415.9
         expected.threshPA2 = 17.47
-        expected.threshPF1 = 9.892
         task = PF1Task(config=expected)
         # Some config attriutes are also used to populate task attriubtes
         self.assertEqual(task.config.brightSnrMin, expected.brightSnrMin)
         self.assertEqual(task.config.brightSnrMax, expected.brightSnrMax)
         self.assertEqual(task.config.threshPA2, expected.threshPA2)
-        self.assertEqual(task.config.threshPF1, expected.threshPF1)
         self.check_config(task, expected, default, field_list)
 
     def test_tex_config(self):

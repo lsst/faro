@@ -10,7 +10,7 @@ from lsst.faro.utils.phot_repeat import photRepeat
 from lsst.faro.utils.tex import (correlation_function_ellipticity_from_matches,
                                  select_bin_from_corr)
 
-__all__ = ("PA1TaskConfig", "PA1Task", "PA2TaskConfig", "PA2Task", "PF1Task", "TExTaskConfig",
+__all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task", "TExTaskConfig",
            "TExTask", "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
 
 
@@ -19,17 +19,28 @@ filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
 
 
 class PA1TaskConfig(Config):
+    """Config fields for the PA1 photometric repeatability metric.
+    """
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
-                         dtype=float, default=50)
+                         dtype=float, default=200)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                          dtype=float, default=np.Inf)
-    numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
-                              dtype=int, default=50)
-    randomSeed = Field(doc="Random seed for sampling.",
-                       dtype=int, default=12345)
+    nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
+                           dtype=int, default=50)
+    writeExtras = Field(doc="Write out the magnitude residuals and rms values for debugging.",
+                        dtype=bool, default=False)
 
 
 class PA1Task(Task):
+    """A Task that computes the PA1 photometric repeatability metric from an
+    input set of multiple visits of the same field.
+
+    Notes
+    -----
+    The intended usage is to retarget the run method of
+    `lsst.faro.measurement.TractMatchedMeasurementTask` to PA1Task.
+    This metric is calculated on a set of matched visits, and aggregated at the tract level.
+    """
 
     ConfigClass = PA1TaskConfig
     _DefaultName = "PA1Task"
@@ -38,96 +49,110 @@ class PA1Task(Task):
         super().__init__(*args, config=config, **kwargs)
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
+        self.nMinPhotRepeat = self.config.nMinPhotRepeat
+        self.writeExtras = self.config.writeExtras
 
-    def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PA1")
+    def run(self, matchedCatalog, metricName):
+        """Calculate the photometric repeatability.
 
-        pa1 = photRepeat(matchedCatalog, snrMax=self.brightSnrMax, snrMin=self.brightSnrMin,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
+        Parameters
+        ----------
+        matchedCatalog : `lsst.afw.table.base.Catalog`
+            `~lsst.afw.table.base.Catalog` object as created by
+            `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+        metricName : `str`
+            The name of the metric.
 
-        if 'magDiff' in pa1.keys():
-            return Struct(measurement=Measurement("PA1", pa1['repeatability']))
+        Returns
+        -------
+        measurement : `lsst.verify.Measurement`
+            Measurement of the repeatability and its associated metadata.
+        """
+        self.log.info(f"Measuring {metricName}")
+
+        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
+                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+
+        if 'magMean' in pa1.keys():
+            if self.writeExtras:
+                extras = {}
+                extras['rms'] = Datum(pa1['rms'], label='RMS',
+                                      description='Photometric repeatability rms for each star.')
+                extras['count'] = Datum(pa1['count']*u.count, label='count',
+                                        description='Number of detections used to calculate '
+                                        'repeatability.')
+                extras['mean_mag'] = Datum(pa1['magMean'], label='mean_mag',
+                                           description='Mean magnitude of each star.')
+                return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras))
+            else:
+                return Struct(measurement=Measurement("PA1", pa1['repeatability']))
         else:
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
 
 
-class PA2TaskConfig(Config):
+class PF1TaskConfig(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
-                         dtype=float, default=50)
+                         dtype=float, default=200)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
                          dtype=float, default=np.Inf)
+    nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
+                           dtype=int, default=50)
     # The defaults for threshPA2 and threshPF1 correspond to the SRD "design" thresholds.
     threshPA2 = Field(doc="Threshold in mmag for PF1 calculation.", dtype=float, default=15.0)
-    threshPF1 = Field(doc="Percentile of differences that can vary by more than threshPA2.",
-                      dtype=float, default=10.0)
-    numRandomShuffles = Field(doc="Number of trials used for random sampling of observation pairs.",
-                              dtype=int, default=50)
-    randomSeed = Field(doc="Random seed for sampling.",
-                       dtype=int, default=12345)
-
-
-class PA2Task(Task):
-
-    ConfigClass = PA2TaskConfig
-    _DefaultName = "PA2Task"
-
-    def __init__(self, config: PA2TaskConfig, *args, **kwargs):
-        super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.threshPA2 = self.config.threshPA2
-        self.threshPF1 = self.config.threshPF1
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PA2")
-        pf1_thresh = self.threshPF1 * u.percent
-
-        pa2 = photRepeat(matchedCatalog,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
-
-        if 'magDiff' in pa2.keys():
-            # Previously, validate_drp used the first random sample from PA1 measurement
-            # Now, use all of them.
-            magDiffs = pa2['magDiff']
-
-            pf1Percentile = 100.*u.percent - pf1_thresh
-            return Struct(measurement=Measurement("PA2", np.percentile(np.abs(magDiffs.value),
-                          pf1Percentile.value) * magDiffs.unit))
-        else:
-            return Struct(measurement=Measurement("PA2", np.nan*u.mmag))
 
 
 class PF1Task(Task):
+    """A Task that computes PF1, the percentage of photometric repeatability measurements
+    that deviate by more than PA2 mmag from the mean.
 
-    ConfigClass = PA2TaskConfig
+    Notes
+    -----
+    The intended usage is to retarget the run method of
+    `lsst.faro.measurement.TractMatchedMeasurementTask` to PF1Task. This Task uses the
+    same set of photometric residuals that are calculated for the PA1 metric.
+    This metric is calculated on a set of matched visits, and aggregated at the tract level.
+    """
+    ConfigClass = PF1TaskConfig
     _DefaultName = "PF1Task"
 
-    def __init__(self, config: PA2TaskConfig, *args, **kwargs):
+    def __init__(self, config: PF1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.brightSnrMin = self.config.brightSnrMin
         self.brightSnrMax = self.config.brightSnrMax
+        self.nMinPhotRepeat = self.config.nMinPhotRepeat
         self.threshPA2 = self.config.threshPA2
-        self.threshPF1 = self.config.threshPF1
-        self.numRandomShuffles = self.config.numRandomShuffles
-        self.randomSeed = self.config.randomSeed
 
-    def run(self, matchedCatalog, metric_name):
-        self.log.info("Measuring PF1")
+    def run(self, matchedCatalog, metricName):
+        """Calculate the percentage of outliers in the photometric repeatability values.
+
+        Parameters
+        ----------
+        matchedCatalog : `lsst.afw.table.base.Catalog`
+            `~lsst.afw.table.base.Catalog` object as created by
+            `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+        metricName : `str`
+            The name of the metric.
+
+        Returns
+        -------
+        measurement : `lsst.verify.Measurement`
+            Measurement of the percentage of repeatability outliers, and associated metadata.
+        """
+        self.log.info(f"Measuring {metricName}")
         pa2_thresh = self.threshPA2 * u.mmag
 
-        pf1 = photRepeat(matchedCatalog,
-                         numRandomShuffles=self.numRandomShuffles, randomSeed=self.randomSeed)
+        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
+                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
 
-        if 'magDiff' in pf1.keys():
+        if 'magResid' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
             # Now, use all of them.
-            magDiffs = pf1['magDiff']
+            # Keep only stars with > 2 observations:
+            okrms = (pf1['count'] > 2)
+            magResid0 = pf1['magResid']
+            magResid = np.concatenate(magResid0[okrms])
 
-            percentileAtPA2 = 100 * np.mean(np.abs(magDiffs.value) > pa2_thresh.value) * u.percent
+            percentileAtPA2 = 100 * np.mean(np.abs(magResid.value) > pa2_thresh.value) * u.percent
 
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:

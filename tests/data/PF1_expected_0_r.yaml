@@ -2,10 +2,10 @@
 blobs:
 - !<lsst.verify.Blob>
   data: {}
-  identifier: dd40b32b227044369eedf9b7c173bb41
+  identifier: 96aa1ff8b64a4252be106ec53baf2717
   name: PF1
-identifier: 16b34ffea0b44495ad1858754bd788b1
+identifier: 6a30324c265c402887d063147ecc4a3d
 metric: PF1
 notes: {}
 unit: '%'
-value: 28.84848484848485
+value: 5.263157894736842
