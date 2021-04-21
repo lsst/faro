@@ -2,16 +2,15 @@ import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config, Field, ListField
-from lsst.verify import Measurement, ThresholdSpecification, Datum
+from lsst.verify import Measurement, Datum
 from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
                                          astromResiduals)
 from lsst.faro.utils.phot_repeat import photRepeat
-from lsst.faro.utils.tex import (correlation_function_ellipticity_from_matches,
-                                 select_bin_from_corr)
 
-__all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task", "TExTaskConfig",
-           "TExTask", "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
+
+__all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task",
+           "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
 
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
@@ -157,32 +156,6 @@ class PF1Task(Task):
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:
             return Struct(measurement=Measurement("PF1", np.nan*u.percent))
-
-
-class TExTaskConfig(Config):
-    annulus_r = Field(doc="Radial size of the annulus in arcmin",
-                      dtype=float, default=1.)
-    comparison_operator = Field(doc="String representation of the operator to use in comparisons",
-                                dtype=str, default="<=")
-
-
-class TExTask(Task):
-    ConfigClass = TExTaskConfig
-    _DefaultName = "TExTask"
-
-    def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
-
-        D = self.config.annulus_r * u.arcmin
-        filteredCat = filterMatches(matchedCatalog)
-        nMinTEx = 50
-        if filteredCat.count <= nMinTEx:
-            return Struct(measurement=Measurement(metric_name, np.nan*u.Unit('')))
-
-        radius, xip, xip_err = correlation_function_ellipticity_from_matches(filteredCat)
-        operator = ThresholdSpecification.convert_operator_str(self.config.comparison_operator)
-        corr, corr_err = select_bin_from_corr(radius, xip, xip_err, radius=D, operator=operator)
-        return Struct(measurement=Measurement(metric_name, np.abs(corr)*u.Unit('')))
 
 
 def isSorted(a):

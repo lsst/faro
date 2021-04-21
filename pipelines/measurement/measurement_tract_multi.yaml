@@ -1,4 +1,4 @@
-description: Compute metrics from multiband matched catalogs
+description: Compute metrics from multiband tract catalogs
 tasks:
   wPerp:
     class: lsst.faro.measurement.TractMultiBandMeasurementTask

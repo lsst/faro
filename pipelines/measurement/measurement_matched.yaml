@@ -133,26 +133,6 @@ tasks:
         config.measure.annulus_r = 200.0
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
-  TE1:
-    class: lsst.faro.measurement.TractMatchedMeasurementTask
-    config:
-      connections.package: validate_drp
-      connections.metric: TE1
-      python: |
-        from lsst.faro.measurement import TExTask
-        config.measure.retarget(TExTask)
-        config.measure.annulus_r = 1.0
-        config.measure.comparison_operator = "<="
-  TE2:
-    class: lsst.faro.measurement.TractMatchedMeasurementTask
-    config:
-      connections.package: validate_drp
-      connections.metric: TE2
-      python: |
-        from lsst.faro.measurement import TExTask
-        config.measure.retarget(TExTask)
-        config.measure.annulus_r = 5.0
-        config.measure.comparison_operator = ">="
   nsrcMeas:
     class: lsst.faro.measurement.PatchMatchedMeasurementTask
     config:

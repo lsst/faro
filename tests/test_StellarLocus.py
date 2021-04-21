@@ -68,7 +68,7 @@ class StellarLocusTest(unittest.TestCase):
 
         config = WPerpTask.ConfigClass()
         task = WPerpTask(config=config)
-        result = task.calc_wPerp(cat, ext_vals, 'wPerp')
+        result = task.calcWPerp(cat, ext_vals, 'wPerp')
         self.assertEqual(result.measurement.quantity, expected_wperp)
 
     def test_stellarLocusResid(self):

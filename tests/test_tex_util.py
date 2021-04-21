@@ -25,16 +25,13 @@
 import unittest
 import os
 import numpy as np
-import operator
-import astropy.units as u
 
 from lsst.utils import getPackageDir
-from lsst.afw.table import SimpleCatalog, GroupView
-from lsst.faro.utils.coord_util import averageRaFromCat, averageDecFromCat
-from lsst.faro.utils.tex import (correlation_function_ellipticity,
-                                 select_bin_from_corr,
-                                 medianEllipticity1ResidualsFromCat,
-                                 medianEllipticity2ResidualsFromCat)
+from lsst.afw.table import SimpleCatalog
+from lsst.faro.utils.tex import (TraceSize, PsfTraceSizeDiff,
+                                 E1, E2, E1Resids, E2Resids,
+                                 RhoStatistics)
+
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -42,67 +39,92 @@ DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 class TEXUtilTest(unittest.TestCase):
     """Test TEX utility functions."""
 
-    def load_data(self):
-        '''Helper to load data to process.'''
-        cat_file = 'matchedCatalogTract_0_i.fits.gz'
+    def loadData(self):
+        """Helper to load data to process."""
+        cat_file = 'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'
         cat = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
 
-        selection = np.isfinite(cat.get('e1')) & np.isfinite(cat.get('e2'))
+        # selection = np.isfinite(cat.get('e1')) & np.isfinite(cat.get('e2'))
+        selection = np.tile(True, len(cat))
 
         return cat.subset(selection).copy(deep=True)
 
-    def test_correlation_function_ellipticity(self):
-        """Test correlation function calculation."""
-        expected_r = 4.3949517357518655*u.arcmin
-        expected_xip = 0.001269272699700824
-        expected_xip_err = 0.0004931737255066678
+    def testEllipticityDefinitions(self):
+        """Test ellipticity functors."""
 
-        cat = self.load_data()
-        matches = GroupView.build(cat)
+        cat = self.loadData()
 
-        ra = matches.aggregate(averageRaFromCat) * u.radian
-        dec = matches.aggregate(averageDecFromCat) * u.radian
+        column = 'slot_Shape'
+        columnPsf = 'slot_PsfShape'
 
-        e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
-        e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
-
-        result = correlation_function_ellipticity(ra, dec, e1_res, e2_res, brute=True)
-        self.assertTrue(u.isclose(np.mean(result[0]), expected_r))
-        self.assertTrue(u.isclose(np.mean(result[1]), expected_xip, atol=0.00001*u.dimensionless_unscaled))
-        self.assertTrue(u.isclose(np.mean(result[2]), expected_xip_err))
-
-    def test_select_bin_from_corr(self):
-        """Test selection of angular range from correlation function."""
-
-        # Test less than or equal to logic
-        expected = (4.666666666666667, 1.3820881233139908)
-        radius = np.arange(1, 11) * u.arcmin
-        xip = radius.value**2
-        xip_err = np.sqrt(radius.value)
-        result = select_bin_from_corr(radius, xip, xip_err, radius=3.*u.arcmin, operator=operator.le)
+        trace = TraceSize(column)
+        result = np.nanmean(trace(cat))
+        expected = 4.36377821335775
         self.assertEqual(result, expected)
 
-        # Test greater than or equal to logic
-        expected = (47.5, 2.506758077978876)
-        radius = np.arange(1, 11) * u.arcmin
-        xip = radius.value**2
-        xip_err = np.sqrt(radius.value)
-        result = select_bin_from_corr(radius, xip, xip_err, radius=3.*u.arcmin, operator=operator.ge)
+        traceDiff = PsfTraceSizeDiff(column, columnPsf)
+        result = np.nanmean(traceDiff(cat))
+        expected = 25.301812428201995
         self.assertEqual(result, expected)
 
-    def test_medianEllipticity1ResidualsFromCat(self):
-        """Test ellipticity residuals e1."""
-        expected = -0.004235647618770565
-        cat = self.load_data()
-        result = medianEllipticity1ResidualsFromCat(cat)
+        e1 = E1(column)
+        result = np.nanmean(e1(cat))
+        expected = 0.0012636175684993878
         self.assertEqual(result, expected)
 
-    def test_medianEllipticity2ResidualsFromCat(self):
-        """Test ellipticity residuals e2."""
-        expected = 0.0008848644793033184
-        cat = self.load_data()
-        result = medianEllipticity2ResidualsFromCat(cat)
+        e1 = E1(column, shearConvention=True)
+        result = np.nanmean(e1(cat))
+        expected = 0.00043009504274617235
         self.assertEqual(result, expected)
+
+        e2 = E2(column)
+        result = np.nanmean(e2(cat))
+        expected = 0.080076033827269
+        self.assertEqual(result, expected)
+
+        e2 = E2(column, shearConvention=True)
+        result = np.nanmean(e2(cat))
+        expected = 0.04194134295796996
+        self.assertEqual(result, expected)
+
+        e1Resids = E1Resids(column, columnPsf)
+        result = np.nanmean(e1Resids(cat))
+        expected = -0.0009098947676481413
+        self.assertEqual(result, expected)
+
+        e2Resids = E2Resids(column, columnPsf)
+        result = np.nanmean(e2Resids(cat))
+        expected = -0.02280606766168935
+        self.assertEqual(result, expected)
+
+    def testRhoStats(self):
+        """Compute six Rho statistics."""
+
+        cat = self.loadData()
+        column = 'slot_Shape'
+        columnPsf = 'slot_PsfShape'
+
+        treecorrKwargs = dict(nbins=5,
+                              min_sep=0.25,
+                              max_sep=1,
+                              sep_units='arcmin',
+                              brute=True)
+        rhoStatistics = RhoStatistics(column, columnPsf, **treecorrKwargs)
+        result = rhoStatistics(cat)
+
+        expected = [0.2344471639428089,
+                    0.0010172306766334468,
+                    -0.0021045081490440086,
+                    0.0028001762296714734,
+                    -0.0013278190624450364,
+                    0.005010295952053786]
+
+        self.assertAlmostEqual(np.mean(result[0].xi), expected[0], places=7)
+        self.assertAlmostEqual(np.mean(result[1].xip), expected[1], places=7)
+        self.assertAlmostEqual(np.mean(result[2].xip), expected[2], places=7)
+        self.assertAlmostEqual(np.mean(result[3].xip), expected[3], places=7)
+        self.assertAlmostEqual(np.mean(result[4].xip), expected[4], places=7)
+        self.assertAlmostEqual(np.mean(result[5].xip), expected[5], places=7)
 
 
 if __name__ == "__main__":

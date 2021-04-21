@@ -49,8 +49,9 @@ class Te1Test(unittest.TestCase):
         '''This gets called once so can be used to set up
            state that is used by all test methods.'''
         super().setUpClass()
-        cls.file_map = {('TE1', 'i'): ('matchedCatalogTract_0_i.fits.gz', 'TE1_expected_0_i.yaml'),
-                        ('TE1', 'r'): ('matchedCatalogTract_0_r.fits.gz', 'TE1_expected_0_r.yaml')}
+        cls.file_map = {('TE1', 'i'):
+                        ('src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits',
+                         'TE1_expected_0_i.yaml')}
 
     @classmethod
     def tearDownClass(cls):
@@ -62,12 +63,14 @@ class Te1Test(unittest.TestCase):
         """Test calculation of TE1 on a known catalog."""
         config = TExTask.ConfigClass()
         # This is what makes it TE1
-        config.annulus_r = 1.0
-        config.comparison_operator = '<='
+        config.minSep = 0.25
+        config.maxSep = 1.0
         task = TExTask(config=config)
-        for band in ('i', 'r'):
+        for band in ('i'):
             catalog, expected = self.load_data(('TE1', band))
-            result = task.run(catalog, 'TE1')
+            result = task.run('TE1', [catalog])
+            print('result', result)
+            print('expected', expected)
             self.assertEqual(result.measurement, expected)
 
 

@@ -122,9 +122,15 @@ class ConfigTest(unittest.TestCase):
         """Test application of config for TEx task"""
         default = TExTask.ConfigClass()
         expected = TExTask.ConfigClass()
-        field_list = ['annulus_r', 'comparison_operator']
-        expected.annulus_r = 42.0
-        expected.comparison_operator = 'bigger'
+        field_list = ['minSep', 'maxSep', 'nbins',
+                      'rhoStat', 'shearConvention', 'columnPsf', 'column']
+        expected.minSep = 5.
+        expected.maxSep = 20.
+        expected.nbins = 100
+        expected.rhoStat = 2
+        expected.shearConvention = True
+        expected.columnPsf = 'base_SdssShape_psf'
+        expected.column = 'base_SdssShape'
         task = TExTask(config=expected)
         self.check_config(task, expected, default, field_list)
 

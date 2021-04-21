@@ -4,7 +4,10 @@ from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement
 
-__all__ = ('NumSourcesTask', 'NumpySummaryTaskConfig', 'NumpySummaryTask')
+from lsst.faro.utils.matcher import mergeCatalogs
+
+__all__ = ('NumSourcesTask', 'NumSourcesMergeTask',
+           'NumpySummaryTaskConfig', 'NumpySummaryTask')
 
 
 class NumSourcesTask(Task):
@@ -14,6 +17,19 @@ class NumSourcesTask(Task):
 
     def run(self, catalog, metric_name, vIds=None):
         self.log.info(f"Measuring {metric_name}")
+        nSources = len(catalog)
+        meas = Measurement("nsrcMeas", nSources * u.count)
+        return Struct(measurement=meas)
+
+
+class NumSourcesMergeTask(Task):
+
+    ConfigClass = Config
+    _DefaultName = "numSourcesMergeTask"
+
+    def run(self, metricName, catalogs, photoCalibs, astromCalibs, dataIds):
+        self.log.info(f"Measuring {metricName}")
+        catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
         nSources = len(catalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)

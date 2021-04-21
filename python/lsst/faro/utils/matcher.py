@@ -5,7 +5,8 @@ from lsst.afw.table import (SchemaMapper, Field,
 import numpy as np
 from astropy.table import join, Table
 
-__all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matched_photom")
+__all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matched_photom",
+           "mergeCatalogs")
 
 
 def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
@@ -216,3 +217,48 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
 
     # Return the astropy table of matched catalogs:
     return(cat_combined[qual_cuts])
+
+
+def mergeCatalogs(catalogs,
+                  photoCalibs=None, astromCalibs=None,
+                  models=['slot_PsfFlux'], applyExternalWcs=False):
+    """Merge catalogs and optionally apply photometric and astrometric calibrations.
+    """
+
+    schema = catalogs[0].schema
+    mapper = SchemaMapper(schema)
+    mapper.addMinimalSchema(schema)
+    aliasMap = schema.getAliasMap()
+    for model in models:
+        modelName = aliasMap[model] if model in aliasMap.keys() else model
+        mapper.addOutputField(Field[float](f'{modelName}_mag',
+                                           f'{modelName} magnitude'))
+        mapper.addOutputField(Field[float](f'{modelName}_magErr',
+                                           f'{modelName} magnitude uncertainty'))
+    newSchema = mapper.getOutputSchema()
+    newSchema.setAliasMap(schema.getAliasMap())
+
+    size = sum([len(cat) for cat in catalogs])
+    catalog = SourceCatalog(newSchema)
+    catalog.reserve(size)
+
+    for ii in range(0, len(catalogs)):
+        cat = catalogs[ii]
+
+        # Create temporary catalog. Is this step needed?
+        tempCat = SourceCatalog(SourceCatalog(newSchema).table)
+        tempCat.extend(cat, mapper=mapper)
+
+        if applyExternalWcs and astromCalibs is not None:
+            wcs = astromCalibs[ii]
+            updateSourceCoords(wcs, tempCat)
+
+        if photoCalibs is not None:
+            photoCalib = photoCalibs[ii]
+            for model in models:
+                modelName = aliasMap[model] if model in aliasMap.keys() else model
+                photoCalib.instFluxToMagnitude(tempCat, modelName, modelName)
+
+        catalog.extend(tempCat)
+
+    return catalog

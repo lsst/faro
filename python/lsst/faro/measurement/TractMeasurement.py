@@ -13,19 +13,28 @@ class TractMeasurementTaskConnections(MetricConnections,
                                       dimensions=("tract", "skymap",
                                                   "band"),
                                       defaultTemplates={"coaddName": "deepCoadd",
-                                                        "photoCalibName": "deepCoadd_calexp.photoCalib"}):
+                                                        "photoCalibName": "deepCoadd_calexp.photoCalib",
+                                                        "wcsName": "deepCoadd_calexp.wcs"}):
 
-    cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
-                                         dimensions=("tract", "skymap",
-                                                     "band"),
-                                         storageClass="SourceCatalog",
-                                         name="deepCoadd_forced_src")
+    catalogs = pipeBase.connectionTypes.Input(doc="Object catalog.",
+                                              dimensions=("tract", "patch",
+                                                          "skymap", "band"),
+                                              storageClass="SourceCatalog",
+                                              name="deepCoadd_forced_src",
+                                              multiple=True)
 
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                  dimensions=("tract", "skymap",
-                                                              "band"),
-                                                  storageClass="PhotoCalib",
-                                                  name="{photoCalibName}",
+    photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                 dimensions=("tract", "patch",
+                                                             "skymap", "band"),
+                                                 storageClass="PhotoCalib",
+                                                 name="{photoCalibName}",
+                                                 multiple=True)
+
+    astromCalibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
+                                                  dimensions=("tract", "patch",
+                                                              "skymap", "band"),
+                                                  storageClass="Wcs",
+                                                  name="{wcsName}",
                                                   multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-tract measurement.",
@@ -45,12 +54,12 @@ class TractMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = TractMeasurementTaskConfig
     _DefaultName = "tractMeasurementTask"
 
-    def run(self, cat, photo_calibs, vIds):
-        return self.measure.run(cat, photo_calibs, self.config.connections.metric, vIds)
+    def run(self, catalogs, photoCalibs, astromCalibs, dataIds):
+        return self.measure.run(self.config.connections.metric, catalogs, photoCalibs, astromCalibs, dataIds)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.cat]
+        inputs['dataIds'] = [butlerQC.registry.expandDataId(cat.dataId) for cat in inputRefs.catalogs]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
@@ -71,12 +80,12 @@ class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
                                          name="deepCoadd_forced_src",
                                          multiple=True)
 
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
-                                                  dimensions=("tract", "skymap",
-                                                              "patch", "band"),
-                                                  storageClass="PhotoCalib",
-                                                  name="{photoCalibName}",
-                                                  multiple=True)
+    photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                 dimensions=("tract", "skymap",
+                                                             "patch", "band"),
+                                                 storageClass="PhotoCalib",
+                                                 name="{photoCalibName}",
+                                                 multiple=True)
 
     measurement = pipeBase.connectionTypes.Output(doc="Per-tract measurement.",
                                                   dimensions=("tract", "skymap"),
