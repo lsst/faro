@@ -11,3 +11,4 @@ ups/*.cfgc
 tests/.tests
 pytest_session.txt
 python/lsst/faro/version.py
+.idea/
