@@ -47,3 +47,5 @@ Adding a metric to faro
   :maxdepth: 1
 
   metrics.rst
+  
+.. _lsst.faro.api-ref:
