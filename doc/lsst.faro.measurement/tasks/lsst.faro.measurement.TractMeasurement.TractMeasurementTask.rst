@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.TractMeasurement.TractMeasurementTask
 
-#############
+####################
 TractMeasurementTask
-#############
+####################
 
 .. _lsst.faro.measurement.TractMeasurement.TractMeasurementTask-api:
 

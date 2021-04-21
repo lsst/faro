@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementTask
 
-####################
+###########################
 TractMatchedMeasurementTask
-####################
+###########################
 
 .. _lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementTask-api:
 
