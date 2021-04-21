@@ -14,13 +14,28 @@ Introduction to faro
 .. toctree::
   :maxdepth: 1
 
-  metrics.rst
-  run.rst 
+Short high-level description of what faro does and why it exists 
+faro's raison d'être
+ 
+Who: Leanne 
 
-This section provides a conceptual overview of the faro package 
-Faro is a packge for computing scientific performance metrics 
-It is run as an afgterburner
 
+Faro Design Concepts
+====================
+
+This section provides a details of the faro design concepts and archirtecture
+
+  design.rst
+
+.. _lsst.faro.running:
+
+Running faro
+============
+
+.. toctree::
+  :maxdepth: 1
+
+  running.rst
 
 .. _lsst.daf.add-metric:
 
@@ -31,18 +46,7 @@ Adding a metric to faro
   :maxdepth: 1
 
   metrics.rst
-
-.. _lsst.faro.running:
-
-Running faro
-============
-
-
-.. toctree::
-  :maxdepth: 1
-
-  running.rst
-
+  
 .. _lsst.faro.api-ref:
 
 Python API reference
