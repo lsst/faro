@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseTask
 
-######################
+##########################
 CatalogMeasurementBaseTask
-######################
+##########################
 
 .. _lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseTask-api:
 
