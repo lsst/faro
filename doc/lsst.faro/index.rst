@@ -19,12 +19,13 @@ faro's raison d'être
  
 Who: Leanne 
 
-.. _lsst.daf.design:
+.. _lsst.faro.design:
 
-Faro Design Concepts
-====================
+Design Concepts
+===============
 
-This section provides a details of the faro design concepts and archirtecture
+.. toctree::
+  :maxdepth: 1
 
   design.rst
 
@@ -38,7 +39,8 @@ Running faro
 
   running.rst
 
-.. _lsst.daf.add-metric:
+
+.. _lsst.faro.adding-metric:
 
 Adding a metric to faro
 =======================
