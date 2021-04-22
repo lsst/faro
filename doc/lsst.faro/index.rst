@@ -19,11 +19,16 @@ faro's raison d'être
  
 Who: Leanne 
 
+<<<<<<< HEAD
+=======
+.. _lsst.faro.design:
+>>>>>>> 5f6037b (Update faro documentation structure)
 
-Faro Design Concepts
-====================
+Design Concepts
+===============
 
-This section provides a details of the faro design concepts and archirtecture
+.. toctree::
+  :maxdepth: 1
 
   design.rst
 
@@ -37,7 +42,8 @@ Running faro
 
   running.rst
 
-.. _lsst.daf.add-metric:
+
+.. _lsst.faro.adding-metric:
 
 Adding a metric to faro
 =======================
@@ -66,3 +72,4 @@ Python API reference
 
 .. automodapi:: lsst.faro.utils
    :no-main-docstr:
+
