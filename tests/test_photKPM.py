@@ -19,9 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit tests for the metrics measurement system: PA1, PA2, PF1.
+"""Unit tests for the metrics measurement system: PA1, PF1.
 """
 
+import unittest
+import yaml
+import os
+import random
+
+from lsst.utils import getPackageDir
+from lsst.afw.table import SimpleCatalog
+from lsst.faro.measurement import PA1Task, PF1Task
 import unittest
 import yaml
 import os
@@ -37,6 +45,7 @@ random.seed(8675309)
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
+class Pa1Test(unittest.TestCase):
 class Pa1Test(unittest.TestCase):
 
     def load_data(self, key):
