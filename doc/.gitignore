@@ -3,6 +3,7 @@ xml
 *.tag
 *.inc
 doxygen.conf
+.idea/
 
 # Sphinx products
 _build
