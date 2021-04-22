@@ -46,7 +46,6 @@ DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
 class Pa1Test(unittest.TestCase):
-class Pa1Test(unittest.TestCase):
 
     def load_data(self, key):
         '''Helper to load data to process and the expected value.'''
