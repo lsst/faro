@@ -1,8 +1,8 @@
 .. lsst-task-topic:: lsst.faro.measurement.VisitMeasurement.VisitMeasurementTask
 
-#############
+####################
 VisitMeasurementTask
-#############
+####################
 
 .. _lsst.faro.measurement.VisitMeasurement.VisitMeasurementTask-api:
 
