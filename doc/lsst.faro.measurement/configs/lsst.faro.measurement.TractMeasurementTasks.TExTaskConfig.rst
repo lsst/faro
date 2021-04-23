@@ -4,9 +4,9 @@
 TExTaskConfig
 #############
 
-.. _lsst.faro.measurement.MatchedCatalogMeasurementTasks.TExTaskConfig-configs:
+.. _lsst.faro.measurement.TractMeasurementTasks.TExTaskConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.TExTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.TractMeasurementTasks.TExTaskConfig
