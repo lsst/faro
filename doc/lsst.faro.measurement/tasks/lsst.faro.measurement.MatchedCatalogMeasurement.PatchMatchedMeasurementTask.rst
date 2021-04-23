@@ -1,6 +1,6 @@
 .. lsst-task-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTask
 
-#################$$$$$$$###
+###########################
 PatchMatchedMeasurementTask
 ###########################
 
