@@ -1,4 +1,4 @@
-.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.TExTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.TractMeasurementTasks.TExTaskConfig
 
 #############
 TExTaskConfig
