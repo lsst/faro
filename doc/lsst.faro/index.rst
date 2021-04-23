@@ -15,7 +15,6 @@ Prior to the development of the Gen3 middleware, the Gen2-based  ``lsst.validate
 The algorithms implemented in ``validate_drp`` were ported as-is to run in ``lsst.faro``.
 ``validate_drp`` is now deprecated; all future development of metrics will be carried out in ``lsst.faro``.
 
-
 .. _lsst.faro.design:
 
 Design and Development
