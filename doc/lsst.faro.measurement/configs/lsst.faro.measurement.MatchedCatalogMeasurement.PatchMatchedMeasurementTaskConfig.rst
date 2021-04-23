@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTaskConfig
 
-##########################
+#################################
 PatchMatchedMeasurementTaskConfig
-##########################
+#################################
 
 .. _lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTaskConfig-configs:
 
