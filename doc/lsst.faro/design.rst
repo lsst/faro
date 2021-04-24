@@ -40,9 +40,8 @@ Directory structure
 -------------------
 
 - Preparation:  produces an intermediate data product
-- Measurement:  produces an lsst.verify.Measurement
-- Summary:  takes collection of lsst.verify.Measurement objects as input and produces an ``lsst.verify.Measurement``
-
+- Measurement:  produces one scalar lsst.verify.Measurement per unit of data (e.g., per tract, per patch).
+- Summary:  takes collection of lsst.verify.Measurement objects as input and produces a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms, etc.) of the per-tract, per-patch, etc. metrics.
 
 Naming conventions
 ------------------
