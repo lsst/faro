@@ -30,14 +30,6 @@ import random
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import PA1Task, PF1Task
-import unittest
-import yaml
-import os
-import random
-
-from lsst.utils import getPackageDir
-from lsst.afw.table import SimpleCatalog
-from lsst.faro.measurement import PA1Task, PF1Task
 
 # Make sure measurements are deterministic
 random.seed(8675309)
