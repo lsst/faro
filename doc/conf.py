@@ -1,5 +1,5 @@
-"""Sphinx configuration file for an LSST stack package.
 
+"""Sphinx configuration file for an LSST stack package.
 This configuration only affects single-package Sphinx documentation builds.
 """
 

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit tests for the metrics measurement system: PA1, PA2, PF1.
+"""Unit tests for the metrics measurement system: PA1, PF1.
 """
 
 import unittest

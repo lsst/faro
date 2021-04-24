@@ -9,6 +9,7 @@ faro documentation
 .. toctree::
    :maxdepth: 1
 
+   lsst.faro/index
    lsst.faro.base/index
    lsst.faro.measurement/index
    lsst.faro.preparation/index
