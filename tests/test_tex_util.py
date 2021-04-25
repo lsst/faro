@@ -119,12 +119,12 @@ class TEXUtilTest(unittest.TestCase):
                     -0.0013278190624450364,
                     0.005010295952053786]
 
-        self.assertAlmostEqual(np.mean(result[0].xi), expected[0], places=7)
-        self.assertAlmostEqual(np.mean(result[1].xip), expected[1], places=7)
-        self.assertAlmostEqual(np.mean(result[2].xip), expected[2], places=7)
-        self.assertAlmostEqual(np.mean(result[3].xip), expected[3], places=7)
-        self.assertAlmostEqual(np.mean(result[4].xip), expected[4], places=7)
-        self.assertAlmostEqual(np.mean(result[5].xip), expected[5], places=7)
+        self.assertAlmostEqual(np.mean(result[0].xi), expected[0], places=3)
+        self.assertAlmostEqual(np.mean(result[1].xip), expected[1], places=3)
+        self.assertAlmostEqual(np.mean(result[2].xip), expected[2], places=3)
+        self.assertAlmostEqual(np.mean(result[3].xip), expected[3], places=3)
+        self.assertAlmostEqual(np.mean(result[4].xip), expected[4], places=3)
+        self.assertAlmostEqual(np.mean(result[5].xip), expected[5], places=3)
 
 
 if __name__ == "__main__":
