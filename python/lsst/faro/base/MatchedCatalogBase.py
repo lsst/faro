@@ -12,8 +12,8 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                  defaultTemplates={"coaddName": "deep",
                                                    "photoCalibName": "calexp.photoCalib",
                                                    "wcsName": "calexp.wcs",
-                                                   "skyWcsName": "jointcal",
-                                                   "extPhotoCalibName": "fgcm"}):
+                                                   "externalPhotoCalibName": "fgcm",
+                                                   "externalWcsName": "jointcal"}):
     source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
                                                      dimensions=("instrument", "visit",
                                                                  "detector", "band"),
@@ -35,7 +35,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
     externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-tract, per-visit wcs calibrations.  These catalogs use the detector "
              "id for the catalog id, sorted on id for fast lookup."),
-        name="{skyWcsName}SkyWcsCatalog",
+        name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
     )
@@ -43,14 +43,14 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         doc=("Per-visit wcs calibrations computed globally (with no tract information). "
              "These catalogs use the detector id for the catalog id, sorted on id for "
              "fast lookup."),
-        name="{skyWcsName}SkyWcsCatalog",
+        name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-tract, per-visit photometric calibrations.  These catalogs use the "
              "detector id for the catalog id, sorted on id for fast lookup."),
-        name="{extPhotoCalibName}PhotoCalibCatalog",
+        name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
     )
@@ -58,7 +58,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         doc=("Per-visit photometric calibrations computed globally (with no tract "
              "information).  These catalogs use the detector id for the catalog id, "
              "sorted on id for fast lookup."),
-        name="{extPhotoCalibName}PhotoCalibCatalog",
+        name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
     )
@@ -69,58 +69,60 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         dimensions=("skymap",),
     )
 
-    # Hack, this is the only way to get a connection without fixed dims
-    # Inspired by:
-    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
     def __init__(self, *, config=None):
-        """Customize connection for the astrometric calibrations
-
-        Parameters
-        ----------
-        config : `MatchedBaseTaskConfig`
-            A config for `MatchedBaseTask` or one of its subclasses
-        """
         super().__init__(config=config)
-        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
-            new_astrom_calibs = pipeBase.connectionTypes.Input(
-                doc=self.astrom_calibs.doc,
-                dimensions=config.wcsDimensions,
-                storageClass=self.astrom_calibs.storageClass,
-                name=self.astrom_calibs.name,
-                multiple=self.astrom_calibs.multiple
-            )
-            self.astrom_calibs = new_astrom_calibs
-            self.allConnections['astrom_calibs'] = self.astrom_calibs
-
-            if config.apply_external_wcs:
-                if config.useGlobalExternalSkyWcs:
-                    self.inputs.remove("externalSkyWcsTractCatalog")
-                else:
-                    self.inputs.remove("externalSkyWcsGlobalCatalog")
-            else:
+        if config.doApplyExternalSkyWcs:
+            if config.useGlobalExternalSkyWcs:
                 self.inputs.remove("externalSkyWcsTractCatalog")
-                self.inputs.remove("externalSkyWcsGlobalCatalog")
-            if config.apply_external_photoCalib:
-                if config.useGlobalExternalPhotoCalib:
-                    self.inputs.remove("externalPhotoCalibTractCatalog")
-                else:
-                    self.inputs.remove("externalPhotoCalibGlobalCatalog")
             else:
+                self.inputs.remove("externalSkyWcsGlobalCatalog")
+        else:
+            self.inputs.remove("externalSkyWcsTractCatalog")
+            self.inputs.remove("externalSkyWcsGlobalCatalog")
+        if config.doApplyExternalPhotoCalib:
+            if config.useGlobalExternalPhotoCalib:
                 self.inputs.remove("externalPhotoCalibTractCatalog")
+            else:
                 self.inputs.remove("externalPhotoCalibGlobalCatalog")
+        else:
+            self.inputs.remove("externalPhotoCalibTractCatalog")
+            self.inputs.remove("externalPhotoCalibGlobalCatalog")
+
+#    # Hack, this is the only way to get a connection without fixed dims
+#    # Inspired by:
+#    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
+#    def __init__(self, *, config=None):
+#        """Customize connection for the astrometric calibrations
+#
+#        Parameters
+#        ----------
+#        config : `MatchedBaseTaskConfig`
+#            A config for `MatchedBaseTask` or one of its subclasses
+#        """
+#        super().__init__(config=config)
+#        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
+#            new_astrom_calibs = pipeBase.connectionTypes.Input(
+#                doc=self.astrom_calibs.doc,
+#                dimensions=config.wcsDimensions,
+#                storageClass=self.astrom_calibs.storageClass,
+#                name=self.astrom_calibs.name,
+#                multiple=self.astrom_calibs.multiple
+#            )
+#            self.astrom_calibs = new_astrom_calibs
+#            self.allConnections['astrom_calibs'] = self.astrom_calibs
 
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
-    apply_external_wcs = pexConfig.Field(doc="Apply correction to coordinates with e.g. a jointcal WCS.",
-                                         dtype=bool, default=False)
-    apply_external_photoCalib = pexConfig.Field(doc="Apply correction to fluxes with e.g. an FGCM photoCalib.",
+    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.", 
+                                            dtype=bool, default=False)
+    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.", 
+                                              dtype=bool, default=False)
+    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.", 
                                                 dtype=bool, default=False)
-    wcsDimensions = pexConfig.ListField(doc="Override the dimensions of the astrometric calibration objects",
-                                        dtype=str,
-                                        default=MatchedBaseTaskConnections.astrom_calibs.dimensions)
-    # Still need useGlobalExternalSkyWcs and useGlobalExternalPhotoCalib keywords?
+    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.", 
+                                                  dtype=bool, default=False)
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
@@ -128,18 +130,18 @@ class MatchedBaseTask(pipeBase.PipelineTask):
     ConfigClass = MatchedBaseTaskConfig
     _DefaultName = "matchedBaseTask"
 
-    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
+    def __init__(self, config: MatchedBaseTaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
         self.level = "patch"
 
 
     def run(self, source_catalogs, photo_calibs, astrom_calibs, vIds, wcs, box,
-            apply_external_wcs, apply_external_photoCalib):
+            doApplyExternalSkyWcs=False, doApplyExternalPhotoCalib=False):
         self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
         srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
-                                         apply_external_wcs, apply_external_photoCalib, logger=self.log)
+                                         doApplyExternalSkyWcs, doApplyExternalPhotoCalib, logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
@@ -170,27 +172,26 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
         inputs['wcs'] = wcs
         inputs['box'] = box
-        inputs['apply_external_wcs'] = self.config.apply_external_wcs
-        if inputs['apply_external_wcs'] and not inputs['astrom_calibs']:
-            self.log.warn('Task configured to apply an external WCS, but no external WCS datasets found.')
-        if not inputs['astrom_calibs']:  # Fill with None if jointcal wcs doesn't exist
-            inputs['astrom_calibs'] = [None for el in inputs['photo_calibs']]
-
-        if inputs['apply_external_wcs']:
-            if self.config.useGlobalExternalSkyWcs:
-                externalSkyWcsCatalog = inputs.pop("externalSkyWcsGlobalCatalog")
-            else:
-                externalSkyWcsCatalog = inputs.pop("externalSkyWcsTractCatalog")
-        else:
-            externalSkyWcsCatalog = None
-
-        if inputs['apply_external_photoCalib']:
+        inputs['doApplyExternalWcs'] = self.config.doApplyExternalWcs
+        inputs['doApplyExternalPhotoCalib'] = self.config.doApplyExternalPhotoCalib
+        if self.config.doApplyExternalPhotoCalib:
+            detector = inputRefs.catalog.dataId['detector']
             if self.config.useGlobalExternalPhotoCalib:
-                externalPhotoCalibCatalog = inputs.pop("externalPhotoCalibGlobalCatalog")
+                externalPhotoCalibCatalog = inputs.pop('externalPhotoCalibGlobalCatalog')
             else:
-                externalPhotoCalibCatalog = inputs.pop("externalPhotoCalibTractCatalog")
-        else:
-            externalPhotoCalibCatalog = None
+                externalPhotoCalibCatalog = inputs.pop('externalPhotoCalibTractCatalog')
+            row = externalPhotoCalibCatalog.find(detector)
+            externalPhotoCalib = row.getPhotoCalib()
+            inputs['photo_calibs'] = externalPhotoCalib
+        if self.config.doApplyExternalSkyWcs:
+            detector = inputRefs.catalog.dataId['detector']
+            if self.config.useGlobalExternalSkyWcs:
+                externalSkyWcsCatalog = inputs.pop('externalSkyWcsGlobalCatalog')
+            else:
+                externalSkyWcsCatalog = inputs.pop('externalSkyWcsTractCatalog')
+            row = externalSkyWcsCatalog.find(detector)
+            externalSkyWcs = row.getWcs()
+            inputs['astrom_calibs'] = externalSkyWcs
 
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
