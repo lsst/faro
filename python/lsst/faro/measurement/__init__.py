@@ -8,3 +8,4 @@ from .MatchedCatalogMeasurement import *
 from .VisitMeasurement import *
 from .TractMeasurement import *
 from .PatchMeasurement import *
+from .DetectorMeasurement import *

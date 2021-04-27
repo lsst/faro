@@ -23,55 +23,55 @@ class DetectorMeasurementTaskConnections(MetricConnections,
                                                   dimensions=("instrument", "visit", "detector", "band"),
                                                   storageClass="MetricValue",
                                                   name="metricvalue_{package}_{metric}")
-    externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
-        doc=("Per-tract, per-visit wcs calibrations.  These catalogs use the detector "
-             "id for the catalog id, sorted on id for fast lookup."),
-        name="{skyWcsName}SkyWcsCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract"),
-    )
-    externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
-        doc=("Per-visit wcs calibrations computed globally (with no tract information). "
-             "These catalogs use the detector id for the catalog id, sorted on id for "
-             "fast lookup."),
-        name="{skyWcsName}SkyWcsCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit"),
-    )
-    externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
-        doc=("Per-tract, per-visit photometric calibrations.  These catalogs use the "
-             "detector id for the catalog id, sorted on id for fast lookup."),
-        name="{extPhotoCalibName}PhotoCalibCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract"),
-    )
+#    externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
+#        doc=("Per-tract, per-visit wcs calibrations.  These catalogs use the detector "
+#             "id for the catalog id, sorted on id for fast lookup."),
+#        name="{skyWcsName}SkyWcsCatalog",
+#        storageClass="ExposureCatalog",
+#        dimensions=("instrument", "visit", "tract", "band"),
+#    )
+#    externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
+#        doc=("Per-visit wcs calibrations computed globally (with no tract information). "
+#             "These catalogs use the detector id for the catalog id, sorted on id for "
+#             "fast lookup."),
+#        name="{skyWcsName}SkyWcsCatalog",
+#        storageClass="ExposureCatalog",
+#        dimensions=("instrument", "visit", "band"),
+#    )
+#    externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
+#        doc=("Per-tract, per-visit photometric calibrations.  These catalogs use the "
+#             "detector id for the catalog id, sorted on id for fast lookup."),
+#        name="{extPhotoCalibName}PhotoCalibCatalog",
+#        storageClass="ExposureCatalog",
+#        dimensions=("instrument", "visit", "tract", "band"),
+#    )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-visit photometric calibrations computed globally (with no tract "
              "information).  These catalogs use the detector id for the catalog id, "
              "sorted on id for fast lookup."),
         name="{extPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit"),
+        dimensions=("instrument", "visit", "band"),
     )
 
-    def __init__(self, *, config=None):
-        super().__init__(config=config)
-        if config.doApplyExternalSkyWcs:
-            if config.useGlobalExternalSkyWcs:
-                self.inputs.remove("externalSkyWcsTractCatalog")
-            else:
-                self.inputs.remove("externalSkyWcsGlobalCatalog")
-        else:
-            self.inputs.remove("externalSkyWcsTractCatalog")
-            self.inputs.remove("externalSkyWcsGlobalCatalog")
-        if config.doApplyExternalPhotoCalib:
-            if config.useGlobalExternalPhotoCalib:
-                self.inputs.remove("externalPhotoCalibTractCatalog")
-            else:
-                self.inputs.remove("externalPhotoCalibGlobalCatalog")
-        else:
-            self.inputs.remove("externalPhotoCalibTractCatalog")
-            self.inputs.remove("externalPhotoCalibGlobalCatalog")
+#    def __init__(self, *, config=None):
+#        super().__init__(config=config)
+#        if config.doApplyExternalSkyWcs:
+#            if config.useGlobalExternalSkyWcs:
+#                self.inputs.remove("externalSkyWcsTractCatalog")
+#            else:
+#                self.inputs.remove("externalSkyWcsGlobalCatalog")
+#        else:
+#            self.inputs.remove("externalSkyWcsTractCatalog")
+#            self.inputs.remove("externalSkyWcsGlobalCatalog")
+#        if config.doApplyExternalPhotoCalib:
+#            if config.useGlobalExternalPhotoCalib:
+#                self.inputs.remove("externalPhotoCalibTractCatalog")
+#            else:
+#                self.inputs.remove("externalPhotoCalibGlobalCatalog")
+#        else:
+#            self.inputs.remove("externalPhotoCalibTractCatalog")
+#            self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
 
 class DetectorMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
@@ -86,5 +86,6 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = DetectorMeasurementTaskConfig
     _DefaultName = "detectorMeasurementTask"
 
-    def run(self, catalog, externalSkyWcsCatalog=None, externalPhotoCalibCatalog=None):
+    # def run(self, catalog, externalSkyWcsCatalog=None, externalPhotoCalibCatalog=None):
+    def run(self, catalog, externalPhotoCalibGlobalCatalog):
         return self.measure.run(catalog, self.config.connections.metric)
