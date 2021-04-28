@@ -6,5 +6,5 @@ tasks:
       python: |
         config.doApplyExternalPhotoCalib = True
         config.useGlobalExternalPhotoCalib = True
-#        config.doApplyExternalSkyWcs = True
+        config.doApplyExternalSkyWcs = True
 #        config.useGlobalExternalSkyWcs = True
