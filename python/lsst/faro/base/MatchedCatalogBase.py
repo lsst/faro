@@ -220,7 +220,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 visit = dataId['visit']
                 calib_find = (visitSkyWcsList == visit) & (detectorSkyWcsList == detector)
                 row = flatSkyWcsList[calib_find]
-                externalPhotoCalib = row[0].getWcs()
+                externalSkyWcs = row[0].getWcs()
                 inputs['astrom_calibs'][i] = externalSkyWcs
         else:
             for i in range(len(inputs['vIds'])):
