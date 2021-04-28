@@ -1,0 +1,5 @@
+description: Full matched metrics pipeline
+imports:
+  # - location: $FARO_DIR/pipelines/preparation/preparation_matched_tractonly.yaml
+  - location: $FARO_DIR/pipelines/preparation/preparation_matched_jointcal_fgcm_tractonly.yaml
+  - location: $FARO_DIR/pipelines/measurement/measurement_matched_testPA1.yaml
