@@ -1,0 +1,21 @@
+description: Compute metrics from matched catalogs
+tasks:
+  PA1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+      python: |
+        from lsst.faro.measurement import PA1Task
+        config.measure.retarget(PA1Task)
+        config.measure.brightSnrMin = 50.0
+        config.measure.writeExtras = True
+  PF1_design:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PF1_design_gri
+      python: |
+        from lsst.faro.measurement import PF1Task
+        config.measure.retarget(PF1Task)
+#        config.measure.threshPA2 = 15.0
