@@ -9,8 +9,7 @@ __all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matche
            "mergeCatalogs")
 
 
-def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
-                   apply_external_wcs=False, apply_external_photoCalib=False, logger=None):
+def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -81,39 +80,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
             / tmpCat['base_PsfFlux_instFluxErr']
 
-        if apply_external_wcs and wcs is not None:
-            # Find and apply external skyWcs
-            if externalSkyWcsCatalog is not None:
-                row = wcs.find(vId['detector'])
-                if row is None:
-                    raise RuntimeError(f"Detector id {vId['detector']} not found in externalSkyWcsCatalog.")
-                skyWcs = row.getWcs()
-                if skyWcs is None:
-                    raise RuntimeError(f"Detector id {vId['detector']} has None for WCS "
-                                       f" in externalSkyWcsCatalog.")
-                updateSourceCoords(skyWcs, tmpCat)
-
-            # if externalSkyWcsCatalog is not None or externalPhotoCalibCatalog is not None:
-                # detectorId = calexp.getInfo().getDetector().getId()
-
-        if apply_external_photoCalib and photoCalib is not None:
-            # Find the external photoCalib
-            if externalPhotoCalibCatalog is not None:
-                row = photoCalib.find(vId['detector'])
-                if row is None:
-                    raise RuntimeError(f"Detector id {vId['detector']} not found in "
-                                       f"externalPhotoCalibCatalog.")
-                photCalib = row.getPhotoCalib()
-                if photCalib is None:
-                    raise RuntimeError(f"Detector id {vId['detector']} has None for photoCalib "
-                                       f"in externalPhotoCalibCatalog.")
-            else:
-                photCalib = photoCalib
-
-        # if apply_external_wcs and wcs is not None:
-            # updateSourceCoords(wcs, tmpCat)
-
-        import pdb; pdb.set_trace()
+        updateSourceCoords(wcs, tmpCat)
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")
         tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux']
