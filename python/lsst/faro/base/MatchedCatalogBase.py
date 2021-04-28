@@ -147,7 +147,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         radius = geom.Angle(self.radius, geom.arcseconds)
         srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
                                          logger=self.log)
-#                                         doApplyExternalSkyWcs, doApplyExternalPhotoCalib, logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
@@ -222,9 +221,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 row = flatSkyWcsList[calib_find]
                 externalSkyWcs = row[0].getWcs()
                 inputs['astrom_calibs'][i] = externalSkyWcs
-        else:
-            for i in range(len(inputs['vIds'])):
-                inputs['astrom_calibs'][i] = wcs
 
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
