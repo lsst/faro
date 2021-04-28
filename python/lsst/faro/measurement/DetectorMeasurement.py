@@ -52,7 +52,7 @@ class DetectorMeasurementTaskConnections(MetricConnections,
              "detector id for the catalog id, sorted on id for fast lookup."),
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract", "band"),
+        dimensions=("instrument", "visit", "tract"),
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-visit photometric calibrations computed globally (with no tract "
@@ -60,7 +60,7 @@ class DetectorMeasurementTaskConnections(MetricConnections,
              "sorted on id for fast lookup."),
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "band"),
+        dimensions=("instrument", "visit"),
     )
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement.",
