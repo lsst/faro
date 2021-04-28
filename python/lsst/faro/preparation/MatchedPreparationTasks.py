@@ -47,14 +47,15 @@ class TractMatchedPreparationTaskConnections(MatchedBaseTaskConnections,
 
 class TractMatchedPreparationTaskConfig(MatchedBaseTaskConfig,
                                         pipelineConnections=TractMatchedPreparationTaskConnections):
-    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
-                                            dtype=bool, default=False)
-    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
-                                              dtype=bool, default=False)
-    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.",
-                                                dtype=bool, default=False)
-    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.",
-                                                  dtype=bool, default=False)
+#    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
+#                                            dtype=bool, default=False)
+#    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
+#                                              dtype=bool, default=False)
+#    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.",
+#                                                dtype=bool, default=False)
+#    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.",
+#                                                  dtype=bool, default=False)
+    pass
 
 
 class TractMatchedPreparationTask(MatchedTractBaseTask):
