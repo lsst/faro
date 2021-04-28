@@ -38,7 +38,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
              "id for the catalog id, sorted on id for fast lookup."),
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract"),
+        dimensions=("instrument", "visit", "tract", "band"),
         multiple=True
     )
     externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
@@ -47,7 +47,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
              "fast lookup."),
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit"),
+        dimensions=("instrument", "visit", "band"),
         multiple=True
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
@@ -55,7 +55,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
              "detector id for the catalog id, sorted on id for fast lookup."),
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract"),
+        dimensions=("instrument", "visit", "tract", "band"),
         multiple=True
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
@@ -64,7 +64,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
              "sorted on id for fast lookup."),
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit"),
+        dimensions=("instrument", "visit", "band"),
         multiple=True
     )
     skyMap = pipeBase.connectionTypes.Input(
