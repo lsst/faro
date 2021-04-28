@@ -1,6 +1,7 @@
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 import lsst.geom as geom
+import numpy as np
 
 from lsst.faro.utils.matcher import match_catalogs
 
@@ -38,6 +39,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
+        multiple=True
     )
     externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-visit wcs calibrations computed globally (with no tract information). "
@@ -46,6 +48,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
+        multiple=True
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-tract, per-visit photometric calibrations.  These catalogs use the "
@@ -53,6 +56,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
+        multiple=True
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-visit photometric calibrations computed globally (with no tract "
@@ -61,6 +65,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
+        multiple=True
     )
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
@@ -141,7 +146,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
         srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
-                                         doApplyExternalSkyWcs, doApplyExternalPhotoCalib, logger=self.log)
+                                         logger=self.log)
+#                                         doApplyExternalSkyWcs, doApplyExternalPhotoCalib, logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
@@ -172,26 +178,53 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
         inputs['wcs'] = wcs
         inputs['box'] = box
-        inputs['doApplyExternalWcs'] = self.config.doApplyExternalWcs
+        inputs['doApplyExternalSkyWcs'] = self.config.doApplyExternalSkyWcs
         inputs['doApplyExternalPhotoCalib'] = self.config.doApplyExternalPhotoCalib
+
         if self.config.doApplyExternalPhotoCalib:
-            detector = inputRefs.catalog.dataId['detector']
             if self.config.useGlobalExternalPhotoCalib:
                 externalPhotoCalibCatalog = inputs.pop('externalPhotoCalibGlobalCatalog')
             else:
                 externalPhotoCalibCatalog = inputs.pop('externalPhotoCalibTractCatalog')
-            row = externalPhotoCalibCatalog.find(detector)
-            externalPhotoCalib = row.getPhotoCalib()
-            inputs['photo_calibs'] = externalPhotoCalib
+
+            flatPhotoCalibList = np.hstack(externalPhotoCalibCatalog)
+            visitPhotoCalibList = np.array([calib['visit'] for calib in flatPhotoCalibList])
+            detectorPhotoCalibList = np.array([calib['id'] for calib in flatPhotoCalibList])
+
         if self.config.doApplyExternalSkyWcs:
-            detector = inputRefs.catalog.dataId['detector']
             if self.config.useGlobalExternalSkyWcs:
                 externalSkyWcsCatalog = inputs.pop('externalSkyWcsGlobalCatalog')
             else:
                 externalSkyWcsCatalog = inputs.pop('externalSkyWcsTractCatalog')
-            row = externalSkyWcsCatalog.find(detector)
-            externalSkyWcs = row.getWcs()
-            inputs['astrom_calibs'] = externalSkyWcs
+
+            flatSkyWcsList = np.hstack(externalSkyWcsCatalog)
+            visitSkyWcsList = np.array([calib['visit'] for calib in flatSkyWcsList])
+            detectorSkyWcsList = np.array([calib['id'] for calib in flatSkyWcsList])
+
+        # import pdb; pdb.set_trace()
+
+        if self.config.doApplyExternalPhotoCalib:
+            for i in range(len(inputs['vIds'])):
+                dataId = inputs['vIds'][i]
+                detector = dataId['detector']
+                visit = dataId['visit']
+                calib_find = (visitPhotoCalibList == visit) & (detectorPhotoCalibList == detector)
+                row = flatPhotoCalibList[calib_find]
+                externalPhotoCalib = row[0].getPhotoCalib()
+                inputs['photo_calibs'][i] = externalPhotoCalib
+
+        if self.config.doApplyExternalSkyWcs:
+            for i in range(len(inputs['vIds'])):
+                dataId = inputs['vIds'][i]
+                detector = dataId['detector']
+                visit = dataId['visit']
+                calib_find = (visitSkyWcsList == visit) & (detectorSkyWcsList == detector)
+                row = flatSkyWcsList[calib_find]
+                externalPhotoCalib = row[0].getWcs()
+                inputs['astrom_calibs'][i] = externalSkyWcs
+        else:
+            for i in range(len(inputs['vIds'])):
+                inputs['astrom_calibs'][i] = wcs
 
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
@@ -202,7 +235,7 @@ class MatchedTractBaseTask(MatchedBaseTask):
     ConfigClass = MatchedBaseTaskConfig
     _DefaultName = "matchedTractBaseTask"
 
-    def __init__(self, config: pipeBase.PipelineTaskConfig, *args, **kwargs):
+    def __init__(self, config: MatchedBaseTaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
         self.level = "tract"

@@ -1,4 +1,5 @@
 import lsst.pipe.base as pipeBase
+import lsst.pex.config as pexConfig
 
 from lsst.faro.base.MatchedCatalogBase import (MatchedBaseTaskConnections,
                                                MatchedBaseTaskConfig,
@@ -46,7 +47,14 @@ class TractMatchedPreparationTaskConnections(MatchedBaseTaskConnections,
 
 class TractMatchedPreparationTaskConfig(MatchedBaseTaskConfig,
                                         pipelineConnections=TractMatchedPreparationTaskConnections):
-    pass
+    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
+                                            dtype=bool, default=False)
+    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
+                                              dtype=bool, default=False)
+    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.",
+                                                dtype=bool, default=False)
+    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.",
+                                                  dtype=bool, default=False)
 
 
 class TractMatchedPreparationTask(MatchedTractBaseTask):
