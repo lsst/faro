@@ -1,0 +1,10 @@
+description: Produce matched catalogs
+tasks:
+  matchCatalogsTract:
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      python: |
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+#        config.doApplyExternalSkyWcs = True
+#        config.useGlobalExternalSkyWcs = True
