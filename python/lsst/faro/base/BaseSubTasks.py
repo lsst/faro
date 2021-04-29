@@ -9,9 +9,11 @@ from lsst.faro.utils.matcher import mergeCatalogs
 __all__ = ('NumSourcesTask', 'NumSourcesMergeTask',
            'NumpySummaryTaskConfig', 'NumpySummaryTask')
 
+
 class NumSourcesTaskConfig(Config):
     doPrimary = Field(doc="Only count sources where detect_isPrimary is True.",
                       dtype=bool, default=False)
+
 
 class NumSourcesTask(Task):
 
@@ -21,7 +23,7 @@ class NumSourcesTask(Task):
     def run(self, catalog, metric_name, vIds=None):
         self.log.info(f"Measuring {metric_name}")
         if self.config.doPrimary:
-            nSources = np.sum(catalog['detect_isPrimary'] == True)
+            nSources = np.sum(catalog['detect_isPrimary'] is True)
         else:
             nSources = len(catalog)
         print('nSources = %i'%(nSources))

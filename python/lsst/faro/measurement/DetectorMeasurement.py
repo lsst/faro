@@ -91,13 +91,13 @@ class DetectorMeasurementTaskConnections(MetricConnections,
 
 class DetectorMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
                                     pipelineConnections=DetectorMeasurementTaskConnections):
-    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.", 
+    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
                                             dtype=bool, default=False)
-    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.", 
+    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
                                               dtype=bool, default=False)
-    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.", 
+    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.",
                                                 dtype=bool, default=False)
-    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.", 
+    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.",
                                                   dtype=bool, default=False)
 
 
@@ -135,4 +135,3 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
         else:
             self.log.debugf("Skipping measurement of {!r} on {} "
                             "as not applicable.", self, inputRefs)
-        
