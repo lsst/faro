@@ -93,50 +93,6 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
             self.inputs.remove("externalPhotoCalibTractCatalog")
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
-            if config.apply_external_wcs:
-                if config.useGlobalExternalSkyWcs:
-                    self.inputs.remove("externalSkyWcsTractCatalog")
-                else:
-                    self.inputs.remove("externalSkyWcsGlobalCatalog")
-            else:
-                self.inputs.remove("externalSkyWcsTractCatalog")
-            else:
-                self.inputs.remove("externalSkyWcsGlobalCatalog")
-        else:
-            self.inputs.remove("externalSkyWcsTractCatalog")
-            self.inputs.remove("externalSkyWcsGlobalCatalog")
-        if config.doApplyExternalPhotoCalib:
-            if config.useGlobalExternalPhotoCalib:
-                self.inputs.remove("externalPhotoCalibTractCatalog")
-            else:
-                self.inputs.remove("externalPhotoCalibGlobalCatalog")
-        else:
-            self.inputs.remove("externalPhotoCalibTractCatalog")
-            self.inputs.remove("externalPhotoCalibGlobalCatalog")
-
-#    # Hack, this is the only way to get a connection without fixed dims
-#    # Inspired by:
-#    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
-#    def __init__(self, *, config=None):
-#        """Customize connection for the astrometric calibrations
-#
-#        Parameters
-#        ----------
-#        config : `MatchedBaseTaskConfig`
-#            A config for `MatchedBaseTask` or one of its subclasses
-#        """
-#        super().__init__(config=config)
-#        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
-#            new_astrom_calibs = pipeBase.connectionTypes.Input(
-#                doc=self.astrom_calibs.doc,
-#                dimensions=config.wcsDimensions,
-#                storageClass=self.astrom_calibs.storageClass,
-#                name=self.astrom_calibs.name,
-#                multiple=self.astrom_calibs.multiple
-#            )
-#            self.astrom_calibs = new_astrom_calibs
-#            self.allConnections['astrom_calibs'] = self.astrom_calibs
-
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
