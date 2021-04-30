@@ -15,24 +15,24 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
                                                    "wcsName": "calexp.wcs",
                                                    "externalPhotoCalibName": "fgcm",
                                                    "externalWcsName": "jointcal"}):
-    source_catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
-                                                     dimensions=("instrument", "visit",
-                                                                 "detector", "band"),
-                                                     storageClass="SourceCatalog",
-                                                     name="src",
-                                                     multiple=True)
-    photo_calibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+    sourceCatalogs = pipeBase.connectionTypes.Input(doc="Source catalogs to match up.",
+                                                    dimensions=("instrument", "visit",
+                                                                "detector", "band"),
+                                                    storageClass="SourceCatalog",
+                                                    name="src",
+                                                    multiple=True)
+    photoCalibs = pipeBase.connectionTypes.Input(doc="Photometric calibration object.",
+                                                 dimensions=("instrument", "visit",
+                                                             "detector", "band"),
+                                                 storageClass="PhotoCalib",
+                                                 name="{photoCalibName}",
+                                                 multiple=True)
+    astromCalibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
                                                   dimensions=("instrument", "visit",
                                                               "detector", "band"),
-                                                  storageClass="PhotoCalib",
-                                                  name="{photoCalibName}",
+                                                  storageClass="Wcs",
+                                                  name="{wcsName}",
                                                   multiple=True)
-    astrom_calibs = pipeBase.connectionTypes.Input(doc="WCS for the catalog.",
-                                                   dimensions=("instrument", "visit",
-                                                               "detector", "band"),
-                                                   storageClass="Wcs",
-                                                   name="{wcsName}",
-                                                   multiple=True)
     externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
         doc=("Per-tract, per-visit wcs calibrations.  These catalogs use the detector "
              "id for the catalog id, sorted on id for fast lookup."),
@@ -93,29 +93,6 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
             self.inputs.remove("externalPhotoCalibTractCatalog")
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
-#    # Hack, this is the only way to get a connection without fixed dims
-#    # Inspired by:
-#    # https://github.com/lsst/verify/blob/4816a2c/python/lsst/verify/tasks/metadataMetricTask.py#L65-L101
-#    def __init__(self, *, config=None):
-#        """Customize connection for the astrometric calibrations
-#
-#        Parameters
-#        ----------
-#        config : `MatchedBaseTaskConfig`
-#            A config for `MatchedBaseTask` or one of its subclasses
-#        """
-#        super().__init__(config=config)
-#        if config and config.wcsDimensions != self.astrom_calibs.dimensions:
-#            new_astrom_calibs = pipeBase.connectionTypes.Input(
-#                doc=self.astrom_calibs.doc,
-#                dimensions=config.wcsDimensions,
-#                storageClass=self.astrom_calibs.storageClass,
-#                name=self.astrom_calibs.name,
-#                multiple=self.astrom_calibs.multiple
-#            )
-#            self.astrom_calibs = new_astrom_calibs
-#            self.allConnections['astrom_calibs'] = self.astrom_calibs
-
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
@@ -141,11 +118,11 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         self.level = "patch"
 
 
-    def run(self, source_catalogs, photo_calibs, astrom_calibs, vIds, wcs, box,
+    def run(self, sourceCatalogs, photoCalibs, astromCalibs, dataIds, wcs, box,
             doApplyExternalSkyWcs=False, doApplyExternalPhotoCalib=False):
         self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(source_catalogs, photo_calibs, astrom_calibs, vIds, radius,
+        srcvis, matched = match_catalogs(sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius,
                                          logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
@@ -174,7 +151,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         box, wcs = self.get_box_wcs(skymap, oid)
         # Cast to float to handle fractional pixels
         box = geom.Box2D(box)
-        inputs['vIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.source_catalogs]
+        inputs['dataIds'] = [butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.sourceCatalogs]
         inputs['wcs'] = wcs
         inputs['box'] = box
         inputs['doApplyExternalSkyWcs'] = self.config.doApplyExternalSkyWcs
@@ -200,11 +177,9 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             visitSkyWcsList = np.array([calib['visit'] for calib in flatSkyWcsList])
             detectorSkyWcsList = np.array([calib['id'] for calib in flatSkyWcsList])
 
-        # import pdb; pdb.set_trace()
-
         if self.config.doApplyExternalPhotoCalib:
-            for i in range(len(inputs['vIds'])):
-                dataId = inputs['vIds'][i]
+            for i in range(len(inputs['dataIds'])):
+                dataId = inputs['dataIds'][i]
                 detector = dataId['detector']
                 visit = dataId['visit']
                 calib_find = (visitPhotoCalibList == visit) & (detectorPhotoCalibList == detector)
@@ -213,14 +188,14 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 inputs['photo_calibs'][i] = externalPhotoCalib
 
         if self.config.doApplyExternalSkyWcs:
-            for i in range(len(inputs['vIds'])):
-                dataId = inputs['vIds'][i]
+            for i in range(len(inputs['dataIds'])):
+                dataId = inputs['dataIds'][i]
                 detector = dataId['detector']
                 visit = dataId['visit']
                 calib_find = (visitSkyWcsList == visit) & (detectorSkyWcsList == detector)
                 row = flatSkyWcsList[calib_find]
                 externalSkyWcs = row[0].getWcs()
-                inputs['astrom_calibs'][i] = externalSkyWcs
+                inputs['astromCalibs'][i] = externalSkyWcs
 
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
