@@ -1,5 +1,4 @@
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
 
 from lsst.faro.base.MatchedCatalogBase import (MatchedBaseTaskConnections,
                                                MatchedBaseTaskConfig,

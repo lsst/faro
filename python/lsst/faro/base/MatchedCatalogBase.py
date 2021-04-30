@@ -97,13 +97,13 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
-    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.", 
+    doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
                                             dtype=bool, default=False)
-    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.", 
+    useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
                                               dtype=bool, default=False)
-    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.", 
+    doApplyExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the external photoCalib.",
                                                 dtype=bool, default=False)
-    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.", 
+    useGlobalExternalPhotoCalib = pexConfig.Field(doc="Whether or not to use the global external photoCalib.",
                                                   dtype=bool, default=False)
 
 
@@ -116,7 +116,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
         self.level = "patch"
-
 
     def run(self, sourceCatalogs, photoCalibs, astromCalibs, dataIds, wcs, box,
             doApplyExternalSkyWcs=False, doApplyExternalPhotoCalib=False):
