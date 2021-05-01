@@ -1,0 +1,15 @@
+description: Compute metrics from detector catalogs
+tasks:
+  nsrcMeasDetector:
+    class: lsst.faro.measurement.DetectorMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasDetector
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        config.measure.retarget(NumSourcesTask)
+        config.measure.doPrimary = True       
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+        config.doApplyExternalSkyWcs = True
+        config.useGlobalExternalSkyWcs = False

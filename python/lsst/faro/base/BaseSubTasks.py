@@ -10,14 +10,23 @@ __all__ = ('NumSourcesTask', 'NumSourcesMergeTask',
            'NumpySummaryTaskConfig', 'NumpySummaryTask')
 
 
+class NumSourcesTaskConfig(Config):
+    doPrimary = Field(doc="Only count sources where detect_isPrimary is True.",
+                      dtype=bool, default=False)
+
+
 class NumSourcesTask(Task):
 
-    ConfigClass = Config
+    ConfigClass = NumSourcesTaskConfig
     _DefaultName = "numSourcesTask"
 
     def run(self, catalog, metric_name, vIds=None):
         self.log.info(f"Measuring {metric_name}")
-        nSources = len(catalog)
+        if self.config.doPrimary:
+            nSources = np.sum(catalog['detect_isPrimary'] is True)
+        else:
+            nSources = len(catalog)
+        print('nSources = %i'%(nSources))
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 

@@ -5,6 +5,7 @@ from .PatchMeasurementTasks import *
 from .VisitMeasurementTasks import *
 from .TractMeasurementTasks import *
 from .MatchedCatalogMeasurement import *
+from .DetectorMeasurement import *
 from .VisitMeasurement import *
 from .TractMeasurement import *
 from .PatchMeasurement import *
