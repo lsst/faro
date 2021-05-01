@@ -62,6 +62,14 @@ class DetectorMeasurementTaskConnections(MetricConnections,
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
     )
+    astrometryRefCat = pipeBase.connectionTypes.PrerequisiteInput(
+        doc="The astrometry reference catalog to match to loaded input catalog sources.",
+        name="gaia_dr2_20200414",
+        storageClass="SimpleCatalog",
+        dimensions=("skypix",),
+        deferLoad=True,
+        multiple=True
+    )
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement.",
         dimensions=("instrument", "visit", "detector", "band"),
@@ -128,6 +136,30 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             row = externalSkyWcsCatalog.find(detector)
             externalSkyWcs = row.getWcs()
             inputs['skyWcs'] = externalSkyWcs
+
+        from lsst.meas.algorithms import ReferenceObjectLoader, LoadReferenceObjectsConfig
+        config = LoadReferenceObjectsConfig(defaultFilter='phot_g_mean', 
+                                            requireProperMotion=False)
+        refObjLoader = ReferenceObjectLoader(
+                dataIds=[ref.datasetRef.dataId
+                         for ref in inputRefs.astrometryRefCat],
+                refCats=inputs.pop('astrometryRefCat'),
+                config=config)
+        
+        import lsst.geom
+        ra, dec = 0., 0.
+        center = lsst.geom.SpherePoint(ra, dec, lsst.geom.radians)
+        radius = lsst.geom.Angle(180., lsst.geom.degrees)
+        skyCircle = refObjLoader.loadSkyCircle(center,
+                                               radius)
+        refCat = skyCircle.refCat
+        #import pdb; pdb.set_trace()
+        import matplotlib.pyplot as plt
+        plt.figure()
+        plt.scatter(inputs['catalog']['coord_ra'], inputs['catalog']['coord_dec'], c='red', marker='x')
+        plt.scatter(refCat['coord_ra'], refCat['coord_dec'], c='black', marker='+')
+        plt.show()
+        input('WAIT')
 
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
