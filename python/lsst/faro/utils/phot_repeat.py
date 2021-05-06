@@ -49,7 +49,7 @@ def calcPhotRepeat(matches, magKey):
     ----------
     matches : `lsst.afw.table.GroupView`
         `~lsst.afw.table.GroupView` of sources matched between visits using
-        MultiMatch, as provided by `lsst.faro.utils.matcher.match_catalogs`.
+        MultiMatch, as provided by `lsst.faro.utils.matcher.matchCatalogs`.
     magKey : `lsst.afw.table` schema key
         Magnitude column key in the ``GroupView``.
         E.g., ``magKey = allMatches.schema.find("slot_ModelFlux_mag").key``

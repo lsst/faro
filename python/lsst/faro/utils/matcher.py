@@ -5,12 +5,11 @@ from lsst.afw.table import (SchemaMapper, Field,
 import numpy as np
 from astropy.table import join, Table
 
-__all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matched_photom",
+__all__ = ("matchCatalogs", "ellipticityFromCat", "ellipticity", "makeMatchedPhotom",
            "mergeCatalogs")
 
 
-def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
-                   apply_external_wcs=False, logger=None):
+def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -56,9 +55,9 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
                    'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
 
     # Sort by visit, detector, then filter
-    vislist = [v['visit'] for v in vIds]
-    ccdlist = [v['detector'] for v in vIds]
-    filtlist = [v['band'] for v in vIds]
+    vislist = [v['visit'] for v in dataIds]
+    ccdlist = [v['detector'] for v in dataIds]
+    filtlist = [v['band'] for v in dataIds]
     tab_vids = Table([vislist, ccdlist, filtlist], names=['vis', 'ccd', 'filt'])
     sortinds = np.argsort(tab_vids, order=('vis', 'ccd', 'filt'))
 
@@ -66,38 +65,37 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
         oldSrc = inputs[ind]
         photoCalib = photoCalibs[ind]
         wcs = astromCalibs[ind]
-        vId = vIds[ind]
+        dataId = dataIds[ind]
 
         if logger:
-            logger.debug(f"{len(oldSrc)} sources in ccd {vId['detector']}  visit {vId['visit']}")
+            logger.debug(f"{len(oldSrc)} sources in ccd {dataId['detector']}  visit {dataId['visit']}")
 
         # create temporary catalog
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)
         tmpCat.extend(oldSrc, mapper=mapper)
 
-        filtnum = filter_dict[vId['band']]
+        filtnum = filter_dict[dataId['band']]
         tmpCat['filt'] = np.repeat(filtnum, len(oldSrc))
 
         tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
             / tmpCat['base_PsfFlux_instFluxErr']
 
-        if apply_external_wcs and wcs is not None:
-            updateSourceCoords(wcs, tmpCat)
+        updateSourceCoords(wcs, tmpCat)
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")
         tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux']
                                            / tmpCat['slot_ModelFlux_instFluxErr'])
         photoCalib.instFluxToMagnitude(tmpCat, "slot_ModelFlux", "slot_ModelFlux")
 
-        _, psf_e1, psf_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_PsfShape')
-        _, star_e1, star_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_Shape')
+        _, psf_e1, psf_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_PsfShape')
+        _, star_e1, star_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_Shape')
         tmpCat['e1'][:] = star_e1
         tmpCat['e2'][:] = star_e2
         tmpCat['psf_e1'][:] = psf_e1
         tmpCat['psf_e2'][:] = psf_e2
 
         srcVis.extend(tmpCat, False)
-        mmatch.add(catalog=tmpCat, dataId=vId)
+        mmatch.add(catalog=tmpCat, dataId=dataId)
 
     # Complete the match, returning a catalog that includes
     # all matched sources with object IDs that can be used to group them.
@@ -112,7 +110,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, vIds, matchRadius,
     return srcVis, matchCat
 
 
-def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
+def ellipticityFromCat(cat, slot_shape='slot_Shape'):
     """Calculate the ellipticity of the Shapes in a catalog from the 2nd moments.
     Parameters
     ----------
@@ -152,11 +150,11 @@ def ellipticity(i_xx, i_xy, i_yy):
     return e, e1, e2
 
 
-def make_matched_photom(vIds, catalogs, photo_calibs):
-    # inputs: vIds, catalogs, photo_calibs
+def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
+    # inputs: dataIds, catalogs, photoCalibs
 
     # Match all input bands:
-    bands = list(set([f['band'] for f in vIds]))
+    bands = list(set([f['band'] for f in dataIds]))
 
     # Should probably add an "assert" that requires bands>1...
 
@@ -173,9 +171,9 @@ def make_matched_photom(vIds, catalogs, photo_calibs):
 
     for i in range(len(catalogs)):
         for band in bands:
-            if (vIds[i]['band'] in band):
+            if (dataIds[i]['band'] in band):
                 cat_dict[band].extend(catalogs[i].copy(deep=True))
-                mags = photo_calibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
+                mags = photoCalibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
                 mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
                 magerrs_dict[band] = np.append(magerrs_dict[band], mags[:, 1])
 

@@ -17,7 +17,6 @@ tasks:
         from lsst.faro.measurement import PF1Task
         config.measure.retarget(PF1Task)
         config.measure.threshPA2 = 15.0
-        config.measure.threshPF1 = 10.0
   AM1_info:
     class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
