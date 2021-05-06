@@ -5,7 +5,7 @@ from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 from lsst.pex.config import Config, Field
 from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
-from lsst.faro.utils.matcher import make_matched_photom
+from lsst.faro.utils.matcher import makeMatchedPhotom
 from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.utils.tex import calculateTEx
 
@@ -29,7 +29,7 @@ class WPerpTask(Task):
         bands = set([f['band'] for f in dataIds])
 
         if ('g' in bands) & ('r' in bands) & ('i' in bands):
-            rgicatAll = make_matched_photom(dataIds, catalogs, photoCalibs)
+            rgicatAll = makeMatchedPhotom(dataIds, catalogs, photoCalibs)
             magcut = ((rgicatAll['base_PsfFlux_mag_r'] < self.config.faint_rmag_cut)
                       & (rgicatAll['base_PsfFlux_mag_r'] > self.config.bright_rmag_cut))
             rgicat = rgicatAll[magcut]

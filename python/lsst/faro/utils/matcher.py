@@ -5,11 +5,11 @@ from lsst.afw.table import (SchemaMapper, Field,
 import numpy as np
 from astropy.table import join, Table
 
-__all__ = ("match_catalogs", "ellipticity_from_cat", "ellipticity", "make_matched_photom",
+__all__ = ("matchCatalogs", "ellipticityFromCat", "ellipticity", "makeMatchedPhotom",
            "mergeCatalogs")
 
 
-def match_catalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logger=None):
+def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -87,8 +87,8 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logg
                                            / tmpCat['slot_ModelFlux_instFluxErr'])
         photoCalib.instFluxToMagnitude(tmpCat, "slot_ModelFlux", "slot_ModelFlux")
 
-        _, psf_e1, psf_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_PsfShape')
-        _, star_e1, star_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_Shape')
+        _, psf_e1, psf_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_PsfShape')
+        _, star_e1, star_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_Shape')
         tmpCat['e1'][:] = star_e1
         tmpCat['e2'][:] = star_e2
         tmpCat['psf_e1'][:] = psf_e1
@@ -110,7 +110,7 @@ def match_catalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logg
     return srcVis, matchCat
 
 
-def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
+def ellipticityFromCat(cat, slot_shape='slot_Shape'):
     """Calculate the ellipticity of the Shapes in a catalog from the 2nd moments.
     Parameters
     ----------
@@ -150,7 +150,7 @@ def ellipticity(i_xx, i_xy, i_yy):
     return e, e1, e2
 
 
-def make_matched_photom(dataIds, catalogs, photoCalibs):
+def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
     # inputs: dataIds, catalogs, photoCalibs
 
     # Match all input bands:

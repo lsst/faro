@@ -3,7 +3,7 @@ import lsst.pex.config as pexConfig
 import lsst.geom as geom
 import numpy as np
 
-from lsst.faro.utils.matcher import match_catalogs
+from lsst.faro.utils.matcher import matchCatalogs
 
 __all__ = ('MatchedBaseTaskConnections', 'MatchedBaseTaskConfig', 'MatchedBaseTask', 'MatchedTractBaseTask')
 
@@ -121,8 +121,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             doApplyExternalSkyWcs=False, doApplyExternalPhotoCalib=False):
         self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = match_catalogs(sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius,
-                                         logger=self.log)
+        srcvis, matched = matchCatalogs(sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius,
+                                        logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info(f"{len(matched)} sources in matched catalog.")
