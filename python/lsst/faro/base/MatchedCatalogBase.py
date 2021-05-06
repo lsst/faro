@@ -93,6 +93,23 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
             self.inputs.remove("externalPhotoCalibTractCatalog")
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
+            if config.apply_external_wcs:
+                if config.useGlobalExternalSkyWcs:
+                    self.inputs.remove("externalSkyWcsTractCatalog")
+                else:
+                    self.inputs.remove("externalSkyWcsGlobalCatalog")
+            else:
+                self.inputs.remove("externalSkyWcsTractCatalog")
+                self.inputs.remove("externalSkyWcsGlobalCatalog")
+            if config.apply_external_photoCalib:
+                if config.useGlobalExternalPhotoCalib:
+                    self.inputs.remove("externalPhotoCalibTractCatalog")
+                else:
+                    self.inputs.remove("externalPhotoCalibGlobalCatalog")
+            else:
+                self.inputs.remove("externalPhotoCalibTractCatalog")
+                self.inputs.remove("externalPhotoCalibGlobalCatalog")
+
 
 class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
