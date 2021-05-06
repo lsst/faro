@@ -4,6 +4,6 @@ tasks:
     class: lsst.faro.preparation.TractMatchedPreparationTask
     config:
       python: |
-        config.doApplyExternalPhotoCalib = False
-        config.useGlobalExternalPhotoCalib = False
-        config.doApplyExternalSkyWcs = False
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+        config.doApplyExternalSkyWcs = True
