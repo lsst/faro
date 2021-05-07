@@ -96,7 +96,7 @@ class PF1TaskConfig(Config):
                          dtype=float, default=np.Inf)
     nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
                            dtype=int, default=50)
-    # The defaults for threshPA2 and threshPF1 correspond to the SRD "design" thresholds.
+    # The defaults for threshPA2 correspond to the SRD "design" thresholds.
     threshPA2 = Field(doc="Threshold in mmag for PF1 calculation.", dtype=float, default=15.0)
 
 
