@@ -16,8 +16,8 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTask
         config.measure.retarget(TExTask)
-        config.measure.min_sep = 0.25
-        config.measure.max_sep = 1.0
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 1.0
   TE2:
     class: lsst.faro.measurement.TractMeasurementTask
     config:
@@ -26,5 +26,5 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTask
         config.measure.retarget(TExTask)
-        config.measure.min_sep = 5.0
-        config.measure.max_sep = 20.0
+        config.measure.minSep = 5.0
+        config.measure.maxSep = 20.0
