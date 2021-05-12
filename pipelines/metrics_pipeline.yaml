@@ -2,7 +2,7 @@ description: Complete metrics measurement pipeline
 imports:
   - location: $FARO_DIR/pipelines/metrics_pipeline_matched.yaml
   - location: $FARO_DIR/pipelines/metrics_pipeline_matched_multi.yaml
-  - location: $FARO_DIR/pipelines/metrics_pipeline_visit.yaml
+  # - location: $FARO_DIR/pipelines/metrics_pipeline_visit.yaml
   - location: $FARO_DIR/pipelines/metrics_pipeline_tract_multi.yaml
   # This pipeline only has data for one patch which causes all other
   # pipelines to run over only that patch

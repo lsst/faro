@@ -184,7 +184,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 calib_find = (visitPhotoCalibList == visit) & (detectorPhotoCalibList == detector)
                 row = flatPhotoCalibList[calib_find]
                 externalPhotoCalib = row[0].getPhotoCalib()
-                inputs['photo_calibs'][i] = externalPhotoCalib
+                inputs['photoCalibs'][i] = externalPhotoCalib
 
         if self.config.doApplyExternalSkyWcs:
             for i in range(len(inputs['dataIds'])):
