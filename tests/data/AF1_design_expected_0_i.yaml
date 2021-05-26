@@ -2,10 +2,10 @@
 blobs:
 - !<lsst.verify.Blob>
   data: {}
-  identifier: 899e2a5be31542f69985c875212f28dc
+  identifier: 4809049d134c43f7aee7fbc5add6b7cf
   name: AF1_design
-identifier: 21a83b62ee0e407fb924932ba0850448
+identifier: 58c43c59e52f4c1d88f90c21127e15ea
 metric: AF1_design
 notes: {}
 unit: '%'
-value: 5.847953216374268
+value: 6.211180124223603

@@ -5,7 +5,7 @@ from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.coord_util import (averageRaFromCat, averageDecFromCat,
                                         sphDist)
 
-__all__ = ("astromRms", "astromRms", "calcRmsDistances", "calcSepOutliers",
+__all__ = ("astromRms", "astromResiduals", "calcRmsDistances", "calcSepOutliers",
            "matchVisitComputeDistance", "calcRmsDistancesVsRef")
 
 
@@ -107,6 +107,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
         dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
         objectsInAnnulus, = np.where((annulusRadians[0] <= dist)
                                      & (dist < annulusRadians[1]))
+        objectsInAnnulus += obj1 + 1
         for obj2 in objectsInAnnulus:
             distances = matchVisitComputeDistance(
                 visit[obj1], ra[obj1], dec[obj1],
@@ -187,6 +188,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
         dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
         objectsInAnnulus, = np.where((annulusRadians[0] <= dist)
                                      & (dist < annulusRadians[1]))
+        objectsInAnnulus += obj1 + 1
         for obj2 in objectsInAnnulus:
             distances = matchVisitComputeDistance(
                 visit[obj1], ra[obj1], dec[obj1],
