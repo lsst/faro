@@ -69,9 +69,9 @@ class TExTaskConfig(Config):
     shearConvention = Field(doc="Use shear ellipticity convention rather than distortion",
                             dtype=bool, default=False)
     columnPsf = Field(doc="Column to use for PSF model shape moments",
-                      dtype=str, default='slot_PsfShape')
+                      dtype=str, default='base_SdssShape_psf')
     column = Field(doc="Column to use for shape moments",
-                   dtype=str, default='slot_Shape')
+                   dtype=str, default='base_SdssShape')
     # Eventually want to add option to use only PSF reserve stars
 
 
