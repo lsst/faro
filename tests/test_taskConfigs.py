@@ -129,8 +129,8 @@ class ConfigTest(unittest.TestCase):
         expected.nbins = 100
         expected.rhoStat = 2
         expected.shearConvention = True
-        expected.columnPsf = 'base_SdssShape_psf'
-        expected.column = 'base_SdssShape'
+        expected.columnPsf = 'ext_shapeHSM_HsmPsfMoments'
+        expected.column = 'ext_shapeHSM_HsmSourceMoments'
         task = TExTask(config=expected)
         self.check_config(task, expected, default, field_list)
 
