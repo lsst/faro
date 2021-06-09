@@ -1,3 +1,0 @@
-description: Full metrics pipeline
-imports:
-  - location: $FARO_DIR/pipelines/measurement/measurement_tract_multi_test.yaml

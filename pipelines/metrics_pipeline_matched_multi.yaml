@@ -1,4 +1,4 @@
-description: Full metrics pipeline
+description: Metrics pipeline for multiband matched visits
 imports:
   - location: $FARO_DIR/pipelines/preparation/preparation_matched_multi.yaml
   - location: $FARO_DIR/pipelines/measurement/measurement_matched_multi.yaml

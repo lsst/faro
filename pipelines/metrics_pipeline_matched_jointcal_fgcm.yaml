@@ -1,4 +1,4 @@
-description: Full matched metrics pipeline
+description: Full matched metrics pipeline with external calibrations
 imports:
   - location: $FARO_DIR/pipelines/preparation/preparation_matched_jointcal_fgcm.yaml
   - location: $FARO_DIR/pipelines/measurement/measurement_matched.yaml
