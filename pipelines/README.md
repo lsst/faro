@@ -1,4 +1,4 @@
-This is a place to put ``faro`` pipeline yaml files.
+This is the place to put ``faro`` pipeline yaml files.
 
 If you are interested in calculating all available metrics, run one of the following (depending whether you would like to apply external (jointcal, FGCM) calibrations to the matched visit catalogs or not):
 
