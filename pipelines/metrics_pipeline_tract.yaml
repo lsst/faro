@@ -1,0 +1,3 @@
+description: Metrics pipeline for tract-level coadds
+imports:
+  - location: $FARO_DIR/pipelines/measurement/measurement_tract.yaml
