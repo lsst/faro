@@ -1,13 +1,13 @@
 description: Compute metrics from single-visit catalogs
 tasks:
-#  nsrcMeasVisit:
-#    class: lsst.faro.measurement.VisitMeasurementTask
-#    config:
-#      connections.package: info
-#      connections.metric: nsrcMeasVisit
-#      python: |
-#        from lsst.faro.base import NumSourcesMergeTask
-#        config.measure.retarget(NumSourcesMergeTask)
+  nsrcMeasVisit:
+    class: lsst.faro.measurement.VisitMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasVisit
+      python: |
+        from lsst.faro.base import NumSourcesMergeTask
+        config.measure.retarget(NumSourcesMergeTask)
   TE3:
     class: lsst.faro.measurement.VisitMeasurementTask
     config:
