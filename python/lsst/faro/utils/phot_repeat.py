@@ -6,7 +6,7 @@ from lsst.faro.utils.filtermatches import filterMatches
 __all__ = ("photRepeat", "calcPhotRepeat")
 
 
-def photRepeat(matchedCatalog, nMinPhotRepeat=50, **filterargs):
+def photRepeat(matchedCatalog, magName=None, nMinPhotRepeat=50, **filterargs):
     """Measure the photometric repeatability of a set of observations.
 
     Parameters
@@ -14,6 +14,8 @@ def photRepeat(matchedCatalog, nMinPhotRepeat=50, **filterargs):
     matchedCatalog : `lsst.afw.table.base.Catalog`
         `~lsst.afw.table.base.Catalog` object as created by
         `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+    magName : `str`
+        Name of the magnitude field. Default "slot_PsfFlux_mag".
     nMinPhotRepeat : `int`
         Minimum number of sources required to return a measurement.
     **filterargs
@@ -26,8 +28,10 @@ def photRepeat(matchedCatalog, nMinPhotRepeat=50, **filterargs):
         by `calcPhotRepeat`. Returns NaN values if there are fewer than
         nMinPhotRepeat sources in the matched catalog.
     """
+    if magName is None:
+        magName = 'slot_PsfFlux_mag'
     filteredCat = filterMatches(matchedCatalog, **filterargs)
-    magKey = filteredCat.schema.find('slot_PsfFlux_mag').key
+    magKey = filteredCat.schema.find(magName).key
 
     # Require at least nMinPhotRepeat objects to calculate the repeatability:
     if filteredCat.count > nMinPhotRepeat:
