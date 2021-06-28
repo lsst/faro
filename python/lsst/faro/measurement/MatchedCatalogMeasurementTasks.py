@@ -46,10 +46,6 @@ class PA1Task(Task):
 
     def __init__(self, config: PA1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.nMinPhotRepeat = self.config.nMinPhotRepeat
-        self.writeExtras = self.config.writeExtras
 
     def run(self, matchedCatalog, metricName):
         """Calculate the photometric repeatability.
@@ -69,19 +65,19 @@ class PA1Task(Task):
         """
         self.log.info(f"Measuring {metricName}")
 
-        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
-                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
+                         snrMax=self.config.brightSnrMax, snrMin=self.config.brightSnrMin)
 
         if 'magMean' in pa1.keys():
-            if self.writeExtras:
-                extras = {}
-                extras['rms'] = Datum(pa1['rms'], label='RMS',
-                                      description='Photometric repeatability rms for each star.')
-                extras['count'] = Datum(pa1['count']*u.count, label='count',
-                                        description='Number of detections used to calculate '
-                                        'repeatability.')
-                extras['mean_mag'] = Datum(pa1['magMean'], label='mean_mag',
-                                           description='Mean magnitude of each star.')
+            if self.config.writeExtras:
+                extras = {
+                    'rms': Datum(pa1['rms'], label='RMS',
+                                 description='Photometric repeatability rms for each star.'),
+                    'count': Datum(pa1['count']*u.count, label='count',
+                                   description='Number of detections used to calculate repeatability.'),
+                    'mean_mag': Datum(pa1['magMean'], label='mean_mag',
+                                      description='Mean magnitude of each star.'),
+                }
                 return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras))
             else:
                 return Struct(measurement=Measurement("PA1", pa1['repeatability']))
@@ -116,10 +112,6 @@ class PF1Task(Task):
 
     def __init__(self, config: PF1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.nMinPhotRepeat = self.config.nMinPhotRepeat
-        self.threshPA2 = self.config.threshPA2
 
     def run(self, matchedCatalog, metricName):
         """Calculate the percentage of outliers in the photometric repeatability values.
@@ -138,10 +130,10 @@ class PF1Task(Task):
             Measurement of the percentage of repeatability outliers, and associated metadata.
         """
         self.log.info(f"Measuring {metricName}")
-        pa2_thresh = self.threshPA2 * u.mmag
+        pa2_thresh = self.config.threshPA2 * u.mmag
 
-        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
-                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
+                         snrMax=self.config.brightSnrMax, snrMin=self.config.brightSnrMin)
 
         if 'magResid' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
