@@ -1,7 +1,7 @@
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config, Field, ListField
+from lsst.pex.config import ChoiceField, Config, Field, ListField
 from lsst.verify import Measurement, Datum
 from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.separations import (calcRmsDistances, calcRmsDistancesVsRef,
@@ -10,7 +10,7 @@ from lsst.faro.utils.phot_repeat import photRepeat
 
 
 __all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task",
-           "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task")
+           "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task", "ModelPhotRepTask")
 
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
@@ -46,10 +46,6 @@ class PA1Task(Task):
 
     def __init__(self, config: PA1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.nMinPhotRepeat = self.config.nMinPhotRepeat
-        self.writeExtras = self.config.writeExtras
 
     def run(self, matchedCatalog, metricName):
         """Calculate the photometric repeatability.
@@ -69,19 +65,19 @@ class PA1Task(Task):
         """
         self.log.info(f"Measuring {metricName}")
 
-        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
-                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+        pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
+                         snrMax=self.config.brightSnrMax, snrMin=self.config.brightSnrMin)
 
         if 'magMean' in pa1.keys():
-            if self.writeExtras:
-                extras = {}
-                extras['rms'] = Datum(pa1['rms'], label='RMS',
-                                      description='Photometric repeatability rms for each star.')
-                extras['count'] = Datum(pa1['count']*u.count, label='count',
-                                        description='Number of detections used to calculate '
-                                        'repeatability.')
-                extras['mean_mag'] = Datum(pa1['magMean'], label='mean_mag',
-                                           description='Mean magnitude of each star.')
+            if self.config.writeExtras:
+                extras = {
+                    'rms': Datum(pa1['rms'], label='RMS',
+                                 description='Photometric repeatability rms for each star.'),
+                    'count': Datum(pa1['count']*u.count, label='count',
+                                   description='Number of detections used to calculate repeatability.'),
+                    'mean_mag': Datum(pa1['magMean'], label='mean_mag',
+                                      description='Mean magnitude of each star.'),
+                }
                 return Struct(measurement=Measurement("PA1", pa1['repeatability'], extras=extras))
             else:
                 return Struct(measurement=Measurement("PA1", pa1['repeatability']))
@@ -116,10 +112,6 @@ class PF1Task(Task):
 
     def __init__(self, config: PF1TaskConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
-        self.brightSnrMin = self.config.brightSnrMin
-        self.brightSnrMax = self.config.brightSnrMax
-        self.nMinPhotRepeat = self.config.nMinPhotRepeat
-        self.threshPA2 = self.config.threshPA2
 
     def run(self, matchedCatalog, metricName):
         """Calculate the percentage of outliers in the photometric repeatability values.
@@ -138,10 +130,10 @@ class PF1Task(Task):
             Measurement of the percentage of repeatability outliers, and associated metadata.
         """
         self.log.info(f"Measuring {metricName}")
-        pa2_thresh = self.threshPA2 * u.mmag
+        pa2_thresh = self.config.threshPA2 * u.mmag
 
-        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.nMinPhotRepeat,
-                         snrMax=self.brightSnrMax, snrMin=self.brightSnrMin)
+        pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
+                         snrMax=self.config.brightSnrMax, snrMin=self.config.brightSnrMin)
 
         if 'magResid' in pf1.keys():
             # Previously, validate_drp used the first random sample from PA1 measurement
@@ -318,3 +310,81 @@ class AB1Task(Task):
 
         else:
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
+
+
+class ModelPhotRepTaskConfig(Config):
+    """Config fields for the *ModelPhotRep photometric repeatability metrics.
+    """
+    index = ChoiceField(doc="Index of the metric definition", dtype=int,
+                        allowed={x: f"Nth (N={x}) lowest S/N bin" for x in range(1, 5)},
+                        optional=False)
+    magName = Field(doc="Name of the magnitude column", dtype=str, default="slot_ModelFlux_mag")
+    nMinPhotRepeat = Field(doc="Minimum number of objects required for photometric repeatability.",
+                           dtype=int, default=50)
+    prefix = Field(doc="Prefix of the metric name", dtype=str, default="model")
+    selectExtended = Field(doc="Whether to select extended sources", dtype=bool)
+    selectSnrMin = Field(doc="Minimum median SNR for a source to be selected.",
+                         dtype=float)
+    selectSnrMax = Field(doc="Maximum median SNR for a source to be selected.",
+                         dtype=float)
+    writeExtras = Field(doc="Write out the magnitude residuals and rms values for debugging.",
+                        dtype=bool, default=False)
+
+
+class ModelPhotRepTask(Task):
+    """A Task that computes a *ModelPhotRep photometric repeatability metric
+     from an input set of multiple visits of the same field.
+
+    Notes
+    -----
+    The intended usage is to retarget the run method of
+    `lsst.faro.measurement.TractMatchedMeasurementTask` to ModelPhotRepTask.
+    This metric is calculated on a set of matched visits, and aggregated at the tract level.
+    """
+
+    ConfigClass = ModelPhotRepTaskConfig
+    _DefaultName = "ModelPhotRepTask"
+
+    def __init__(self, config: ModelPhotRepTaskConfig, *args, **kwargs):
+        super().__init__(*args, config=config, **kwargs)
+
+    def run(self, matchedCatalog, metricName):
+        """Calculate the photometric repeatability.
+
+        Parameters
+        ----------
+        matchedCatalog : `lsst.afw.table.base.Catalog`
+            `~lsst.afw.table.base.Catalog` object as created by
+            `~lsst.afw.table.multiMatch` matching of sources from multiple visits.
+        metricName : `str`
+            The name of the metric.
+
+        Returns
+        -------
+        measurement : `lsst.verify.Measurement`
+            Measurement of the repeatability and its associated metadata.
+        """
+        self.log.info(f"Measuring {metricName}")
+
+        meas = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
+                          snrMax=self.config.selectSnrMax, snrMin=self.config.selectSnrMin,
+                          magName=self.config.magName, extended=self.config.selectExtended)
+
+        name_type = "Gal" if self.config.selectExtended else "Star"
+        name_meas = f'{self.config.prefix}PhotRep{name_type}{self.config.index}'
+
+        if 'magMean' in meas.keys():
+            if self.config.writeExtras:
+                extras = {
+                    'rms': Datum(meas['rms'], label='RMS',
+                                 description='Photometric repeatability rms for each star.'),
+                    'count': Datum(meas['count']*u.count, label='count',
+                                   description='Number of detections used to calculate repeatability.'),
+                    'mean_mag': Datum(meas['magMean'], label='mean_mag',
+                                      description='Mean magnitude of each star.'),
+                }
+                return Struct(measurement=Measurement(name_meas, meas['repeatability'], extras=extras))
+            else:
+                return Struct(measurement=Measurement(name_meas, meas['repeatability']))
+        else:
+            return Struct(measurement=Measurement(name_meas, np.nan*u.mmag))
