@@ -1,5 +1,6 @@
 import numpy as np
 import astropy.units as u
+import logging
 import lsst.geom as geom
 from lsst.faro.utils.filtermatches import filterMatches
 from lsst.faro.utils.coord_util import (averageRaFromCat, averageDecFromCat,
@@ -68,6 +69,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
     rmsDistances : `astropy.units.Quantity`
         RMS angular separations of a set of matched objects over visits.
     """
+    log = logging.getLogger(__name__)
 
     # First we make a list of the keys that we want the fields for
     importantKeys = [groupView.schema.find(name).key for
@@ -114,8 +116,8 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
                 visit[obj2], ra[obj2], dec[obj2])
             if not distances:
                 if verbose:
-                    print("No matching visits found for objs: %d and %d" %
-                          (obj1, obj2))
+                    log.debug("No matching visits found for objs: %d and %d" %
+                              (obj1, obj2))
                 continue
 
             finiteEntries, = np.where(np.isfinite(distances))
@@ -149,6 +151,8 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     rmsDistances : `astropy.units.Quantity`
         RMS angular separations of a set of matched objects over visits.
     """
+
+    log = logging.getLogger(__name__)
 
     # First we make a list of the keys that we want the fields for
     importantKeys = [groupView.schema.find(name).key for
@@ -195,8 +199,8 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
                 visit[obj2], ra[obj2], dec[obj2])
             if not distances:
                 if verbose:
-                    print("No matching visits found for objs: %d and %d" %
-                          (obj1, obj2))
+                    log.debug("No matching visits found for objs: %d and %d" %
+                              (obj1, obj2))
                 continue
 
             finiteEntries, = np.where(np.isfinite(distances))

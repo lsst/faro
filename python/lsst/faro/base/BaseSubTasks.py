@@ -26,7 +26,7 @@ class NumSourcesTask(Task):
             nSources = np.sum(catalog['detect_isPrimary'] is True)
         else:
             nSources = len(catalog)
-        print('nSources = %i'%(nSources))
+        self.log.info("Number of sources (nSources)=%i" % (nSources))
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 
