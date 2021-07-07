@@ -63,7 +63,7 @@ class PA1Task(Task):
         measurement : `lsst.verify.Measurement`
             Measurement of the repeatability and its associated metadata.
         """
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
 
         pa1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
                          snrMax=self.config.brightSnrMax, snrMin=self.config.brightSnrMin)
@@ -129,7 +129,7 @@ class PF1Task(Task):
         measurement : `lsst.verify.Measurement`
             Measurement of the percentage of repeatability outliers, and associated metadata.
         """
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
         pa2_thresh = self.config.threshPA2 * u.mmag
 
         pf1 = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
@@ -182,7 +182,7 @@ class AMxTask(Task):
     _DefaultName = "AMxTask"
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info("Measuring %s", metric_name)
 
         filteredCat = filterMatches(matchedCatalog)
 
@@ -212,7 +212,7 @@ class ADxTask(Task):
     _DefaultName = "ADxTask"
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info("Measuring %s", metric_name)
 
         sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
                                        self.config.faint_mag_cut, self.config.annulus_r,
@@ -237,7 +237,7 @@ class AFxTask(Task):
     _DefaultName = "AFxTask"
 
     def run(self, matchedCatalog, metric_name):
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info("Measuring %s", metric_name)
 
         sepDistances = astromResiduals(matchedCatalog, self.config.bright_mag_cut,
                                        self.config.faint_mag_cut, self.config.annulus_r,
@@ -270,7 +270,7 @@ class AB1Task(Task):
     _DefaultName = "AB1Task"
 
     def run(self, matchedCatalogMulti, metric_name, in_id, out_id):
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info("Measuring %s", metric_name)
 
         if self.config.ref_filter not in filter_dict:
             raise Exception('Reference filter supplied for AB1 not in dictionary.')
@@ -364,7 +364,7 @@ class ModelPhotRepTask(Task):
         measurement : `lsst.verify.Measurement`
             Measurement of the repeatability and its associated metadata.
         """
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
 
         meas = photRepeat(matchedCatalog, nMinPhotRepeat=self.config.nMinPhotRepeat,
                           snrMax=self.config.selectSnrMax, snrMin=self.config.selectSnrMin,

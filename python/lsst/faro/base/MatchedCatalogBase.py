@@ -125,11 +125,11 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                                         logger=self.log)
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
-        self.log.info(f"{len(matched)} sources in matched catalog.")
+        self.log.info("%s sources in matched catalog.", len(matched))
         for record in matched:
             if box.contains(wcs.skyToPixel(record.getCoord())):
                 out_matched.append(record)
-        self.log.info(f"{len(out_matched)} sources when trimmed to {self.level} boundaries.")
+        self.log.info("%s sources when trimmed to %s boundaries.", len(out_matched), self.level)
         return pipeBase.Struct(outputCatalog=out_matched)
 
     def get_box_wcs(self, skymap, oid):
@@ -137,7 +137,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         wcs = tract_info.getWcs()
         patch_info = tract_info.getPatchInfo(oid['patch'])
         patch_box = patch_info.getInnerBBox()
-        self.log.info(f"Running tract: {oid['tract']} and patch: {oid['patch']}")
+        self.log.info("Running tract: %s and patch: %s", oid['tract'], oid['patch'])
         return patch_box, wcs
 
     def runQuantum(self, butlerQC,
@@ -214,5 +214,5 @@ class MatchedTractBaseTask(MatchedBaseTask):
         tract_info = skymap.generateTract(oid['tract'])
         wcs = tract_info.getWcs()
         tract_box = tract_info.getBBox()
-        self.log.info(f"Running tract: {oid['tract']}")
+        self.log.info("Running tract: %s", oid['tract'])
         return tract_box, wcs

@@ -116,8 +116,8 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
                 visit[obj2], ra[obj2], dec[obj2])
             if not distances:
                 if verbose:
-                    log.debug("No matching visits found for objs: %d and %d" %
-                              (obj1, obj2))
+                    log.debug("No matching visits "
+                              "found for objs: %d and %d" % obj1, obj2)
                 continue
 
             finiteEntries, = np.where(np.isfinite(distances))
@@ -199,8 +199,8 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
                 visit[obj2], ra[obj2], dec[obj2])
             if not distances:
                 if verbose:
-                    log.debug("No matching visits found for objs: %d and %d" %
-                              (obj1, obj2))
+                    log.debug("No matching visits found "
+                              "for objs: %d and %d" % obj1, obj2)
                 continue
 
             finiteEntries, = np.where(np.isfinite(distances))

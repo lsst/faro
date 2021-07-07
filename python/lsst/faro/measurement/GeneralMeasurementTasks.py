@@ -12,7 +12,7 @@ class HistMedianTask(Task):
     _DefaultName = "histMedianTask"
 
     def run(self, measurements, agg_name, package, metric):
-        self.log.info(f"Computing the {agg_name} of {package}_{metric} values")
+        self.log.info("Computing the %s of %s_%s values", agg_name, package, metric)
         values = measurements[0].extras['values'].quantity
         bins = measurements[0].extras['bins'].quantity
         for m in measurements[1:]:

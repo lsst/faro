@@ -21,12 +21,12 @@ class NumSourcesTask(Task):
     _DefaultName = "numSourcesTask"
 
     def run(self, catalog, metric_name, vIds=None):
-        self.log.info(f"Measuring {metric_name}")
+        self.log.info("Measuring %s", metric_name)
         if self.config.doPrimary:
             nSources = np.sum(catalog['detect_isPrimary'] is True)
         else:
             nSources = len(catalog)
-        self.log.info("Number of sources (nSources)=%i" % (nSources))
+        self.log.info("Number of sources (nSources) = %i" % nSources)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 
@@ -37,7 +37,7 @@ class NumSourcesMergeTask(Task):
     _DefaultName = "numSourcesMergeTask"
 
     def run(self, metricName, catalogs, photoCalibs, astromCalibs, dataIds):
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
         catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
         nSources = len(catalog)
         meas = Measurement("nsrcMeas", nSources * u.count)
@@ -58,10 +58,10 @@ class NumpySummaryTask(Task):
         agg = agg_name.lower()
         if agg == "summary":
             agg = self.config.summary
-        self.log.info(f"Computing the {agg} of {package}_{metric} values")
+        self.log.info("Computing the %s of %s_%s values", agg, package, metric)
 
         if len(measurements) == 0:
-            self.log.info('Recieved zero length measurments list.  Returning NaN.')
+            self.log.info('Received zero length measurements list.  Returning NaN.')
             # In the case of an empty list, there is nothing we can do other than
             # to return a NaN
             value = u.Quantity(np.nan)

@@ -68,7 +68,7 @@ def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logge
         dataId = dataIds[ind]
 
         if logger:
-            logger.debug(f"{len(oldSrc)} sources in ccd {dataId['detector']}  visit {dataId['visit']}")
+            logger.debug("%d sources in ccd %s visit %s", len(oldSrc), dataId['detector'], dataId['visit'])
 
         # create temporary catalog
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)

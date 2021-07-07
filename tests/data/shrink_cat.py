@@ -21,7 +21,7 @@ def shrinkCat(infile, outfile, verbose=False):
         if name in required_columns or 'flag' in name:  # Flags should compress anyway
             continue
         if verbose:
-            log.debug(f"Shrinking {name}")
+            log.debug("Shrinking %s", name)
         try:
             cat[name][:] = np.repeat(0, len(cat))
         except ValueError as e:

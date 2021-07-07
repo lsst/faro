@@ -71,8 +71,8 @@ class Te1Test(unittest.TestCase):
         for band in ('i'):
             catalog, expected = self.load_data(('TE1', band))
             result = task.run('TE1', [catalog])
-            log.debug('result', result)
-            log.debug('expected', expected)
+            log.debug('result: ', result)
+            log.debug('expected: ', expected)
             self.assertEqual(result.measurement, expected)
 
 
