@@ -4,7 +4,8 @@ import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 
-__all__ = ("DetectorMeasurementTaskConfig", "DetectorMeasurementTask")
+__all__ = ("DetectorMeasurementTaskConfig", "DetectorMeasurementTask",
+           "DetectorTableMeasurementTaskConfig", "DetectorTableMeasurementTask")
 
 
 class DetectorMeasurementTaskConnections(MetricConnections,
@@ -129,6 +130,49 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             externalSkyWcs = row.getWcs()
             inputs['skyWcs'] = externalSkyWcs
 
+        outputs = self.run(**inputs)
+        if outputs.measurement is not None:
+            butlerQC.put(outputs, outputRefs)
+        else:
+            self.log.debug("Skipping measurement of {!r} on {} "
+                           "as not applicable.", self, inputRefs)
+
+
+class DetectorTableMeasurementTaskConnections(MetricConnections,
+                                              dimensions=("instrument", "visit", "detector", "band")):
+
+    catalog = pipeBase.connectionTypes.Input(doc="Source catalog for visit.",
+                                             dimensions=("instrument", "visit", "band"),
+                                             storageClass="DataFrame",
+                                             name="sourceTable_visit",
+                                             deferLoad=True)
+
+    measurement = pipeBase.connectionTypes.Output(doc="Per-detector measurement.",
+                                                  dimensions=("instrument", "visit", "detector", "band"),
+                                                  storageClass="MetricValue",
+                                                  name="metricvalue_{package}_{metric}")
+
+
+class DetectorTableMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
+                                         pipelineConnections=DetectorTableMeasurementTaskConnections):
+    columns = pexConfig.Field(doc="Columns from sourceTable_visit to load.",
+                              dtype=str, default='coord_ra, coord_dec, detector')
+
+
+class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
+    ConfigClass = DetectorTableMeasurementTaskConfig
+    _DefaultName = "detectorTableMeasurementTask"
+
+    def run(self, catalog, dataIds):
+        return self.measure.run(catalog, self.config.connections.metric, dataIds)
+
+    def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        inputs = butlerQC.get(inputRefs)
+        columns = [_.strip() for _ in self.config.columns.split(',')]
+        catalog = inputs['catalog'].get(parameters={'columns': columns})
+        selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
+        inputs['catalog'] = catalog[selection]
+        inputs['dataIds'] = [butlerQC.registry.expandDataId(inputRefs.catalog.datasetRef.dataId)]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
