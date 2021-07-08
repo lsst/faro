@@ -25,7 +25,7 @@ class WPerpTask(Task):
     _DefaultName = "WPerpTask"
 
     def run(self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None):
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
         bands = set([f['band'] for f in dataIds])
 
         if ('g' in bands) & ('r' in bands) & ('i' in bands):
@@ -80,7 +80,7 @@ class TExTask(Task):
     _DefaultName = "TExTask"
 
     def run(self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None):
-        self.log.info(f"Measuring {metricName}")
+        self.log.info("Measuring %s", metricName)
 
         result = calculateTEx(catalogs, photoCalibs, astromCalibs, self.config)
         if 'corr' not in result.keys():

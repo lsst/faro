@@ -25,11 +25,13 @@
 import unittest
 import yaml
 import os
+import logging
 
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import TExTask
 
+log = logging.getLogger(__name__)
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -69,8 +71,8 @@ class Te1Test(unittest.TestCase):
         for band in ('i'):
             catalog, expected = self.load_data(('TE1', band))
             result = task.run('TE1', [catalog])
-            print('result', result)
-            print('expected', expected)
+            log.debug('result: ', result)
+            log.debug('expected: ', expected)
             self.assertEqual(result.measurement, expected)
 
 

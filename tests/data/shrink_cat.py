@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import logging
 
 from lsst.afw.table import SimpleCatalog
 
@@ -10,18 +11,21 @@ required_columns = ['slot_PsfFlux_mag', 'base_PsfFlux_snr', 'base_Classification
                     'base_GaussianFlux_magErr', 'base_GaussianFlux_snr', 'e1', 'e2', 'psf_e1', 'psf_e2',
                     'filt', 'detect_isPrimary']
 
+log = logging.getLogger(__name__)
+
 
 def shrinkCat(infile, outfile, verbose=False):
+
     cat = SimpleCatalog.readFits(infile)
     for name in cat.schema.getNames():
         if name in required_columns or 'flag' in name:  # Flags should compress anyway
             continue
         if verbose:
-            print(f"Shrinking {name}")
+            log.debug("Shrinking %s", name)
         try:
             cat[name][:] = np.repeat(0, len(cat))
         except ValueError as e:
-            print(e)
+            log.debug(e.msg)
 
     cat.writeFits(outfile)
 

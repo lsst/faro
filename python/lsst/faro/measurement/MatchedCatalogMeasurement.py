@@ -109,10 +109,8 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
             if outputs.measurement is not None:
                 butlerQC.put(outputs, outputRefs)
             else:
-                self.log.debugf("Skipping measurement of {!r} on {} "
-                                "as not applicable.", self, inputRefs)
-        except MetricComputationError:
-            # Apparently lsst.log doesn't have built-in exception support?
-            self.log.errorf(
-                "Measurement of {!r} failed on {}->{}\n{}",
-                self, inputRefs, outputRefs, traceback.format_exc())
+                self.log.debug("Skipping measurement of {!r} on {} "
+                               "as not applicable.", self, inputRefs)
+        except MetricComputationError as e:
+            self.log.error("Measurement of {!r} failed on {}->{}\n{}\n,%s",
+                           self, inputRefs, outputRefs, traceback.format_exc(), e.msg)

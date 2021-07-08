@@ -1,12 +1,17 @@
+import logging
 from astropy.coordinates import SkyCoord
+
+log = logging.getLogger(__name__)
+
 try:
     from dustmaps.sfd import SFDQuery
-except ModuleNotFoundError:
-    print("The extinction_corr method is not available without first installing the dustmaps module:\n"
-          "$> pip install --user dustmaps\n\n"
-          "Then in a python interpreter:\n"
-          ">>> import dustmaps.sfd\n"
-          ">>> dustmaps.sfd.fetch()\n")
+except ModuleNotFoundError as e:
+    log.debug("The extinction_corr method is not available without first installing the dustmaps module:\n"
+              "$> pip install --user dustmaps\n\n"
+              "Then in a python interpreter:\n"
+              ">>> import dustmaps.sfd\n"
+              ">>> dustmaps.sfd.fetch()\n"
+              "%s", e.msg)
 
 __all__ = ("extinction_corr", )
 
