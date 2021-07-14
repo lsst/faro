@@ -4,7 +4,6 @@ import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 
-
 __all__ = ("DetectorMeasurementTaskConfig", "DetectorMeasurementTask")
 
 
