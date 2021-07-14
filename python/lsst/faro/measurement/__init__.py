@@ -9,3 +9,7 @@ from .DetectorMeasurement import *
 from .VisitMeasurement import *
 from .TractMeasurement import *
 from .PatchMeasurement import *
+
+# Parquet table versions
+from .DetectorTableMeasurement import *
+from .VisitTableMeasurement import *
