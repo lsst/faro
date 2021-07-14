@@ -1,0 +1,12 @@
+description: Compute per-detector metrics from sourceTable_visit catalogs
+tasks:
+  nsrcMeasDetectorTable:
+    class: lsst.faro.measurement.DetectorTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasDetectorTable
+      #connections.refDataset: 'gaia_dr2_20200414'
+      connections.refDataset: 'ps1_pv3_3pi_20170110'
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        config.measure.retarget(NumSourcesTask)

@@ -1,0 +1,10 @@
+description: Compute metrics from sourceTable_visit catalogs
+tasks:
+  nsrcMeasVisitTable:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasVisitTable
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        config.measure.retarget(NumSourcesTask)
