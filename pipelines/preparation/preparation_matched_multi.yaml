@@ -2,8 +2,3 @@ description: Produce multiband matched catalogs
 tasks:
   matchCatalogsPatchMultiBand:
     class: lsst.faro.preparation.PatchMatchedMultiBandPreparationTask
-    config:
-      python: |
-        config.doApplyExternalPhotoCalib = True
-        config.useGlobalExternalPhotoCalib = True
-        config.doApplyExternalSkyWcs = True
