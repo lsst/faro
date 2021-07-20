@@ -65,10 +65,8 @@ class DetectorTableMeasurementConnections(MetricConnections,
 
 class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
                                      pipelineConnections=DetectorTableMeasurementConnections):
-    columns = pexConfig.Field(doc="Columns from sourceTable_visit to load.",
-                              dtype=str, default='coord_ra, coord_dec, detector')
-    refDataset = pexConfig.Field(doc="Reference dataset to use.",
-                                 dtype=str, default='')
+    columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
+                                  dtype=str, default=['coord_ra', 'coord_dec', 'detector'])
 
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
@@ -80,8 +78,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        columns = [_.strip() for _ in self.config.columns.split(',')]
-        catalog = inputs['catalog'].get(parameters={'columns': columns})
+        catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
         selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
         inputs['catalog'] = catalog[selection]
         inputs['dataIds'] = [butlerQC.registry.expandDataId(inputRefs.catalog.datasetRef.dataId)]
@@ -105,15 +102,6 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
                 config.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
                                                     'config',
                                                     'colorterms.py'))
-
-            # Directly concatenate the reference catalogs
-            # This approach does NOT match rows with LoadReferenceCatalogTask
-            # refCat = inputs['refcat'][0].get()
-            # for handle in inputs['refcat'][1:]:
-            #     refCat.extend(handle.get())
-            # if not refCat.isContiguous():
-            #     refCat = refCat.copy(deep=True)
-            # inputs['refcat'] = refCat
 
             center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
             radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()

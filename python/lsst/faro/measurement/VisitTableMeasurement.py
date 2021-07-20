@@ -45,8 +45,8 @@ class VisitTableMeasurementConnections(MetricConnections,
 
 class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
                                   pipelineConnections=VisitTableMeasurementConnections):
-    columns = pexConfig.Field(doc="Columns from sourceTable_visit to load.",
-                              dtype=str, default='coord_ra, coord_dec')
+    columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
+                                  dtype=str, default=['coord_ra', 'coord_dec'])
 
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
@@ -58,8 +58,7 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        columns = [_.strip() for _ in self.config.columns.split(',')]
-        inputs['catalog'] = inputs['catalog'].get(parameters={'columns': columns})
+        inputs['catalog'] = inputs['catalog'].get(parameters={'columns': self.config.columns})
         inputs['dataIds'] = [butlerQC.registry.expandDataId(inputRefs.catalog.datasetRef.dataId)]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
