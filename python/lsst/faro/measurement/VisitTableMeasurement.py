@@ -4,11 +4,11 @@ import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 
-__all__ = ("VisitTableMeasurementTaskConfig", "VisitTableMeasurementTask")
+__all__ = ("VisitTableMeasurementConfig", "VisitTableMeasurementTask")
 
 
-class VisitTableMeasurementTaskConnections(MetricConnections,
-                                           dimensions=("instrument", "visit", "band")):
+class VisitTableMeasurementConnections(MetricConnections,
+                                       dimensions=("instrument", "visit", "band")):
 
     catalog = pipeBase.connectionTypes.Input(doc="Source catalog for visit.",
                                              dimensions=("instrument", "visit", "band"),
@@ -22,14 +22,14 @@ class VisitTableMeasurementTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class VisitTableMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                      pipelineConnections=VisitTableMeasurementTaskConnections):
+class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
+                                  pipelineConnections=VisitTableMeasurementConnections):
     columns = pexConfig.Field(doc="Columns from sourceTable_visit to load.",
                               dtype=str, default='coord_ra, coord_dec')
 
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = VisitTableMeasurementTaskConfig
+    ConfigClass = VisitTableMeasurementConfig
     _DefaultName = "visitTableMeasurementTask"
 
     def run(self, catalog, dataIds):

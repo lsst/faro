@@ -9,12 +9,12 @@ from lsst.utils import getPackageDir
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
 from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogConfig, LoadReferenceCatalogTask
 
-__all__ = ("DetectorTableMeasurementTaskConfig", "DetectorTableMeasurementTask")
+__all__ = ("DetectorTableMeasurementConfig", "DetectorTableMeasurementTask")
 
 
-class DetectorTableMeasurementTaskConnections(MetricConnections,
-                                              dimensions=("instrument", "visit", "detector", "band"),
-                                              defaultTemplates={"refDataset": ""}):
+class DetectorTableMeasurementConnections(MetricConnections,
+                                          dimensions=("instrument", "visit", "detector", "band"),
+                                          defaultTemplates={"refDataset": ""}):
 
     catalog = pipeBase.connectionTypes.Input(doc="Source catalog for visit.",
                                              dimensions=("instrument", "visit", "band"),
@@ -42,8 +42,8 @@ class DetectorTableMeasurementTaskConnections(MetricConnections,
             self.prerequisiteInputs.remove("refcat")
 
 
-class DetectorTableMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                         pipelineConnections=DetectorTableMeasurementTaskConnections):
+class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
+                                     pipelineConnections=DetectorTableMeasurementConnections):
     columns = pexConfig.Field(doc="Columns from sourceTable_visit to load.",
                               dtype=str, default='coord_ra, coord_dec, detector')
     refDataset = pexConfig.Field(doc="Reference dataset to use.",
@@ -51,7 +51,7 @@ class DetectorTableMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
 
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = DetectorTableMeasurementTaskConfig
+    ConfigClass = DetectorTableMeasurementConfig
     _DefaultName = "detectorTableMeasurementTask"
 
     def run(self, catalog, dataIds, refcat, refcatCalib):
