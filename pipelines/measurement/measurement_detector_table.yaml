@@ -5,8 +5,10 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasDetectorTable
-      #connections.refDataset: 'gaia_dr2_20200414'
-      connections.refDataset: 'ps1_pv3_3pi_20170110'
+      # Example reference datasets include: 
+      # - Gaia (gaia_dr2_20200414)
+      # - PS1 (ps1_pv3_3pi_20170110)
+      connections.refDataset: 'gaia_dr2_20200414'
       python: |
         from lsst.faro.base import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
