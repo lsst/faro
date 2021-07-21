@@ -92,7 +92,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
         inputs = butlerQC.get(inputRefs)
         catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
         selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
-        inputs['catalog'] = catalog[selection]
+        catalog = catalog[selection]
 
         if self.config.connections.refDataset != '':
             config = LoadReferenceCatalogConfig()
