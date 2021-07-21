@@ -49,6 +49,8 @@ class VisitTableMeasurementConnections(MetricConnections,
 
 class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
                                   pipelineConnections=VisitTableMeasurementConnections):
+    """Configuration for VisitTableMeasurementTask."""
+
     columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
                                   dtype=str, default=['coord_ra', 'coord_dec'])
 

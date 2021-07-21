@@ -19,16 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
-
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
 import lsst.geom
-from lsst.utils import getPackageDir
 
 from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
-from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogConfig, LoadReferenceCatalogTask
+from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
 
 __all__ = ("DetectorTableMeasurementConfig", "DetectorTableMeasurementTask")
 
@@ -38,7 +35,7 @@ class DetectorTableMeasurementConnections(MetricConnections,
                                           defaultTemplates={"refDataset": ""}):
 
     catalog = pipeBase.connectionTypes.Input(
-        doc="Source catalog for visit.",
+        doc="Source table in parquet format, per visit",
         dimensions=("instrument", "visit", "band"),
         storageClass="DataFrame",
         name="sourceTable_visit",
@@ -46,7 +43,7 @@ class DetectorTableMeasurementConnections(MetricConnections,
     )
 
     refcat = pipeBase.connectionTypes.PrerequisiteInput(
-        doc="Reference catalog.",
+        doc="Reference catalog",
         name="{refDataset}",
         storageClass="SimpleCatalog",
         dimensions=("skypix",),
@@ -55,7 +52,7 @@ class DetectorTableMeasurementConnections(MetricConnections,
     )
 
     measurement = pipeBase.connectionTypes.Output(
-        doc="Per-detector measurement.",
+        doc="Per-detector measurement",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="MetricValue",
         name="metricvalue_{package}_{metric}"
@@ -69,8 +66,21 @@ class DetectorTableMeasurementConnections(MetricConnections,
 
 class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
                                      pipelineConnections=DetectorTableMeasurementConnections):
+    """Configuration for DetectorTableMeasurementTask."""
+
     columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
                                   dtype=str, default=['coord_ra', 'coord_dec', 'detector'])
+
+    refObjLoader = pexConfig.ConfigurableField(
+        target=LoadReferenceCatalogTask,
+        doc="Reference object loader",
+    )
+
+    def setDefaults(self):
+        self.refObjLoader.refObjLoader.ref_dataset_name = "gaia_dr2_20200414"
+        self.refObjLoader.refObjLoader.requireProperMotion = True
+        self.refObjLoader.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
+        self.refObjLoader.doApplyColorTerms = False
 
     def validate(self):
         super().validate()
@@ -81,6 +91,7 @@ class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for science performance metrics measured on single-dector source catalogs."""
+
     ConfigClass = DetectorTableMeasurementConfig
     _DefaultName = "detectorTableMeasurementTask"
 
@@ -95,32 +106,13 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
         catalog = catalog[selection]
 
         if self.config.connections.refDataset != '':
-            config = LoadReferenceCatalogConfig()
-            config.refObjLoader.ref_dataset_name = self.config.connections.refDataset
-
-            # These default configurations for reference catalogs should go
-            # elsewhere in a common utility.
-            if self.config.connections.refDataset == 'gaia_dr2_20200414':
-                # Apply proper motions for Gaia catalog
-                config.refObjLoader.requireProperMotion = True
-                config.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
-                config.doApplyColorTerms = False
-            elif self.config.connections.refDataset == 'ps1_pv3_3pi_20170110':
-                # Apply color terms for PS1 catalog
-                config.refObjLoader.load(os.path.join(getPackageDir('obs_subaru'),
-                                                      'config',
-                                                      'filterMap.py'))
-                config.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
-                                                    'config',
-                                                    'colorterms.py'))
-
             center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
             radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
             epoch = butlerQC.quantum.dataId.records['visit'].timespan.begin
 
             loaderTask = LoadReferenceCatalogTask(
-                config=config,
+                config=self.config.refObjLoader,
                 dataIds=[ref.datasetRef.dataId
                          for ref in inputRefs.refcat],
                 refCats=inputs.pop('refcat'))
