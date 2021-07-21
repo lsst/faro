@@ -32,7 +32,7 @@ __all__ = ("DetectorTableMeasurementConfig", "DetectorTableMeasurementTask")
 
 class DetectorTableMeasurementConnections(MetricConnections,
                                           dimensions=("instrument", "visit", "detector", "band"),
-                                          defaultTemplates={"refDataset": ""}):
+                                          defaultTemplates={"refDataset": "gaia_dr2_20200414"}):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per visit",
@@ -86,6 +86,9 @@ class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
         super().validate()
         if 'detector' not in self.columns:
             msg = "The column `detector` must be appear in the list of columns."
+            raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
+        if self.connections.refDataset != self.refObjLoader.refObjLoader.ref_dataset_name:
+            msg = "The reference datasets specified in connections and reference object loader must match."
             raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
 
 
