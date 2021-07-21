@@ -31,16 +31,20 @@ __all__ = ("VisitTableMeasurementConfig", "VisitTableMeasurementTask")
 class VisitTableMeasurementConnections(MetricConnections,
                                        dimensions=("instrument", "visit", "band")):
 
-    catalog = pipeBase.connectionTypes.Input(doc="Source catalog for visit.",
-                                             dimensions=("instrument", "visit", "band"),
-                                             storageClass="DataFrame",
-                                             name="sourceTable_visit",
-                                             deferLoad=True)
+    catalog = pipeBase.connectionTypes.Input(
+        doc="Source catalog for visit.",
+        dimensions=("instrument", "visit", "band"),
+        storageClass="DataFrame",
+        name="sourceTable_visit",
+        deferLoad=True
+    )
 
-    measurement = pipeBase.connectionTypes.Output(doc="Per-visit measurement.",
-                                                  dimensions=("instrument", "visit", "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Per-visit measurement.",
+        dimensions=("instrument", "visit", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}"
+    )
 
 
 class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
@@ -50,17 +54,17 @@ class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
 
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
+    """Base class for science performance metrics measured on single-visit source catalogs."""
     ConfigClass = VisitTableMeasurementConfig
     _DefaultName = "visitTableMeasurementTask"
 
-    def run(self, catalog, dataIds):
-        return self.measure.run(catalog, self.config.connections.metric, dataIds)
+    def run(self, catalog):
+        return self.measure.run(self.config.connections.metric, catalog)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['catalog'] = inputs['catalog'].get(parameters={'columns': self.config.columns})
-        inputs['dataIds'] = [butlerQC.registry.expandDataId(inputRefs.catalog.datasetRef.dataId)]
-        outputs = self.run(**inputs)
+        catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
+        outputs = self.run(catalog)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:

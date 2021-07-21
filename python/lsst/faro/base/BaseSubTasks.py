@@ -20,8 +20,8 @@ class NumSourcesTask(Task):
     ConfigClass = NumSourcesTaskConfig
     _DefaultName = "numSourcesTask"
 
-    def run(self, catalog, metric_name, vIds=None):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, catalog, **kwargs):
+        self.log.info("Measuring %s", metricName)
         if self.config.doPrimary:
             nSources = np.sum(catalog['detect_isPrimary'] is True)
         else:

@@ -37,11 +37,13 @@ class DetectorTableMeasurementConnections(MetricConnections,
                                           dimensions=("instrument", "visit", "detector", "band"),
                                           defaultTemplates={"refDataset": ""}):
 
-    catalog = pipeBase.connectionTypes.Input(doc="Source catalog for visit.",
-                                             dimensions=("instrument", "visit", "band"),
-                                             storageClass="DataFrame",
-                                             name="sourceTable_visit",
-                                             deferLoad=True)
+    catalog = pipeBase.connectionTypes.Input(
+        doc="Source catalog for visit.",
+        dimensions=("instrument", "visit", "band"),
+        storageClass="DataFrame",
+        name="sourceTable_visit",
+        deferLoad=True
+    )
 
     refcat = pipeBase.connectionTypes.PrerequisiteInput(
         doc="Reference catalog.",
@@ -52,10 +54,12 @@ class DetectorTableMeasurementConnections(MetricConnections,
         multiple=True
     )
 
-    measurement = pipeBase.connectionTypes.Output(doc="Per-detector measurement.",
-                                                  dimensions=("instrument", "visit", "detector", "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Per-detector measurement.",
+        dimensions=("instrument", "visit", "detector", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}"
+    )
 
     def __init__(self, *, config=None):
         super().__init__(config=config)
@@ -68,20 +72,27 @@ class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
     columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
                                   dtype=str, default=['coord_ra', 'coord_dec', 'detector'])
 
+    def validate(self):
+        super().validate()
+        if 'detector' not in self.columns:
+            msg = "The column `detector` must be appear in the list of columns."
+            raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
+
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
+    """Base class for science performance metrics measured on single-dector source catalogs."""
     ConfigClass = DetectorTableMeasurementConfig
     _DefaultName = "detectorTableMeasurementTask"
 
-    def run(self, catalog, dataIds, refcat, refcatCalib):
-        return self.measure.run(catalog, self.config.connections.metric, dataIds)
+    def run(self, catalog, refcat, refcatCalib):
+        return self.measure.run(self.config.connections.metric, catalog,
+                                refcat=refcat, refcatCalib=refcatCalib)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
         selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
         inputs['catalog'] = catalog[selection]
-        inputs['dataIds'] = [butlerQC.registry.expandDataId(inputRefs.catalog.datasetRef.dataId)]
 
         if self.config.connections.refDataset != '':
             config = LoadReferenceCatalogConfig()
@@ -115,7 +126,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
                 refCats=inputs.pop('refcat'))
 
             # Catalog with proper motion and color terms applied
-            inputs['refcatCalib'] = loaderTask.getSkyCircleCatalog(
+            refcatCalib = loaderTask.getSkyCircleCatalog(
                 center,
                 radius,
                 [butlerQC.quantum.dataId.records['physical_filter'].name],
@@ -126,11 +137,11 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
                                                               loaderTask._referenceFilter,
                                                               epoch=epoch)
             if not skyCircle.refCat.isContiguous():
-                inputs['refcat'] = skyCircle.refCat.copy(deep=True)
+                refcat = skyCircle.refCat.copy(deep=True)
             else:
-                inputs['refcat'] = skyCircle.refCat
+                refcat = skyCircle.refCat
 
-        outputs = self.run(**inputs)
+        outputs = self.run(catalog, refcat, refcatCalib)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
