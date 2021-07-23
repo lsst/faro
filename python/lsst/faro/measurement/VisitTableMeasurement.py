@@ -20,19 +20,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
+# from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConnections,
+                                                   CatalogMeasurementBaseConfig,
+                                                   CatalogMeasurementBaseTask)
 
 __all__ = ("VisitTableMeasurementConfig", "VisitTableMeasurementTask")
 
 
-class VisitTableMeasurementConnections(MetricConnections,
+class VisitTableMeasurementConnections(CatalogMeasurementBaseConnections,
                                        dimensions=("instrument", "visit", "band")):
 
     catalog = pipeBase.connectionTypes.Input(
-        doc="Source catalog for visit.",
+        doc="Source table in parquet format, per visit",
         dimensions=("instrument", "visit", "band"),
         storageClass="DataFrame",
         name="sourceTable_visit",
@@ -40,14 +42,14 @@ class VisitTableMeasurementConnections(MetricConnections,
     )
 
     measurement = pipeBase.connectionTypes.Output(
-        doc="Per-visit measurement.",
+        doc="Per-visit measurement",
         dimensions=("instrument", "visit", "band"),
         storageClass="MetricValue",
         name="metricvalue_{package}_{metric}"
     )
 
 
-class VisitTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
+class VisitTableMeasurementConfig(CatalogMeasurementBaseConfig,
                                   pipelineConnections=VisitTableMeasurementConnections):
     """Configuration for VisitTableMeasurementTask."""
 

@@ -20,19 +20,22 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
+# from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
-import lsst.geom
+# import lsst.geom
+# from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
-from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
+from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConnections,
+                                                   CatalogMeasurementBaseConfig,
+                                                   CatalogMeasurementBaseTask)
 
 __all__ = ("DetectorTableMeasurementConfig", "DetectorTableMeasurementTask")
 
 
-class DetectorTableMeasurementConnections(MetricConnections,
+class DetectorTableMeasurementConnections(CatalogMeasurementBaseConnections,
                                           dimensions=("instrument", "visit", "detector", "band"),
-                                          defaultTemplates={"refDataset": "gaia_dr2_20200414"}):
+                                          # defaultTemplates={"refDataset": "gaia_dr2_20200414"}):
+                                          defaultTemplates={"refDataset": ""}):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per visit",
@@ -42,14 +45,14 @@ class DetectorTableMeasurementConnections(MetricConnections,
         deferLoad=True
     )
 
-    refcat = pipeBase.connectionTypes.PrerequisiteInput(
-        doc="Reference catalog",
-        name="{refDataset}",
-        storageClass="SimpleCatalog",
-        dimensions=("skypix",),
-        deferLoad=True,
-        multiple=True
-    )
+    # refcat = pipeBase.connectionTypes.PrerequisiteInput(
+    #     doc="Reference catalog",
+    #     name="{refDataset}",
+    #     storageClass="SimpleCatalog",
+    #     dimensions=("skypix",),
+    #     deferLoad=True,
+    #     multiple=True
+    # )
 
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement",
@@ -58,49 +61,50 @@ class DetectorTableMeasurementConnections(MetricConnections,
         name="metricvalue_{package}_{metric}"
     )
 
-    def __init__(self, *, config=None):
-        super().__init__(config=config)
-        if config.connections.refDataset == '':
-            self.prerequisiteInputs.remove("refcat")
+    # def __init__(self, *, config=None):
+    #     super().__init__(config=config)
+    #     if config.connections.refDataset == '':
+    #         self.prerequisiteInputs.remove("refcat")
 
 
-class DetectorTableMeasurementConfig(CatalogMeasurementBaseTaskConfig,
+class DetectorTableMeasurementConfig(CatalogMeasurementBaseConfig,
                                      pipelineConnections=DetectorTableMeasurementConnections):
     """Configuration for DetectorTableMeasurementTask."""
 
     columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
                                   dtype=str, default=['coord_ra', 'coord_dec', 'detector'])
 
-    refObjLoader = pexConfig.ConfigurableField(
-        target=LoadReferenceCatalogTask,
-        doc="Reference object loader",
-    )
+    # referenceCatalogLoader = pexConfig.ConfigurableField(
+    #     target=LoadReferenceCatalogTask,
+    #     doc="Reference object loader",
+    # )
 
-    def setDefaults(self):
-        self.refObjLoader.refObjLoader.ref_dataset_name = "gaia_dr2_20200414"
-        self.refObjLoader.refObjLoader.requireProperMotion = True
-        self.refObjLoader.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
-        self.refObjLoader.doApplyColorTerms = False
+    # def setDefaults(self):
+    #     self.referenceCatalogLoader.refObjLoader.ref_dataset_name = "gaia_dr2_20200414"
+    #     self.referenceCatalogLoader.refObjLoader.requireProperMotion = True
+    #     self.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
+    #     self.referenceCatalogLoader.doApplyColorTerms = False
 
     def validate(self):
         super().validate()
         if 'detector' not in self.columns:
             msg = "The column `detector` must be appear in the list of columns."
             raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
-        if self.connections.refDataset != self.refObjLoader.refObjLoader.ref_dataset_name:
-            msg = "The reference datasets specified in connections and reference object loader must match."
-            raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
+        # if self.connections.refDataset != self.referenceCatalogLoader.refObjLoader.ref_dataset_name:
+        #      msg = "Reference datasets specified in connections and reference catalog loader must match."
+        #      raise pexConfig.FieldValidationError(
+        #          DetectorTableMeasurementConfig.referenceCatalogLoader, self, msg)
 
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
-    """Base class for science performance metrics measured on single-dector source catalogs."""
+    """Base class for science performance metrics measured on single-detector source catalogs."""
 
     ConfigClass = DetectorTableMeasurementConfig
     _DefaultName = "detectorTableMeasurementTask"
 
-    def run(self, catalog, refcat, refcatCalib):
-        return self.measure.run(self.config.connections.metric, catalog,
-                                refcat=refcat, refcatCalib=refcatCalib)
+    # def run(self, catalog, refcat, refcatCorrected):
+    #     return self.measure.run(self.config.connections.metric, catalog,
+    #                             refCat=refCat, refCatCorrected=refCatCorrected)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
@@ -108,7 +112,28 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
         selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
         catalog = catalog[selection]
 
+        kwargs = {}
         if self.config.connections.refDataset != '':
+            refCats = inputs.pop('refCat')
+            filterList = [butlerQC.quantum.dataId.records['physical_filter'].name]
+            # Time at the start of the visit
+            epoch = butlerQC.quantum.dataId.records['visit'].timespan.begin
+            # Add this back in after LoadReferenceCatalogTask fix
+            # refCat, refCatCorrected = self.getReferenceCatalog(butlerQC,
+            #                                                    inputRefs,
+            #                                                    refCats,
+            #                                                    filterList,
+            #                                                    epoch)
+            refCat = self.getReferenceCatalog(butlerQC,
+                                              inputRefs,
+                                              refCats,
+                                              filterList,
+                                              epoch)
+            kwargs['refCat'] = refCat
+            # Add this back in after LoadReferenceCatalogTask fix
+            # kwargs['refCatCorrected'] = refCatCorrected
+
+            """
             center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
             radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
@@ -135,8 +160,11 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
                 refcat = skyCircle.refCat.copy(deep=True)
             else:
                 refcat = skyCircle.refCat
+            """
 
-        outputs = self.run(catalog, refcat, refcatCalib)
+        # Add this back in after LoadReferenceCatalogTask fix
+        # outputs = self.run(catalog, refcat, refcatCalib)
+        outputs = self.run(catalog, **kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:

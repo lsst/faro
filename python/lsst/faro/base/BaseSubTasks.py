@@ -16,6 +16,7 @@ class NumSourcesTaskConfig(Config):
 
 
 class NumSourcesTask(Task):
+    """Simple default task count the number of sources/objects in catalog."""
 
     ConfigClass = NumSourcesTaskConfig
     _DefaultName = "numSourcesTask"
@@ -36,7 +37,7 @@ class NumSourcesMergeTask(Task):
     ConfigClass = Config
     _DefaultName = "numSourcesMergeTask"
 
-    def run(self, metricName, catalogs, photoCalibs, astromCalibs, dataIds):
+    def run(self, metricName, catalogs, photoCalibs, astromCalibs, **kwargs):
         self.log.info("Measuring %s", metricName)
         catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
         nSources = len(catalog)
