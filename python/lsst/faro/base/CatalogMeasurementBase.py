@@ -121,12 +121,9 @@ class CatalogMeasurementBaseTask(MetricTask):
             refCats=refCats)
 
         # Get catalog with proper motion and color terms applied
-        # Add this back in after LoadReferenceCatalogTask fix
-        # refCatCorrected = loaderTask.getSkyCircleCatalog(
-        #     center,
-        #     radius,
-        #     filterList,
-        #     epoch=epoch)
+        refCatCorrected = loaderTask.getSkyCircleCatalog(center, radius,
+                                                         filterList,
+                                                         epoch=epoch)
 
         # Get unformatted catalog w/ all columns
         skyCircle = loaderTask.refObjLoader.loadSkyCircle(center, radius,
@@ -137,6 +134,4 @@ class CatalogMeasurementBaseTask(MetricTask):
         else:
             refCat = skyCircle.refCat
 
-        # Add this back in after LoadReferenceCatalogTask fix
-        # return refCat, refCatCorrected
-        return refCat
+        return refCat, refCatCorrected
