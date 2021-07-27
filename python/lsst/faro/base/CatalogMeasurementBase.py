@@ -91,33 +91,37 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, catalog, **kwargs):
         return self.measure.run(self.config.connections.metric, catalog, **kwargs)
 
-    def getReferenceCatalog(self, butlerQC, inputRefs, refCats, filterList, epoch=None):
+    def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
         """Load reference catalog in sky region of interest.
 
         Parameters
         ----------
-        butlerQC :
-            Doc
-        inputRefs:
-            Doc
-        refCats:
-            Doc
+        butlerQC : `lsst.pipe.base.butlerQuantumContext.ButlerQuantumContext`
+            Butler quantum context for a Gen3 repository.
+        dataIds: interable of `lsst.daf.butler.dataId`
+             An iterable object of dataIds that point to reference catalogs
+             in a Gen3 repository.
+        refCats : iterable of `lsst.daf.butler.DeferredDatasetHandle`
+            An iterable object of dataset refs for reference catalogs in
+            a Gen3 repository.
         filterList : `list` [`str`]
             List of camera physicalFilter names to apply color terms.
+        epoch : `astropy.time.Time`, optional
+            Epoch to which to correct proper motion and parallax
+            (if available), or `None` to not apply such corrections.
 
         Returns
         -------
         refCat : `numpy.ndarray`
-            Reference catalog with color terms and proper motions optionally applied.
+            Reference catalog with color terms and proper motions
+            (optionally) applied.
         """
-
         center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
         radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
         loaderTask = LoadReferenceCatalogTask(
             config=self.config.referenceCatalogLoader,
-            dataIds=[ref.datasetRef.dataId
-                     for ref in inputRefs.refCat],
+            dataIds=dataIds,
             refCats=refCats)
 
         # Get catalog with proper motion and color terms applied
