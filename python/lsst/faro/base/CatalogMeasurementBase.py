@@ -112,8 +112,10 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         Returns
         -------
-        refCat : `numpy.ndarray`
-            Reference catalog with color terms and proper motions
+        refCat : `lsst.afw.table.SimpleCatalog`
+            Catalog of reference objects from region.
+        refCatCorrected : `numpy.ndarray`
+            Catalog of reference objects with proper motions and color terms
             (optionally) applied.
         """
         center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
@@ -133,9 +135,6 @@ class CatalogMeasurementBaseTask(MetricTask):
         skyCircle = loaderTask.refObjLoader.loadSkyCircle(center, radius,
                                                           loaderTask._referenceFilter,
                                                           epoch=epoch)
-        if not skyCircle.refCat.isContiguous():
-            refCat = skyCircle.refCat.copy(deep=True)
-        else:
-            refCat = skyCircle.refCat
+        refCat = skyCircle.refCat
 
         return refCat, refCatCorrected

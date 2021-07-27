@@ -42,19 +42,10 @@ class TaskTest(unittest.TestCase):
         catalog = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
         return catalog
 
-    @classmethod
-    def setUpClass(cls):
-        '''This gets called once so can be used to set up
-           state that is used by all test methods.'''
-        super().setUpClass()
-        cls.file_map = {'CatalogMeasurementBaseTask':
-                        'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'}
-
-    @classmethod
-    def tearDownClass(cls):
-        '''Delete any variables set in setUpClass.'''
-        del cls.file_map
-        super().tearDownClass()
+    def setUp(self):
+        """This is called immediately before calling each test method."""
+        self.file_map = {'CatalogMeasurementBaseTask':
+                         'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'}
 
     def testCatalogMeasurementBaseTask(self):
         """Test run method of CatalogMeasurementBaseTask."""

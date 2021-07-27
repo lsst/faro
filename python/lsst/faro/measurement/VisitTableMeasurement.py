@@ -20,7 +20,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-# from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConnections,
