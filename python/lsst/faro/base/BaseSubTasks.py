@@ -16,12 +16,13 @@ class NumSourcesTaskConfig(Config):
 
 
 class NumSourcesTask(Task):
+    """Simple default task count the number of sources/objects in catalog."""
 
     ConfigClass = NumSourcesTaskConfig
     _DefaultName = "numSourcesTask"
 
-    def run(self, catalog, metric_name, vIds=None):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, catalog, **kwargs):
+        self.log.info("Measuring %s", metricName)
         if self.config.doPrimary:
             nSources = np.sum(catalog['detect_isPrimary'] is True)
         else:
@@ -36,7 +37,7 @@ class NumSourcesMergeTask(Task):
     ConfigClass = Config
     _DefaultName = "numSourcesMergeTask"
 
-    def run(self, metricName, catalogs, photoCalibs, astromCalibs, dataIds):
+    def run(self, metricName, catalogs, photoCalibs, astromCalibs, **kwargs):
         self.log.info("Measuring %s", metricName)
         catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
         nSources = len(catalog)

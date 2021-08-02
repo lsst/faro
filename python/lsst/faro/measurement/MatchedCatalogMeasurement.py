@@ -1,24 +1,42 @@
+# This product includes software developed by the LSST Project
+# (https://www.lsst.org).
+# See the COPYRIGHT file at the top-level directory of this distribution
+# for details of code ownership.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import traceback
 
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections, MetricComputationError
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
 
-__all__ = ("PatchMatchedMeasurementTaskConnections", "PatchMatchedMeasurementTaskConfig",
+__all__ = ("PatchMatchedMeasurementConnections", "PatchMatchedMeasurementConfig",
            "PatchMatchedMeasurementTask",
-           "TractMatchedMeasurementTaskConnections", "TractMatchedMeasurementTaskConfig",
+           "TractMatchedMeasurementConnections", "TractMatchedMeasurementConfig",
            "TractMatchedMeasurementTask",
-           "PatchMatchedMultiBandMeasurementTaskConnections", "PatchMatchedMultiBandMeasurementTaskConfig",
+           "PatchMatchedMultiBandMeasurementConnections", "PatchMatchedMultiBandMeasurementConfig",
            "PatchMatchedMultiBandMeasurementTask")
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
 
-class PatchMatchedMeasurementTaskConnections(MetricConnections,
-                                             dimensions=("tract", "patch", "band",
-                                                         "instrument", "skymap")):
+class PatchMatchedMeasurementConnections(MetricConnections,
+                                         dimensions=("tract", "patch", "band",
+                                                     "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument",
                                                      "band"),
@@ -31,19 +49,19 @@ class PatchMatchedMeasurementTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMatchedMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                        pipelineConnections=PatchMatchedMeasurementTaskConnections):
+class PatchMatchedMeasurementConfig(CatalogMeasurementBaseConfig,
+                                    pipelineConnections=PatchMatchedMeasurementConnections):
     pass
 
 
 class PatchMatchedMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = PatchMatchedMeasurementTaskConfig
+    ConfigClass = PatchMatchedMeasurementConfig
     _DefaultName = "patchMatchedMeasurementTask"
 
 
-class TractMatchedMeasurementTaskConnections(PatchMatchedMeasurementTaskConnections,
-                                             dimensions=("tract", "instrument",
-                                                         "band", "skymap")):
+class TractMatchedMeasurementConnections(PatchMatchedMeasurementConnections,
+                                         dimensions=("tract", "instrument",
+                                                     "band", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "instrument",
                                                      "band"),
@@ -56,19 +74,19 @@ class TractMatchedMeasurementTaskConnections(PatchMatchedMeasurementTaskConnecti
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMatchedMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                        pipelineConnections=TractMatchedMeasurementTaskConnections):
+class TractMatchedMeasurementConfig(CatalogMeasurementBaseConfig,
+                                    pipelineConnections=TractMatchedMeasurementConnections):
     pass
 
 
 class TractMatchedMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = TractMatchedMeasurementTaskConfig
+    ConfigClass = TractMatchedMeasurementConfig
     _DefaultName = "tractMatchedMeasurementTask"
 
 
-class PatchMatchedMultiBandMeasurementTaskConnections(MetricConnections,
-                                                      dimensions=("tract", "patch", "band",
-                                                                  "instrument", "skymap")):
+class PatchMatchedMultiBandMeasurementConnections(MetricConnections,
+                                                  dimensions=("tract", "patch", "band",
+                                                              "instrument", "skymap")):
     cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
                                          dimensions=("tract", "patch", "instrument"),
                                          storageClass="SimpleCatalog",
@@ -80,14 +98,14 @@ class PatchMatchedMultiBandMeasurementTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class PatchMatchedMultiBandMeasurementTaskConfig(
-        CatalogMeasurementBaseTaskConfig,
-        pipelineConnections=PatchMatchedMultiBandMeasurementTaskConnections):
+class PatchMatchedMultiBandMeasurementConfig(
+        CatalogMeasurementBaseConfig,
+        pipelineConnections=PatchMatchedMultiBandMeasurementConnections):
     pass
 
 
 class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = PatchMatchedMultiBandMeasurementTaskConfig
+    ConfigClass = PatchMatchedMultiBandMeasurementConfig
     _DefaultName = "patchMatchedMultiBandMeasurementTask"
 
     def run(self, cat, in_id, out_id):

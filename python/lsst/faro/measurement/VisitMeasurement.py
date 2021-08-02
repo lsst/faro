@@ -1,15 +1,33 @@
+# This product includes software developed by the LSST Project
+# (https://www.lsst.org).
+# See the COPYRIGHT file at the top-level directory of this distribution
+# for details of code ownership.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
 
-__all__ = ("VisitMeasurementTaskConfig", "VisitMeasurementTask")
+__all__ = ("VisitMeasurementConfig", "VisitMeasurementTask")
 
 
-class VisitMeasurementTaskConnections(MetricConnections,
-                                      dimensions=("instrument", "visit", "band"),
-                                      defaultTemplates={"photoCalibName": "calexp.photoCalib",
-                                                        "wcsName": "calexp.wcs"}):
+class VisitMeasurementConnections(MetricConnections,
+                                  dimensions=("instrument", "visit", "band"),
+                                  defaultTemplates={"photoCalibName": "calexp.photoCalib",
+                                                    "wcsName": "calexp.wcs"}):
 
     catalogs = pipeBase.connectionTypes.Input(doc="Source catalogs.",
                                               dimensions=("instrument", "visit",
@@ -38,17 +56,14 @@ class VisitMeasurementTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class VisitMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                 pipelineConnections=VisitMeasurementTaskConnections):
+class VisitMeasurementConfig(CatalogMeasurementBaseConfig,
+                             pipelineConnections=VisitMeasurementConnections):
     pass
 
 
 class VisitMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = VisitMeasurementTaskConfig
+    ConfigClass = VisitMeasurementConfig
     _DefaultName = "visitMeasurementTask"
-
-    def run(self, catalogs, photoCalibs, astromCalibs, dataIds):
-        return self.measure.run(self.config.connections.metric, catalogs, photoCalibs, astromCalibs, dataIds)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)

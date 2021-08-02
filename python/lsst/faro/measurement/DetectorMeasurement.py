@@ -1,18 +1,36 @@
+# This product includes software developed by the LSST Project
+# (https://www.lsst.org).
+# See the COPYRIGHT file at the top-level directory of this distribution
+# for details of code ownership.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
 
-__all__ = ("DetectorMeasurementTaskConfig", "DetectorMeasurementTask")
+__all__ = ("DetectorMeasurementConfig", "DetectorMeasurementTask")
 
 
-class DetectorMeasurementTaskConnections(MetricConnections,
-                                         dimensions=("instrument", "visit", "detector", "band"),
-                                         defaultTemplates={"photoCalibName": "calexp.photoCalib",
-                                                           "externalPhotoCalibName": "fgcm",
-                                                           "wcsName": "calexp.wcs",
-                                                           "externalWcsName": "jointcal"}):
+class DetectorMeasurementConnections(MetricConnections,
+                                     dimensions=("instrument", "visit", "detector", "band"),
+                                     defaultTemplates={"photoCalibName": "calexp.photoCalib",
+                                                       "externalPhotoCalibName": "fgcm",
+                                                       "wcsName": "calexp.wcs",
+                                                       "externalWcsName": "jointcal"}):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source catalog.",
@@ -89,8 +107,8 @@ class DetectorMeasurementTaskConnections(MetricConnections,
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
 
-class DetectorMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                    pipelineConnections=DetectorMeasurementTaskConnections):
+class DetectorMeasurementConfig(CatalogMeasurementBaseConfig,
+                                pipelineConnections=DetectorMeasurementConnections):
     doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
                                             dtype=bool, default=False)
     useGlobalExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the global external wcs.",
@@ -102,11 +120,8 @@ class DetectorMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
 
 
 class DetectorMeasurementTask(CatalogMeasurementBaseTask):
-    ConfigClass = DetectorMeasurementTaskConfig
+    ConfigClass = DetectorMeasurementConfig
     _DefaultName = "detectorMeasurementTask"
-
-    def run(self, catalog, photoCalib, skyWcs):
-        return self.measure.run(catalog, self.config.connections.metric)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)

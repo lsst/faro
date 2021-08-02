@@ -1,20 +1,38 @@
+# This product includes software developed by the LSST Project
+# (https://www.lsst.org).
+# See the COPYRIGHT file at the top-level directory of this distribution
+# for details of code ownership.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseTaskConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
 
-__all__ = ("TractMeasurementTaskConnections", "TractMeasurementTaskConfig",
+__all__ = ("TractMeasurementConnections", "TractMeasurementConfig",
            "TractMeasurementTask",
-           "TractMultiBandMeasurementTaskConnections", "TractMultiBandMeasurementTaskConfig",
+           "TractMultiBandMeasurementConnections", "TractMultiBandMeasurementConfig",
            "TractMultiBandMeasurementTask")
 
 
-class TractMeasurementTaskConnections(MetricConnections,
-                                      dimensions=("tract", "skymap",
-                                                  "band"),
-                                      defaultTemplates={"coaddName": "deepCoadd",
-                                                        "photoCalibName": "deepCoadd_calexp.photoCalib",
-                                                        "wcsName": "deepCoadd_calexp.wcs"}):
+class TractMeasurementConnections(MetricConnections,
+                                  dimensions=("tract", "skymap",
+                                              "band"),
+                                  defaultTemplates={"coaddName": "deepCoadd",
+                                                    "photoCalibName": "deepCoadd_calexp.photoCalib",
+                                                    "wcsName": "deepCoadd_calexp.wcs"}):
 
     catalogs = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                               dimensions=("tract", "patch",
@@ -44,14 +62,14 @@ class TractMeasurementTaskConnections(MetricConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                 pipelineConnections=TractMeasurementTaskConnections):
+class TractMeasurementConfig(CatalogMeasurementBaseConfig,
+                             pipelineConnections=TractMeasurementConnections):
     pass
 
 
 class TractMeasurementTask(CatalogMeasurementBaseTask):
 
-    ConfigClass = TractMeasurementTaskConfig
+    ConfigClass = TractMeasurementConfig
     _DefaultName = "tractMeasurementTask"
 
     def run(self, catalogs, photoCalibs, astromCalibs, dataIds):
@@ -68,10 +86,10 @@ class TractMeasurementTask(CatalogMeasurementBaseTask):
                            "as not applicable.", self, inputRefs)
 
 
-class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
-                                               dimensions=("tract", "skymap"),
-                                               defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
-                                                                 "deepCoadd_calexp.photoCalib"}):
+class TractMultiBandMeasurementConnections(TractMeasurementConnections,
+                                           dimensions=("tract", "skymap"),
+                                           defaultTemplates={"coaddName": "deepCoadd", "photoCalibName":
+                                                             "deepCoadd_calexp.photoCalib"}):
 
     cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
                                          dimensions=("tract", "skymap", "patch",
@@ -93,12 +111,12 @@ class TractMultiBandMeasurementTaskConnections(TractMeasurementTaskConnections,
                                                   name="metricvalue_{package}_{metric}")
 
 
-class TractMultiBandMeasurementTaskConfig(CatalogMeasurementBaseTaskConfig,
-                                          pipelineConnections=TractMultiBandMeasurementTaskConnections):
+class TractMultiBandMeasurementConfig(CatalogMeasurementBaseConfig,
+                                      pipelineConnections=TractMultiBandMeasurementConnections):
     pass
 
 
 class TractMultiBandMeasurementTask(TractMeasurementTask):
 
-    ConfigClass = TractMultiBandMeasurementTaskConfig
+    ConfigClass = TractMultiBandMeasurementConfig
     _DefaultName = "tractMultiBandMeasurementTask"
