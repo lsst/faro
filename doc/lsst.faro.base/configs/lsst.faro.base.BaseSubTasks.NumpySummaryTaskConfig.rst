@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.base.BaseSubTasks.NumpySummaryTaskConfig
+.. lsst-config-topic:: lsst.faro.base.BaseSubTasks.NumpySummaryConfig
 
 ######################
-NumpySummaryTaskConfig
+NumpySummaryConfig
 ######################
 
-.. _lsst.faro.base.BaseSubTasks.NumpySummaryTaskConfig-configs:
+.. _lsst.faro.base.BaseSubTasks.NumpySummaryConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.base.BaseSubTasks.NumpySummaryTaskConfig
+.. lsst-config-fields:: lsst.faro.base.BaseSubTasks.NumpySummaryConfig

@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementConfig
 
-##########################################
-PatchMatchedMultiBandMeasurementTaskConfig
-##########################################
+######################################
+PatchMatchedMultiBandMeasurementConfig
+######################################
 
-.. _lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementTaskConfig-configs:
+.. _lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMultiBandMeasurementConfig

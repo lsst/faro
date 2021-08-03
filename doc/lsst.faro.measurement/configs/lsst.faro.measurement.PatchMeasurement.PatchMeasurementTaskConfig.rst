@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.PatchMeasurement.PatchMeasurementTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.PatchMeasurement.PatchMeasurementConfig
 
 ##########################
-PatchMeasurementTaskConfig
+PatchMeasurementConfig
 ##########################
 
-.. _lsst.faro.measurement.PatchMeasurement.PatchMeasurementTaskConfig-configs:
+.. _lsst.faro.measurement.PatchMeasurement.PatchMeasurementConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.PatchMeasurement.PatchMeasurementTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.PatchMeasurement.PatchMeasurementConfig

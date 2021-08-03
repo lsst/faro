@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationTaskConfig
+.. lsst-config-topic:: lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationConfig
 
 #################################
-PatchMatchedPreparationTaskConfig
+PatchMatchedPreparationConfig
 #################################
 
-.. _lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationTaskConfig-configs:
+.. _lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationTaskConfig
+.. lsst-config-fields:: lsst.faro.preparation.MatchedPreparationTasks.PatchMatchedPreparationConfig

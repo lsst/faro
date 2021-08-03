@@ -9,15 +9,15 @@ from lsst.faro.utils.separations import (calcRmsDistances, calcRmsDistancesVsRef
 from lsst.faro.utils.phot_repeat import photRepeat
 
 
-__all__ = ("PA1TaskConfig", "PA1Task", "PF1TaskConfig", "PF1Task",
-           "AMxTaskConfig", "AMxTask", "ADxTask", "AFxTask", "AB1TaskConfig", "AB1Task", "ModelPhotRepTask")
+__all__ = ("PA1Config", "PA1Task", "PF1Config", "PF1Task",
+           "AMxConfig", "AMxTask", "ADxTask", "AFxTask", "AB1Config", "AB1Task", "ModelPhotRepTask")
 
 
 filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
                'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
 
 
-class PA1TaskConfig(Config):
+class PA1Config(Config):
     """Config fields for the PA1 photometric repeatability metric.
     """
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
@@ -41,10 +41,10 @@ class PA1Task(Task):
     This metric is calculated on a set of matched visits, and aggregated at the tract level.
     """
 
-    ConfigClass = PA1TaskConfig
+    ConfigClass = PA1Config
     _DefaultName = "PA1Task"
 
-    def __init__(self, config: PA1TaskConfig, *args, **kwargs):
+    def __init__(self, config: PA1Config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
     def run(self, matchedCatalog, metricName):
@@ -85,7 +85,7 @@ class PA1Task(Task):
             return Struct(measurement=Measurement("PA1", np.nan*u.mmag))
 
 
-class PF1TaskConfig(Config):
+class PF1Config(Config):
     brightSnrMin = Field(doc="Minimum median SNR for a source to be considered bright.",
                          dtype=float, default=200)
     brightSnrMax = Field(doc="Maximum median SNR for a source to be considered bright.",
@@ -107,10 +107,10 @@ class PF1Task(Task):
     same set of photometric residuals that are calculated for the PA1 metric.
     This metric is calculated on a set of matched visits, and aggregated at the tract level.
     """
-    ConfigClass = PF1TaskConfig
+    ConfigClass = PF1Config
     _DefaultName = "PF1Task"
 
-    def __init__(self, config: PF1TaskConfig, *args, **kwargs):
+    def __init__(self, config: PF1Config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
     def run(self, matchedCatalog, metricName):
@@ -159,7 +159,7 @@ def bins(window, n):
     return [i*delta for i in range(n+1)]
 
 
-class AMxTaskConfig(Config):
+class AMxConfig(Config):
     annulus_r = Field(doc="Radial distance of the annulus in arcmin (5, 20, or 200 for AM1, AM2, AM3)",
                       dtype=float, default=5.)
     width = Field(doc="Width of annulus in arcmin",
@@ -178,7 +178,7 @@ class AMxTaskConfig(Config):
 
 
 class AMxTask(Task):
-    ConfigClass = AMxTaskConfig
+    ConfigClass = AMxConfig
     _DefaultName = "AMxTask"
 
     def run(self, matchedCatalog, metric_name):
@@ -208,7 +208,7 @@ class AMxTask(Task):
 
 
 class ADxTask(Task):
-    ConfigClass = AMxTaskConfig
+    ConfigClass = AMxConfig
     _DefaultName = "ADxTask"
 
     def run(self, matchedCatalog, metric_name):
@@ -233,7 +233,7 @@ class ADxTask(Task):
 
 
 class AFxTask(Task):
-    ConfigClass = AMxTaskConfig
+    ConfigClass = AMxConfig
     _DefaultName = "AFxTask"
 
     def run(self, matchedCatalog, metric_name):
@@ -256,7 +256,7 @@ class AFxTask(Task):
             return Struct(measurement=Measurement(metric_name, percentileAtADx))
 
 
-class AB1TaskConfig(Config):
+class AB1Config(Config):
     bright_mag_cut = Field(doc="Bright limit of catalog entries to include",
                            dtype=float, default=17.0)
     faint_mag_cut = Field(doc="Faint limit of catalog entries to include",
@@ -266,7 +266,7 @@ class AB1TaskConfig(Config):
 
 
 class AB1Task(Task):
-    ConfigClass = AB1TaskConfig
+    ConfigClass = AB1Config
     _DefaultName = "AB1Task"
 
     def run(self, matchedCatalogMulti, metric_name, in_id, out_id):
@@ -312,7 +312,7 @@ class AB1Task(Task):
             return Struct(measurement=Measurement(metric_name, np.nan*u.marcsec))
 
 
-class ModelPhotRepTaskConfig(Config):
+class ModelPhotRepConfig(Config):
     """Config fields for the *ModelPhotRep photometric repeatability metrics.
     """
     index = ChoiceField(doc="Index of the metric definition", dtype=int,
@@ -342,10 +342,10 @@ class ModelPhotRepTask(Task):
     This metric is calculated on a set of matched visits, and aggregated at the tract level.
     """
 
-    ConfigClass = ModelPhotRepTaskConfig
+    ConfigClass = ModelPhotRepConfig
     _DefaultName = "ModelPhotRepTask"
 
-    def __init__(self, config: ModelPhotRepTaskConfig, *args, **kwargs):
+    def __init__(self, config: ModelPhotRepConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
     def run(self, matchedCatalog, metricName):

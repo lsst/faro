@@ -1,14 +1,14 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.MatchedCatalogBase import (MatchedBaseTaskConnections,
-                                               MatchedBaseTaskConfig,
+                                               MatchedBaseConfig,
                                                MatchedBaseTask, MatchedTractBaseTask)
 
-__all__ = ("PatchMatchedPreparationTaskConnections", "PatchMatchedPreparationTaskConfig",
+__all__ = ("PatchMatchedPreparationTaskConnections", "PatchMatchedPreparationConfig",
            "PatchMatchedPreparationTask",
-           "TractMatchedPreparationTaskConnections", "TractMatchedPreparationTaskConfig",
+           "TractMatchedPreparationTaskConnections", "TractMatchedPreparationConfig",
            "TractMatchedPreparationTask",
-           "PatchMatchedMultiBandPreparationTaskConnections", "PatchMatchedMultiBandPreparationTaskConfig",
+           "PatchMatchedMultiBandPreparationTaskConnections", "PatchMatchedMultiBandPreparationConfig",
            "PatchMatchedMultiBandPreparationTask")
 
 
@@ -24,14 +24,14 @@ class PatchMatchedPreparationTaskConnections(MatchedBaseTaskConnections,
                                                     name="matchedCatalogPatch")
 
 
-class PatchMatchedPreparationTaskConfig(MatchedBaseTaskConfig,
+class PatchMatchedPreparationConfig(MatchedBaseConfig,
                                         pipelineConnections=PatchMatchedPreparationTaskConnections):
     pass
 
 
 class PatchMatchedPreparationTask(MatchedBaseTask):
 
-    ConfigClass = PatchMatchedPreparationTaskConfig
+    ConfigClass = PatchMatchedPreparationConfig
     _DefaultName = "patchMatchedPreparationTask"
 
 
@@ -44,14 +44,14 @@ class TractMatchedPreparationTaskConnections(MatchedBaseTaskConnections,
                                                     name="matchedCatalogTract")
 
 
-class TractMatchedPreparationTaskConfig(MatchedBaseTaskConfig,
+class TractMatchedPreparationConfig(MatchedBaseConfig,
                                         pipelineConnections=TractMatchedPreparationTaskConnections):
     pass
 
 
 class TractMatchedPreparationTask(MatchedTractBaseTask):
 
-    ConfigClass = TractMatchedPreparationTaskConfig
+    ConfigClass = TractMatchedPreparationConfig
     _DefaultName = "tractMatchedPreparationTask"
 
 
@@ -64,13 +64,13 @@ class PatchMatchedMultiBandPreparationTaskConnections(MatchedBaseTaskConnections
                                                     name="matchedCatalogPatchMultiBand")
 
 
-class PatchMatchedMultiBandPreparationTaskConfig(
-        MatchedBaseTaskConfig,
+class PatchMatchedMultiBandPreparationConfig(
+        MatchedBaseConfig,
         pipelineConnections=PatchMatchedMultiBandPreparationTaskConnections):
     pass
 
 
 class PatchMatchedMultiBandPreparationTask(MatchedBaseTask):
 
-    ConfigClass = PatchMatchedMultiBandPreparationTaskConfig
+    ConfigClass = PatchMatchedMultiBandPreparationConfig
     _DefaultName = "patchMatchedMultiBandPreparationTask"

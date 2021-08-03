@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.VisitMeasurement.VisitMeasurementTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.VisitMeasurement.VisitMeasurementConfig
 
 ##########################
-VisitMeasurementTaskConfig
+VisitMeasurementConfig
 ##########################
 
-.. _lsst.faro.measurement.VisitMeasurement.VisitMeasurementTaskConfig-configs:
+.. _lsst.faro.measurement.VisitMeasurement.VisitMeasurementConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.VisitMeasurement.VisitMeasurementTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.VisitMeasurement.VisitMeasurementConfig

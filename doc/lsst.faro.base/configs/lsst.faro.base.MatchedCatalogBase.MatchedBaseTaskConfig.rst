@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.base.MatchedCatalogBase.MatchedBaseTaskConfig
+.. lsst-config-topic:: lsst.faro.base.MatchedCatalogBase.MatchedBaseConfig
 
 #####################
-MatchedBaseTaskConfig
+MatchedBaseConfig
 #####################
 
-.. _lsst.faro.base.MatchedCatalogBase.MatchedBaseTaskConfig-configs:
+.. _lsst.faro.base.MatchedCatalogBase.MatchedBaseConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.base.MatchedCatalogBase.MatchedBaseTaskConfig
+.. lsst-config-fields:: lsst.faro.base.MatchedCatalogBase.MatchedBaseConfig

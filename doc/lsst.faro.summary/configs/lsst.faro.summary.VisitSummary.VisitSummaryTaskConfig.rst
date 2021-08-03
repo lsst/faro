@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.summary.VisitSummary.VisitSummaryTaskConfig
+.. lsst-config-topic:: lsst.faro.summary.VisitSummary.VisitSummaryConfig
 
 ######################
-VisitSummaryTaskConfig
+VisitSummaryConfig
 ######################
 
-.. _lsst.faro.summary.VisitSummary.VisitSummaryTaskConfig-configs:
+.. _lsst.faro.summary.VisitSummary.VisitSummaryConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.summary.VisitSummary.VisitSummaryTaskConfig
+.. lsst-config-fields:: lsst.faro.summary.VisitSummary.VisitSummaryConfig

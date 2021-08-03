@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryTaskConfig
+.. lsst-config-topic:: lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryConfig
 
 #############################
-TractMatchedSummaryTaskConfig
+TractMatchedSummaryConfig
 #############################
 
-.. _lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryTaskConfig-configs:
+.. _lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryTaskConfig
+.. lsst-config-fields:: lsst.faro.summary.MatchedCatalogSummary.TractMatchedSummaryConfig

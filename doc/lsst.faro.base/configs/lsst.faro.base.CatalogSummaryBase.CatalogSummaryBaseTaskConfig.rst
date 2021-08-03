@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseTaskConfig
+.. lsst-config-topic:: lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseConfig
 
 ############################
-CatalogSummaryBaseTaskConfig
+CatalogSummaryBaseConfig
 ############################
 
-.. _lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseTaskConfig-configs:
+.. _lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseTaskConfig
+.. lsst-config-fields:: lsst.faro.base.CatalogSummaryBase.CatalogSummaryBaseConfig

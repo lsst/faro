@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxConfig
 
 #############
-AMxTaskConfig
+AMxConfig
 #############
 
-.. _lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxTaskConfig-configs:
+.. _lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurementTasks.AMxConfig

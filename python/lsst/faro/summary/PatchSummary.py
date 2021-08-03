@@ -1,9 +1,9 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
-                                               CatalogSummaryBaseTaskConfig)
+                                               CatalogSummaryBaseConfig)
 
-__all__ = ("PatchSummaryTaskConnections", "PatchSummaryTaskConfig", "PatchSummaryTask")
+__all__ = ("PatchSummaryTaskConnections", "PatchSummaryConfig", "PatchSummaryTask")
 
 
 class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
@@ -16,12 +16,12 @@ class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
                                                   multiple=True)
 
 
-class PatchSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+class PatchSummaryConfig(CatalogSummaryBaseConfig,
                              pipelineConnections=PatchSummaryTaskConnections):
     pass
 
 
 class PatchSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = PatchSummaryTaskConfig
+    ConfigClass = PatchSummaryConfig
     _DefaultName = "patchSummaryTask"

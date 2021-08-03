@@ -7,10 +7,10 @@ from lsst.verify import Measurement
 from lsst.faro.utils.matcher import mergeCatalogs
 
 __all__ = ('NumSourcesTask', 'NumSourcesMergeTask',
-           'NumpySummaryTaskConfig', 'NumpySummaryTask')
+           'NumpySummaryConfig', 'NumpySummaryTask')
 
 
-class NumSourcesTaskConfig(Config):
+class NumSourcesConfig(Config):
     doPrimary = Field(doc="Only count sources where detect_isPrimary is True.",
                       dtype=bool, default=False)
 
@@ -18,7 +18,7 @@ class NumSourcesTaskConfig(Config):
 class NumSourcesTask(Task):
     """Simple default task count the number of sources/objects in catalog."""
 
-    ConfigClass = NumSourcesTaskConfig
+    ConfigClass = NumSourcesConfig
     _DefaultName = "numSourcesTask"
 
     def run(self, metricName, catalog, **kwargs):
@@ -45,14 +45,14 @@ class NumSourcesMergeTask(Task):
         return Struct(measurement=meas)
 
 
-class NumpySummaryTaskConfig(Config):
+class NumpySummaryConfig(Config):
     summary = Field(dtype=str, default="median",
                     doc="Aggregation to use for summary metrics")
 
 
 class NumpySummaryTask(Task):
 
-    ConfigClass = NumpySummaryTaskConfig
+    ConfigClass = NumpySummaryConfig
     _DefaultName = "numpySummaryTask"
 
     def run(self, measurements, agg_name, package, metric):

@@ -9,10 +9,10 @@ from lsst.faro.utils.matcher import makeMatchedPhotom
 from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.utils.tex import calculateTEx
 
-__all__ = ("WPerpTaskConfig", "WPerpTask", "TExTaskConfig", "TExTask")
+__all__ = ("WPerpConfig", "WPerpTask", "TExConfig", "TExTask")
 
 
-class WPerpTaskConfig(Config):
+class WPerpConfig(Config):
     # These are cuts to apply to the r-band only:
     bright_rmag_cut = Field(doc="Bright limit of catalog entries to include",
                             dtype=float, default=17.0)
@@ -21,7 +21,7 @@ class WPerpTaskConfig(Config):
 
 
 class WPerpTask(Task):
-    ConfigClass = WPerpTaskConfig
+    ConfigClass = WPerpConfig
     _DefaultName = "WPerpTask"
 
     def run(self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None):
@@ -57,7 +57,7 @@ class WPerpTask(Task):
             return Struct(measurement=Measurement(metricName, np.nan*u.mmag))
 
 
-class TExTaskConfig(Config):
+class TExConfig(Config):
     minSep = Field(doc="Inner radius of the annulus in arcmin",
                    dtype=float, default=0.25)
     maxSep = Field(doc="Outer radius of the annulus in arcmin",
@@ -76,7 +76,7 @@ class TExTaskConfig(Config):
 
 
 class TExTask(Task):
-    ConfigClass = TExTaskConfig
+    ConfigClass = TExConfig
     _DefaultName = "TExTask"
 
     def run(self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None):

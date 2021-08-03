@@ -5,7 +5,7 @@ import numpy as np
 
 from lsst.faro.utils.matcher import matchCatalogs
 
-__all__ = ('MatchedBaseTaskConnections', 'MatchedBaseTaskConfig', 'MatchedBaseTask', 'MatchedTractBaseTask')
+__all__ = ('MatchedBaseTaskConnections', 'MatchedBaseConfig', 'MatchedBaseTask', 'MatchedTractBaseTask')
 
 
 class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
@@ -94,7 +94,7 @@ class MatchedBaseTaskConnections(pipeBase.PipelineTaskConnections,
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
 
 
-class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
+class MatchedBaseConfig(pipeBase.PipelineTaskConfig,
                             pipelineConnections=MatchedBaseTaskConnections):
     match_radius = pexConfig.Field(doc="Match radius in arcseconds.", dtype=float, default=1)
     doApplyExternalSkyWcs = pexConfig.Field(doc="Whether or not to use the external wcs.",
@@ -109,10 +109,10 @@ class MatchedBaseTaskConfig(pipeBase.PipelineTaskConfig,
 
 class MatchedBaseTask(pipeBase.PipelineTask):
 
-    ConfigClass = MatchedBaseTaskConfig
+    ConfigClass = MatchedBaseConfig
     _DefaultName = "matchedBaseTask"
 
-    def __init__(self, config: MatchedBaseTaskConfig, *args, **kwargs):
+    def __init__(self, config: MatchedBaseConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
         self.level = "patch"
@@ -202,10 +202,10 @@ class MatchedBaseTask(pipeBase.PipelineTask):
 
 class MatchedTractBaseTask(MatchedBaseTask):
 
-    ConfigClass = MatchedBaseTaskConfig
+    ConfigClass = MatchedBaseConfig
     _DefaultName = "matchedTractBaseTask"
 
-    def __init__(self, config: MatchedBaseTaskConfig, *args, **kwargs):
+    def __init__(self, config: MatchedBaseConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
         self.radius = self.config.match_radius
         self.level = "tract"

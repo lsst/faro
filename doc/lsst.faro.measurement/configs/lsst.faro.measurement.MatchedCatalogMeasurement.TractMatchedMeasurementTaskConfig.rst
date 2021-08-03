@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementConfig
 
-#################################
-TractMatchedMeasurementTaskConfig
-#################################
+#############################
+TractMatchedMeasurementConfig
+#############################
 
-.. _lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementTaskConfig-configs:
+.. _lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.TractMatchedMeasurementConfig

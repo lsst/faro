@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.TractMeasurementTasks.WPerpTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.TractMeasurementTasks.WPerpConfig
 
 ###############
-WPerpTaskConfig
+WPerpConfig
 ###############
 
-.. _lsst.faro.measurement.TractMeasurementTasks.WPerpTaskConfig-configs:
+.. _lsst.faro.measurement.TractMeasurementTasks.WPerpConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.TractMeasurementTasks.WPerpTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.TractMeasurementTasks.WPerpConfig

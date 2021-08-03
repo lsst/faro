@@ -1,10 +1,10 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
-                                               CatalogSummaryBaseTaskConfig)
+                                               CatalogSummaryBaseConfig)
 
-__all__ = ("PatchMatchedSummaryTaskConnections", "PatchMatchedSummaryTaskConfig", "PatchMatchedSummaryTask",
-           "TractMatchedSummaryTaskConnections", "TractMatchedSummaryTaskConfig", "TractMatchedSummaryTask")
+__all__ = ("PatchMatchedSummaryTaskConnections", "PatchMatchedSummaryConfig", "PatchMatchedSummaryTask",
+           "TractMatchedSummaryTaskConnections", "TractMatchedSummaryConfig", "TractMatchedSummaryTask")
 
 
 # Dimensions of the Connections class define the iterations of runQuantum
@@ -17,14 +17,14 @@ class PatchMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
                                                   multiple=True)
 
 
-class PatchMatchedSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+class PatchMatchedSummaryConfig(CatalogSummaryBaseConfig,
                                     pipelineConnections=PatchMatchedSummaryTaskConnections):
     pass
 
 
 class PatchMatchedSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = PatchMatchedSummaryTaskConfig
+    ConfigClass = PatchMatchedSummaryConfig
     _DefaultName = "patchMatchedSummaryTask"
 
 
@@ -36,12 +36,12 @@ class TractMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
                                                   multiple=True)
 
 
-class TractMatchedSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
+class TractMatchedSummaryConfig(CatalogSummaryBaseConfig,
                                     pipelineConnections=TractMatchedSummaryTaskConnections):
     pass
 
 
 class TractMatchedSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = TractMatchedSummaryTaskConfig
+    ConfigClass = TractMatchedSummaryConfig
     _DefaultName = "tractMatchedSummaryTask"
