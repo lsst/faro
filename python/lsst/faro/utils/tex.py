@@ -5,18 +5,31 @@ import treecorr
 from lsst.faro.utils.matcher import mergeCatalogs
 
 
-__all__ = ("TraceSize", "PsfTraceSizeDiff", "E1", "E2", "E1Resids", "E2Resids",
-           "RhoStatistics", "corrSpin0", "corrSpin2", "calculateTEx")
+__all__ = (
+    "TraceSize",
+    "PsfTraceSizeDiff",
+    "E1",
+    "E2",
+    "E1Resids",
+    "E2Resids",
+    "RhoStatistics",
+    "corrSpin0",
+    "corrSpin2",
+    "calculateTEx",
+)
 
 
 class TraceSize(object):
     """Functor to calculate trace radius size for sources.
     """
+
     def __init__(self, column):
         self.column = column
 
     def __call__(self, catalog):
-        srcSize = np.sqrt(0.5*(catalog[self.column + "_xx"] + catalog[self.column + "_yy"]))
+        srcSize = np.sqrt(
+            0.5 * (catalog[self.column + "_xx"] + catalog[self.column + "_yy"])
+        )
         return np.array(srcSize)
 
 
@@ -24,14 +37,19 @@ class PsfTraceSizeDiff(object):
     """Functor to calculate trace radius size difference (%) between object and
     PSF model.
     """
+
     def __init__(self, column, psfColumn):
         self.column = column
         self.psfColumn = psfColumn
 
     def __call__(self, catalog):
-        srcSize = np.sqrt(0.5*(catalog[self.column + "_xx"] + catalog[self.column + "_yy"]))
-        psfSize = np.sqrt(0.5*(catalog[self.psfColumn + "_xx"] + catalog[self.psfColumn + "_yy"]))
-        sizeDiff = 100*(srcSize - psfSize)/(0.5*(srcSize + psfSize))
+        srcSize = np.sqrt(
+            0.5 * (catalog[self.column + "_xx"] + catalog[self.column + "_yy"])
+        )
+        psfSize = np.sqrt(
+            0.5 * (catalog[self.psfColumn + "_xx"] + catalog[self.psfColumn + "_yy"])
+        )
+        sizeDiff = 100 * (srcSize - psfSize) / (0.5 * (srcSize + psfSize))
         return np.array(sizeDiff)
 
 
@@ -54,6 +72,7 @@ class E1(object):
     e1 : `numpy.array`
         A numpy array of e1 ellipticity values.
     """
+
     def __init__(self, column, unitScale=1.0, shearConvention=False):
         self.column = column
         self.unitScale = unitScale
@@ -64,7 +83,7 @@ class E1(object):
         yy = catalog[self.column + "_yy"]
         if self.shearConvention:
             xy = catalog[self.column + "_xy"]
-            e1 = (xx - yy) / (xx + yy + 2. * np.sqrt(xx * yy - xy**2))
+            e1 = (xx - yy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
             e1 = (xx - yy) / (xx + yy)
         return np.array(e1) * self.unitScale
@@ -89,6 +108,7 @@ class E2(object):
     e2 : `numpy.array`
         A numpy array of e2 ellipticity values.
     """
+
     def __init__(self, column, unitScale=1.0, shearConvention=False):
         self.column = column
         self.unitScale = unitScale
@@ -99,10 +119,10 @@ class E2(object):
         yy = catalog[self.column + "_yy"]
         xy = catalog[self.column + "_xy"]
         if self.shearConvention:
-            e2 = (2. * xy) / (xx + yy + 2. * np.sqrt(xx * yy - xy**2))
+            e2 = (2.0 * xy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
-            e2 = (2. * xy) / (xx + yy)
-        return np.array(e2)*self.unitScale
+            e2 = (2.0 * xy) / (xx + yy)
+        return np.array(e2) * self.unitScale
 
 
 class E1Resids(object):
@@ -128,6 +148,7 @@ class E1Resids(object):
     e1Resids : `numpy.array`
         A numpy array of e1 residual ellipticity values.
     """
+
     def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
         self.column = column
         self.psfColumn = psfColumn
@@ -168,6 +189,7 @@ class E2Resids(object):
     e2Resids : `numpy.array`
         A numpy array of e2 residual ellipticity values.
     """
+
     def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
         self.column = column
         self.psfColumn = psfColumn
@@ -213,14 +235,19 @@ class RhoStatistics(object):
         to Rho statistic indices. rho0 corresponds to autocorrelation function
         of PSF size residuals.
     """
+
     def __init__(self, column, psfColumn, shearConvention=False, **kwargs):
         self.column = column
         self.psfColumn = psfColumn
         self.shearConvention = shearConvention
         self.e1Func = E1(self.psfColumn, shearConvention=self.shearConvention)
         self.e2Func = E2(self.psfColumn, shearConvention=self.shearConvention)
-        self.e1ResidsFunc = E1Resids(self.column, self.psfColumn, shearConvention=self.shearConvention)
-        self.e2ResidsFunc = E2Resids(self.column, self.psfColumn, shearConvention=self.shearConvention)
+        self.e1ResidsFunc = E1Resids(
+            self.column, self.psfColumn, shearConvention=self.shearConvention
+        )
+        self.e2ResidsFunc = E2Resids(
+            self.column, self.psfColumn, shearConvention=self.shearConvention
+        )
         self.traceSizeFunc = TraceSize(self.column)
         self.psfTraceSizeFunc = TraceSize(self.psfColumn)
         self.kwargs = kwargs
@@ -230,9 +257,9 @@ class RhoStatistics(object):
         e2 = self.e2Func(catalog)
         e1Res = self.e1ResidsFunc(catalog)
         e2Res = self.e2ResidsFunc(catalog)
-        traceSize2 = self.traceSizeFunc(catalog)**2
-        psfTraceSize2 = self.psfTraceSizeFunc(catalog)**2
-        SizeRes = (traceSize2 - psfTraceSize2)/(0.5*(traceSize2 + psfTraceSize2))
+        traceSize2 = self.traceSizeFunc(catalog) ** 2
+        psfTraceSize2 = self.psfTraceSizeFunc(catalog) ** 2
+        SizeRes = (traceSize2 - psfTraceSize2) / (0.5 * (traceSize2 + psfTraceSize2))
 
         isFinite = np.isfinite(e1Res) & np.isfinite(e2Res) & np.isfinite(SizeRes)
         e1 = e1[isFinite]
@@ -242,30 +269,45 @@ class RhoStatistics(object):
         SizeRes = SizeRes[isFinite]
 
         # Scale the SizeRes by ellipticities
-        e1SizeRes = e1*SizeRes
-        e2SizeRes = e2*SizeRes
+        e1SizeRes = e1 * SizeRes
+        e2SizeRes = e2 * SizeRes
 
         # Package the arguments to capture auto-/cross-correlations for the
         # Rho statistics.
-        args = {0: (SizeRes, None),
-                1: (e1Res, e2Res, None, None),
-                2: (e1, e2, e1Res, e2Res),
-                3: (e1SizeRes, e2SizeRes, None, None),
-                4: (e1Res, e2Res, e1SizeRes, e2SizeRes),
-                5: (e1, e2, e1SizeRes, e2SizeRes)}
+        args = {
+            0: (SizeRes, None),
+            1: (e1Res, e2Res, None, None),
+            2: (e1, e2, e1Res, e2Res),
+            3: (e1SizeRes, e2SizeRes, None, None),
+            4: (e1Res, e2Res, e1SizeRes, e2SizeRes),
+            5: (e1, e2, e1SizeRes, e2SizeRes),
+        }
 
-        ra = np.rad2deg(catalog["coord_ra"][isFinite])*60.  # arcmin
-        dec = np.rad2deg(catalog["coord_dec"][isFinite])*60.  # arcmin
+        ra = np.rad2deg(catalog["coord_ra"][isFinite]) * 60.0  # arcmin
+        dec = np.rad2deg(catalog["coord_dec"][isFinite]) * 60.0  # arcmin
 
         # Pass the appropriate arguments to the correlator and build a dict
-        rhoStats = {rhoIndex: corrSpin2(ra, dec, *(args[rhoIndex]), raUnits="arcmin", decUnits="arcmin",
-                                        **self.kwargs) for rhoIndex in range(1, 6)}
-        rhoStats[0] = corrSpin0(ra, dec, *(args[0]), raUnits="arcmin", decUnits="arcmin", **self.kwargs)
+        rhoStats = {
+            rhoIndex: corrSpin2(
+                ra,
+                dec,
+                *(args[rhoIndex]),
+                raUnits="arcmin",
+                decUnits="arcmin",
+                **self.kwargs
+            )
+            for rhoIndex in range(1, 6)
+        }
+        rhoStats[0] = corrSpin0(
+            ra, dec, *(args[0]), raUnits="arcmin", decUnits="arcmin", **self.kwargs
+        )
 
         return rhoStats
 
 
-def corrSpin0(ra, dec, k1, k2=None, raUnits="degrees", decUnits="degrees", **treecorrKwargs):
+def corrSpin0(
+    ra, dec, k1, k2=None, raUnits="degrees", decUnits="degrees", **treecorrKwargs
+):
     """Function to compute correlations between at most two scalar fields.
     This is used to compute Rho0 statistics, given the appropriate spin-0
     (scalar) fields, usually fractional size residuals.
@@ -295,21 +337,31 @@ def corrSpin0(ra, dec, k1, k2=None, raUnits="degrees", decUnits="degrees", **tre
     """
 
     xy = treecorr.KKCorrelation(**treecorrKwargs)
-    catA = treecorr.Catalog(ra=ra, dec=dec, k=k1, ra_units=raUnits,
-                            dec_units=decUnits)
+    catA = treecorr.Catalog(ra=ra, dec=dec, k=k1, ra_units=raUnits, dec_units=decUnits)
     if k2 is None:
         # Calculate the auto-correlation
         xy.process(catA)
     else:
-        catB = treecorr.Catalog(ra=ra, dec=dec, k=k2, ra_units=raUnits,
-                                dec_units=decUnits)
+        catB = treecorr.Catalog(
+            ra=ra, dec=dec, k=k2, ra_units=raUnits, dec_units=decUnits
+        )
         # Calculate the cross-correlation
         xy.process(catA, catB)
 
     return xy
 
 
-def corrSpin2(ra, dec, g1a, g2a, g1b=None, g2b=None, raUnits="degrees", decUnits="degrees", **treecorrKwargs):
+def corrSpin2(
+    ra,
+    dec,
+    g1a,
+    g2a,
+    g1b=None,
+    g2b=None,
+    raUnits="degrees",
+    decUnits="degrees",
+    **treecorrKwargs
+):
     """Function to compute correlations between at most two shear-like fields.
     This is used to compute Rho statistics, given the appropriate spin-2
     (shear-like) fields.
@@ -343,14 +395,16 @@ def corrSpin2(ra, dec, g1a, g2a, g1b=None, g2b=None, raUnits="degrees", decUnits
         A `treecorr.GGCorrelation` object containing the correlation function.
     """
     xy = treecorr.GGCorrelation(**treecorrKwargs)
-    catA = treecorr.Catalog(ra=ra, dec=dec, g1=g1a, g2=g2a, ra_units=raUnits,
-                            dec_units=decUnits)
+    catA = treecorr.Catalog(
+        ra=ra, dec=dec, g1=g1a, g2=g2a, ra_units=raUnits, dec_units=decUnits
+    )
     if g1b is None or g2b is None:
         # Calculate the auto-correlation
         xy.process(catA)
     else:
-        catB = treecorr.Catalog(ra=ra, dec=dec, g1=g1b, g2=g2b, ra_units=raUnits,
-                                dec_units=decUnits)
+        catB = treecorr.Catalog(
+            ra=ra, dec=dec, g1=g1b, g2=g2b, ra_units=raUnits, dec_units=decUnits
+        )
         # Calculate the cross-correlation
         xy.process(catA, catB)
 
@@ -365,28 +419,37 @@ def calculateTEx(catalogs, photoCalibs, astromCalibs, config):
 
     # Filtering should be pulled out into a separate function for standard quality selections
     snrMin = 50
-    selection = (catalog['base_ClassificationExtendedness_value'] < 0.5) \
-        & ((catalog['slot_PsfFlux_instFlux'] / catalog['slot_PsfFlux_instFluxErr']) > snrMin) \
-        & (catalog['deblend_nChild'] == 0)
+    selection = (
+        (catalog["base_ClassificationExtendedness_value"] < 0.5)
+        & (
+            (catalog["slot_PsfFlux_instFlux"] / catalog["slot_PsfFlux_instFluxErr"])
+            > snrMin
+        )
+        & (catalog["deblend_nChild"] == 0)
+    )
 
     nMinSources = 50
     if np.sum(selection) < nMinSources:
-        return {'nomeas': np.nan * u.Unit('')}
+        return {"nomeas": np.nan * u.Unit("")}
 
-    treecorrKwargs = dict(nbins=config.nbins,
-                          min_sep=config.minSep,
-                          max_sep=config.maxSep,
-                          sep_units='arcmin')
-    rhoStatistics = RhoStatistics(config.column, config.columnPsf, config.shearConvention, **treecorrKwargs)
+    treecorrKwargs = dict(
+        nbins=config.nbins,
+        min_sep=config.minSep,
+        max_sep=config.maxSep,
+        sep_units="arcmin",
+    )
+    rhoStatistics = RhoStatistics(
+        config.column, config.columnPsf, config.shearConvention, **treecorrKwargs
+    )
     xy = rhoStatistics(catalog[selection])[config.rhoStat]
 
     radius = np.exp(xy.meanlogr) * u.arcmin
     if config.rhoStat == 0:
-        corr = xy.xi * u.Unit('')
-        corrErr = np.sqrt(xy.varxip) * u.Unit('')
+        corr = xy.xi * u.Unit("")
+        corrErr = np.sqrt(xy.varxip) * u.Unit("")
     else:
-        corr = xy.xip * u.Unit('')
-        corrErr = np.sqrt(xy.varxip) * u.Unit('')
+        corr = xy.xip * u.Unit("")
+        corrErr = np.sqrt(xy.varxip) * u.Unit("")
 
     result = dict(radius=radius, corr=corr, corrErr=corrErr)
     return result

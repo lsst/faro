@@ -3,51 +3,56 @@ import astropy.units as u
 import logging
 import lsst.geom as geom
 from lsst.faro.utils.filtermatches import filterMatches
-from lsst.faro.utils.coord_util import (averageRaFromCat, averageDecFromCat,
-                                        sphDist)
+from lsst.faro.utils.coord_util import averageRaFromCat, averageDecFromCat, sphDist
 
-__all__ = ("astromRms", "astromResiduals", "calcRmsDistances", "calcSepOutliers",
-           "matchVisitComputeDistance", "calcRmsDistancesVsRef")
+__all__ = (
+    "astromRms",
+    "astromResiduals",
+    "calcRmsDistances",
+    "calcSepOutliers",
+    "matchVisitComputeDistance",
+    "calcRmsDistancesVsRef",
+)
 
 
-def astromRms(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
+def astromRms(
+    matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs
+):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
 
     magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
     D = annulus_r * u.arcmin
     width = width * u.arcmin
-    annulus = D + (width/2)*np.array([-1, +1])
+    annulus = D + (width / 2) * np.array([-1, +1])
 
     # Require at least 2 measurements to calculate the repeatability:
     nMinMeas = 2
     if filteredCat.count > nMinMeas:
         astrom_resid_rms_meas = calcRmsDistances(
-            filteredCat,
-            annulus,
-            magRange=magRange)
+            filteredCat, annulus, magRange=magRange
+        )
         return astrom_resid_rms_meas
     else:
-        return {'nomeas': np.nan*u.marcsec}
+        return {"nomeas": np.nan * u.marcsec}
 
 
-def astromResiduals(matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs):
+def astromResiduals(
+    matchedCatalog, mag_bright_cut, mag_faint_cut, annulus_r, width, **filterargs
+):
     filteredCat = filterMatches(matchedCatalog, **filterargs)
 
     magRange = np.array([mag_bright_cut, mag_faint_cut]) * u.mag
     D = annulus_r * u.arcmin
     width = width * u.arcmin
-    annulus = D + (width/2)*np.array([-1, +1])
+    annulus = D + (width / 2) * np.array([-1, +1])
 
     # Require at least 2 measurements to calculate the repeatability:
     nMinMeas = 2
     if filteredCat.count > nMinMeas:
-        astrom_resid_meas = calcSepOutliers(
-            filteredCat,
-            annulus,
-            magRange=magRange)
+        astrom_resid_meas = calcSepOutliers(filteredCat, annulus, magRange=magRange)
         return astrom_resid_meas
     else:
-        return {'nomeas': np.nan*u.marcsec}
+        return {"nomeas": np.nan * u.marcsec}
 
 
 def calcRmsDistances(groupView, annulus, magRange, verbose=False):
@@ -72,30 +77,38 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
     log = logging.getLogger(__name__)
 
     # First we make a list of the keys that we want the fields for
-    importantKeys = [groupView.schema.find(name).key for
-                     name in ['id', 'coord_ra', 'coord_dec',
-                              'object', 'visit', 'base_PsfFlux_mag']]
+    importantKeys = [
+        groupView.schema.find(name).key
+        for name in [
+            "id",
+            "coord_ra",
+            "coord_dec",
+            "object",
+            "visit",
+            "base_PsfFlux_mag",
+        ]
+    ]
 
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get('base_PsfFlux_mag')
-        w, = np.where(np.isfinite(mag))
+        mag = cat.get("base_PsfFlux_mag")
+        (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
 
     groupViewInMagRange = groupView.where(magInRange)
 
     # List of lists of id, importantValue
-    matchKeyOutput = [obj.get(key)
-                      for key in importantKeys
-                      for obj in groupViewInMagRange.groups]
+    matchKeyOutput = [
+        obj.get(key) for key in importantKeys for obj in groupViewInMagRange.groups
+    ]
 
     jump = len(groupViewInMagRange)
 
-    ra = matchKeyOutput[1*jump:2*jump]
-    dec = matchKeyOutput[2*jump:3*jump]
-    visit = matchKeyOutput[4*jump:5*jump]
+    ra = matchKeyOutput[1 * jump: 2 * jump]
+    dec = matchKeyOutput[2 * jump: 3 * jump]
+    visit = matchKeyOutput[4 * jump: 5 * jump]
 
     # Calculate the mean position of each object from its constituent visits
     # `aggregate` calulates a quantity for each object in the groupView.
@@ -106,21 +119,23 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
 
     rmsDistances = list()
     for obj1, (ra1, dec1, visit1) in enumerate(zip(meanRa, meanDec, visit)):
-        dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
-        objectsInAnnulus, = np.where((annulusRadians[0] <= dist)
-                                     & (dist < annulusRadians[1]))
+        dist = sphDist(ra1, dec1, meanRa[obj1 + 1:], meanDec[obj1 + 1:])
+        (objectsInAnnulus,) = np.where(
+            (annulusRadians[0] <= dist) & (dist < annulusRadians[1])
+        )
         objectsInAnnulus += obj1 + 1
         for obj2 in objectsInAnnulus:
             distances = matchVisitComputeDistance(
-                visit[obj1], ra[obj1], dec[obj1],
-                visit[obj2], ra[obj2], dec[obj2])
+                visit[obj1], ra[obj1], dec[obj1], visit[obj2], ra[obj2], dec[obj2]
+            )
             if not distances:
                 if verbose:
-                    log.debug("No matching visits "
-                              "found for objs: %d and %d" % obj1, obj2)
+                    log.debug(
+                        "No matching visits " "found for objs: %d and %d" % obj1, obj2
+                    )
                 continue
 
-            finiteEntries, = np.where(np.isfinite(distances))
+            (finiteEntries,) = np.where(np.isfinite(distances))
             # Need at least 2 distances to get a finite sample stdev
             if len(finiteEntries) > 1:
                 # ddof=1 to get sample standard deviation (e.g., 1/(n-1))
@@ -155,30 +170,38 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     log = logging.getLogger(__name__)
 
     # First we make a list of the keys that we want the fields for
-    importantKeys = [groupView.schema.find(name).key for
-                     name in ['id', 'coord_ra', 'coord_dec',
-                              'object', 'visit', 'base_PsfFlux_mag']]
+    importantKeys = [
+        groupView.schema.find(name).key
+        for name in [
+            "id",
+            "coord_ra",
+            "coord_dec",
+            "object",
+            "visit",
+            "base_PsfFlux_mag",
+        ]
+    ]
 
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get('base_PsfFlux_mag')
-        w, = np.where(np.isfinite(mag))
+        mag = cat.get("base_PsfFlux_mag")
+        (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
 
     groupViewInMagRange = groupView.where(magInRange)
 
     # List of lists of id, importantValue
-    matchKeyOutput = [obj.get(key)
-                      for key in importantKeys
-                      for obj in groupViewInMagRange.groups]
+    matchKeyOutput = [
+        obj.get(key) for key in importantKeys for obj in groupViewInMagRange.groups
+    ]
 
     jump = len(groupViewInMagRange)
 
-    ra = matchKeyOutput[1*jump:2*jump]
-    dec = matchKeyOutput[2*jump:3*jump]
-    visit = matchKeyOutput[4*jump:5*jump]
+    ra = matchKeyOutput[1 * jump: 2 * jump]
+    dec = matchKeyOutput[2 * jump: 3 * jump]
+    visit = matchKeyOutput[4 * jump: 5 * jump]
 
     # Calculate the mean position of each object from its constituent visits
     # `aggregate` calulates a quantity for each object in the groupView.
@@ -189,28 +212,32 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
 
     sepResiduals = list()
     for obj1, (ra1, dec1, visit1) in enumerate(zip(meanRa, meanDec, visit)):
-        dist = sphDist(ra1, dec1, meanRa[obj1+1:], meanDec[obj1+1:])
-        objectsInAnnulus, = np.where((annulusRadians[0] <= dist)
-                                     & (dist < annulusRadians[1]))
+        dist = sphDist(ra1, dec1, meanRa[obj1 + 1:], meanDec[obj1 + 1:])
+        (objectsInAnnulus,) = np.where(
+            (annulusRadians[0] <= dist) & (dist < annulusRadians[1])
+        )
         objectsInAnnulus += obj1 + 1
         for obj2 in objectsInAnnulus:
             distances = matchVisitComputeDistance(
-                visit[obj1], ra[obj1], dec[obj1],
-                visit[obj2], ra[obj2], dec[obj2])
+                visit[obj1], ra[obj1], dec[obj1], visit[obj2], ra[obj2], dec[obj2]
+            )
             if not distances:
                 if verbose:
-                    log.debug("No matching visits found "
-                              "for objs: %d and %d" % obj1, obj2)
+                    log.debug(
+                        "No matching visits found " "for objs: %d and %d" % obj1, obj2
+                    )
                 continue
 
-            finiteEntries, = np.where(np.isfinite(distances))
+            (finiteEntries,) = np.where(np.isfinite(distances))
             # Need at least 3 matched pairs so that the median position makes sense
             if len(finiteEntries) >= 3:
                 okdist = np.array(distances)[finiteEntries]
                 # Get rid of zeros from stars measured against themselves:
-                realdist, = np.where(okdist > 0.0)
+                (realdist,) = np.where(okdist > 0.0)
                 if np.size(realdist) > 0:
-                    sepResiduals.append(np.abs(okdist[realdist] - np.median(okdist[realdist])))
+                    sepResiduals.append(
+                        np.abs(okdist[realdist] - np.median(okdist[realdist]))
+                    )
 
     # return quantity
     # import pdb; pdb.set_trace()
@@ -219,8 +246,9 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     return sepResiduals
 
 
-def matchVisitComputeDistance(visit_obj1, ra_obj1, dec_obj1,
-                              visit_obj2, ra_obj2, dec_obj2):
+def matchVisitComputeDistance(
+    visit_obj1, ra_obj1, dec_obj1, visit_obj2, ra_obj2, dec_obj2
+):
     """Calculate obj1-obj2 distance for each visit in which both objects are seen.
     For each visit shared between visit_obj1 and visit_obj2,
     calculate the spherical distance between the obj1 and obj2.
@@ -250,14 +278,14 @@ def matchVisitComputeDistance(visit_obj1, ra_obj1, dec_obj1,
     j_raw = 0
     j = visit_obj2_idx[j_raw]
     for i in visit_obj1_idx:
-        while (visit_obj2[j] < visit_obj1[i]) and (j_raw < len(visit_obj2_idx)-1):
+        while (visit_obj2[j] < visit_obj1[i]) and (j_raw < len(visit_obj2_idx) - 1):
             j_raw += 1
             j = visit_obj2_idx[j_raw]
         if visit_obj2[j] == visit_obj1[i]:
-            if np.isfinite([ra_obj1[i], dec_obj1[i],
-                            ra_obj2[j], dec_obj2[j]]).all():
-                distances.append(sphDist(ra_obj1[i], dec_obj1[i],
-                                         ra_obj2[j], dec_obj2[j]))
+            if np.isfinite([ra_obj1[i], dec_obj1[i], ra_obj2[j], dec_obj2[j]]).all():
+                distances.append(
+                    sphDist(ra_obj1[i], dec_obj1[i], ra_obj2[j], dec_obj2[j])
+                )
     return distances
 
 
@@ -282,8 +310,8 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get('base_PsfFlux_mag')
-        w, = np.where(np.isfinite(mag))
+        mag = cat.get("base_PsfFlux_mag")
+        (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
 
@@ -293,8 +321,9 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
     uniqObj = groupViewInMagRange.ids
     uniqVisits = set()
     for id in uniqObj:
-        for v, f in zip(groupViewInMagRange[id].get('visit'),
-                        groupViewInMagRange[id].get('filt')):
+        for v, f in zip(
+            groupViewInMagRange[id].get("visit"), groupViewInMagRange[id].get("filt")
+        ):
             if f == band:
                 uniqVisits.add(v)
 
@@ -315,16 +344,17 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
         distancesVisit = list()
 
         for obj in uniqObj:
-            visMatch = np.where(groupViewInMagRange[obj].get('visit') == vis)
-            refMatch = np.where(groupViewInMagRange[obj].get('visit') == refVisit)
+            visMatch = np.where(groupViewInMagRange[obj].get("visit") == vis)
+            refMatch = np.where(groupViewInMagRange[obj].get("visit") == refVisit)
 
-            raObj = groupViewInMagRange[obj].get('coord_ra')
-            decObj = groupViewInMagRange[obj].get('coord_dec')
+            raObj = groupViewInMagRange[obj].get("coord_ra")
+            decObj = groupViewInMagRange[obj].get("coord_dec")
 
             # Require it to have a match in both the reference and visit image:
             if np.size(visMatch[0]) > 0 and np.size(refMatch[0]) > 0:
-                distances = sphDist(raObj[refMatch], decObj[refMatch],
-                                    raObj[visMatch], decObj[visMatch])
+                distances = sphDist(
+                    raObj[refMatch], decObj[refMatch], raObj[visMatch], decObj[visMatch]
+                )
 
                 distancesVisit.append(distances)
 
@@ -345,8 +375,8 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
 
 
 def radiansToMilliarcsec(rad):
-    return np.rad2deg(rad)*3600*1000
+    return np.rad2deg(rad) * 3600 * 1000
 
 
 def arcminToRadians(arcmin):
-    return np.deg2rad(arcmin/60)
+    return np.deg2rad(arcmin / 60)

@@ -1,13 +1,20 @@
 import numpy as np
 from lsst.afw.table import GroupView
 
-__all__ = ("filterMatches", )
+__all__ = ("filterMatches",)
 
 
-def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
-                  extended=None, doFlags=None, isPrimary=None,
-                  psfStars=None, photoCalibStars=None,
-                  astromCalibStars=None):
+def filterMatches(
+    matchedCatalog,
+    snrMin=None,
+    snrMax=None,
+    extended=None,
+    doFlags=None,
+    isPrimary=None,
+    psfStars=None,
+    photoCalibStars=None,
+    astromCalibStars=None,
+):
 
     if snrMin is None:
         snrMin = 50.0
@@ -28,7 +35,7 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
         astromCalibStars = False
 
     matchedCat = GroupView.build(matchedCatalog)
-    magKey = matchedCat.schema.find('slot_PsfFlux_mag').key
+    magKey = matchedCat.schema.find("slot_PsfFlux_mag").key
 
     def nMatchFilter(cat):
         if len(cat) < nMatchesRequired:
@@ -37,13 +44,13 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
 
     def snrFilter(cat):
         # Note that this also implicitly checks for psfSnr being non-nan.
-        snr = cat.get('base_PsfFlux_snr')
-        ok0, = np.where(np.isfinite(snr))
+        snr = cat.get("base_PsfFlux_snr")
+        (ok0,) = np.where(np.isfinite(snr))
         medianSnr = np.median(snr[ok0])
         return snrMin <= medianSnr and medianSnr <= snrMax
 
     def ptsrcFilter(cat):
-        ext = cat.get('base_ClassificationExtendedness_value')
+        ext = cat.get("base_ClassificationExtendedness_value")
         # Keep only objects that are flagged as "not extended" in *ALL* visits,
         # (base_ClassificationExtendedness_value = 1 for extended, 0 for point-like)
         if extended:
@@ -69,7 +76,12 @@ def filterMatches(matchedCatalog, snrMin=None, snrMax=None,
             return True
 
     def fullFilter(cat):
-        return nMatchFilter(cat) and snrFilter(cat) and ptsrcFilter(cat)\
-            and flagFilter(cat) and isPrimaryFilter(cat)
+        return (
+            nMatchFilter(cat)
+            and snrFilter(cat)
+            and ptsrcFilter(cat)
+            and flagFilter(cat)
+            and isPrimaryFilter(cat)
+        )
 
     return matchedCat.where(fullFilter)

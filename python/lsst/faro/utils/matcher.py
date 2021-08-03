@@ -1,65 +1,86 @@
-from lsst.afw.table import (SchemaMapper, Field,
-                            MultiMatch, SimpleRecord,
-                            SourceCatalog, updateSourceCoords)
+from lsst.afw.table import (
+    SchemaMapper,
+    Field,
+    MultiMatch,
+    SimpleRecord,
+    SourceCatalog,
+    updateSourceCoords,
+)
 
 import numpy as np
 from astropy.table import join, Table
 
-__all__ = ("matchCatalogs", "ellipticityFromCat", "ellipticity", "makeMatchedPhotom",
-           "mergeCatalogs")
+__all__ = (
+    "matchCatalogs",
+    "ellipticityFromCat",
+    "ellipticity",
+    "makeMatchedPhotom",
+    "mergeCatalogs",
+)
 
 
 def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logger=None):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
-    mapper.addOutputField(Field[float]('base_PsfFlux_snr',
-                                       'PSF flux SNR'))
-    mapper.addOutputField(Field[float]('base_PsfFlux_mag',
-                                       'PSF magnitude'))
-    mapper.addOutputField(Field[float]('base_PsfFlux_magErr',
-                                       'PSF magnitude uncertainty'))
+    mapper.addOutputField(Field[float]("base_PsfFlux_snr", "PSF flux SNR"))
+    mapper.addOutputField(Field[float]("base_PsfFlux_mag", "PSF magnitude"))
+    mapper.addOutputField(
+        Field[float]("base_PsfFlux_magErr", "PSF magnitude uncertainty")
+    )
     # Needed because addOutputField(... 'slot_ModelFlux_mag') will add a field with that literal name
     aliasMap = schema.getAliasMap()
     # Possibly not needed since base_GaussianFlux is the default, but this ought to be safe
-    modelName = aliasMap['slot_ModelFlux'] if 'slot_ModelFlux' in aliasMap.keys() else 'base_GaussianFlux'
-    mapper.addOutputField(Field[float](f'{modelName}_mag',
-                                       'Model magnitude'))
-    mapper.addOutputField(Field[float](f'{modelName}_magErr',
-                                       'Model magnitude uncertainty'))
-    mapper.addOutputField(Field[float](f'{modelName}_snr',
-                                       'Model flux snr'))
-    mapper.addOutputField(Field[float]('e1',
-                                       'Source Ellipticity 1'))
-    mapper.addOutputField(Field[float]('e2',
-                                       'Source Ellipticity 1'))
-    mapper.addOutputField(Field[float]('psf_e1',
-                                       'PSF Ellipticity 1'))
-    mapper.addOutputField(Field[float]('psf_e2',
-                                       'PSF Ellipticity 1'))
-    mapper.addOutputField(Field[np.int32]('filt',
-                                          'filter code'))
+    modelName = (
+        aliasMap["slot_ModelFlux"]
+        if "slot_ModelFlux" in aliasMap.keys()
+        else "base_GaussianFlux"
+    )
+    mapper.addOutputField(Field[float](f"{modelName}_mag", "Model magnitude"))
+    mapper.addOutputField(
+        Field[float](f"{modelName}_magErr", "Model magnitude uncertainty")
+    )
+    mapper.addOutputField(Field[float](f"{modelName}_snr", "Model flux snr"))
+    mapper.addOutputField(Field[float]("e1", "Source Ellipticity 1"))
+    mapper.addOutputField(Field[float]("e2", "Source Ellipticity 1"))
+    mapper.addOutputField(Field[float]("psf_e1", "PSF Ellipticity 1"))
+    mapper.addOutputField(Field[float]("psf_e2", "PSF Ellipticity 1"))
+    mapper.addOutputField(Field[np.int32]("filt", "filter code"))
     newSchema = mapper.getOutputSchema()
     newSchema.setAliasMap(schema.getAliasMap())
 
     # Create an object that matches multiple catalogs with same schema
-    mmatch = MultiMatch(newSchema,
-                        dataIdFormat={'visit': np.int32, 'detector': np.int32},
-                        radius=matchRadius,
-                        RecordClass=SimpleRecord)
+    mmatch = MultiMatch(
+        newSchema,
+        dataIdFormat={"visit": np.int32, "detector": np.int32},
+        radius=matchRadius,
+        RecordClass=SimpleRecord,
+    )
 
     # create the new extended source catalog
     srcVis = SourceCatalog(newSchema)
 
-    filter_dict = {'u': 1, 'g': 2, 'r': 3, 'i': 4, 'z': 5, 'y': 6,
-                   'HSC-U': 1, 'HSC-G': 2, 'HSC-R': 3, 'HSC-I': 4, 'HSC-Z': 5, 'HSC-Y': 6}
+    filter_dict = {
+        "u": 1,
+        "g": 2,
+        "r": 3,
+        "i": 4,
+        "z": 5,
+        "y": 6,
+        "HSC-U": 1,
+        "HSC-G": 2,
+        "HSC-R": 3,
+        "HSC-I": 4,
+        "HSC-Z": 5,
+        "HSC-Y": 6,
+    }
 
     # Sort by visit, detector, then filter
-    vislist = [v['visit'] for v in dataIds]
-    ccdlist = [v['detector'] for v in dataIds]
-    filtlist = [v['band'] for v in dataIds]
-    tab_vids = Table([vislist, ccdlist, filtlist], names=['vis', 'ccd', 'filt'])
-    sortinds = np.argsort(tab_vids, order=('vis', 'ccd', 'filt'))
+    vislist = [v["visit"] for v in dataIds]
+    ccdlist = [v["detector"] for v in dataIds]
+    filtlist = [v["band"] for v in dataIds]
+    tab_vids = Table([vislist, ccdlist, filtlist], names=["vis", "ccd", "filt"])
+    sortinds = np.argsort(tab_vids, order=("vis", "ccd", "filt"))
 
     for ind in sortinds:
         oldSrc = inputs[ind]
@@ -68,31 +89,38 @@ def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logge
         dataId = dataIds[ind]
 
         if logger:
-            logger.debug("%d sources in ccd %s visit %s", len(oldSrc), dataId['detector'], dataId['visit'])
+            logger.debug(
+                "%d sources in ccd %s visit %s",
+                len(oldSrc),
+                dataId["detector"],
+                dataId["visit"],
+            )
 
         # create temporary catalog
         tmpCat = SourceCatalog(SourceCatalog(newSchema).table)
         tmpCat.extend(oldSrc, mapper=mapper)
 
-        filtnum = filter_dict[dataId['band']]
-        tmpCat['filt'] = np.repeat(filtnum, len(oldSrc))
+        filtnum = filter_dict[dataId["band"]]
+        tmpCat["filt"] = np.repeat(filtnum, len(oldSrc))
 
-        tmpCat['base_PsfFlux_snr'][:] = tmpCat['base_PsfFlux_instFlux'] \
-            / tmpCat['base_PsfFlux_instFluxErr']
+        tmpCat["base_PsfFlux_snr"][:] = (
+            tmpCat["base_PsfFlux_instFlux"] / tmpCat["base_PsfFlux_instFluxErr"]
+        )
 
         updateSourceCoords(wcs, tmpCat)
 
         photoCalib.instFluxToMagnitude(tmpCat, "base_PsfFlux", "base_PsfFlux")
-        tmpCat['slot_ModelFlux_snr'][:] = (tmpCat['slot_ModelFlux_instFlux']
-                                           / tmpCat['slot_ModelFlux_instFluxErr'])
+        tmpCat["slot_ModelFlux_snr"][:] = (
+            tmpCat["slot_ModelFlux_instFlux"] / tmpCat["slot_ModelFlux_instFluxErr"]
+        )
         photoCalib.instFluxToMagnitude(tmpCat, "slot_ModelFlux", "slot_ModelFlux")
 
-        _, psf_e1, psf_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_PsfShape')
-        _, star_e1, star_e2 = ellipticityFromCat(oldSrc, slot_shape='slot_Shape')
-        tmpCat['e1'][:] = star_e1
-        tmpCat['e2'][:] = star_e2
-        tmpCat['psf_e1'][:] = psf_e1
-        tmpCat['psf_e2'][:] = psf_e2
+        _, psf_e1, psf_e2 = ellipticityFromCat(oldSrc, slot_shape="slot_PsfShape")
+        _, star_e1, star_e2 = ellipticityFromCat(oldSrc, slot_shape="slot_Shape")
+        tmpCat["e1"][:] = star_e1
+        tmpCat["e2"][:] = star_e2
+        tmpCat["psf_e1"][:] = psf_e1
+        tmpCat["psf_e2"][:] = psf_e2
 
         srcVis.extend(tmpCat, False)
         mmatch.add(catalog=tmpCat, dataId=dataId)
@@ -110,7 +138,7 @@ def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logge
     return srcVis, matchCat
 
 
-def ellipticityFromCat(cat, slot_shape='slot_Shape'):
+def ellipticityFromCat(cat, slot_shape="slot_Shape"):
     """Calculate the ellipticity of the Shapes in a catalog from the 2nd moments.
     Parameters
     ----------
@@ -128,7 +156,11 @@ def ellipticityFromCat(cat, slot_shape='slot_Shape'):
     e, e1, e2 : complex, float, float
         Complex ellipticity, real part, imaginary part
     """
-    i_xx, i_xy, i_yy = cat.get(slot_shape+'_xx'), cat.get(slot_shape+'_xy'), cat.get(slot_shape+'_yy')
+    i_xx, i_xy, i_yy = (
+        cat.get(slot_shape + "_xx"),
+        cat.get(slot_shape + "_xy"),
+        cat.get(slot_shape + "_yy"),
+    )
     return ellipticity(i_xx, i_xy, i_yy)
 
 
@@ -144,7 +176,7 @@ def ellipticity(i_xx, i_xy, i_yy):
     e, e1, e2 : (float, float, float) or (numpy.array, numpy.array, numpy.array)
         Complex ellipticity, real component, imaginary component
     """
-    e = (i_xx - i_yy + 2j*i_xy) / (i_xx + i_yy)
+    e = (i_xx - i_yy + 2j * i_xy) / (i_xx + i_yy)
     e1 = np.real(e)
     e2 = np.imag(e)
     return e, e1, e2
@@ -154,7 +186,7 @@ def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
     # inputs: dataIds, catalogs, photoCalibs
 
     # Match all input bands:
-    bands = list(set([f['band'] for f in dataIds]))
+    bands = list(set([f["band"] for f in dataIds]))
 
     # Should probably add an "assert" that requires bands>1...
 
@@ -171,9 +203,9 @@ def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
 
     for i in range(len(catalogs)):
         for band in bands:
-            if (dataIds[i]['band'] in band):
+            if dataIds[i]["band"] in band:
                 cat_dict[band].extend(catalogs[i].copy(deep=True))
-                mags = photoCalibs[i].instFluxToMagnitude(catalogs[i], 'base_PsfFlux')
+                mags = photoCalibs[i].instFluxToMagnitude(catalogs[i], "base_PsfFlux")
                 mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
                 magerrs_dict[band] = np.append(magerrs_dict[band], mags[:, 1])
 
@@ -183,43 +215,49 @@ def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
             if not cat_tmp.isContiguous():
                 cat_tmp = cat_tmp.copy(deep=True)
         cat_tmp_final = cat_tmp.asAstropy()
-        cat_tmp_final['base_PsfFlux_mag'] = mags_dict[band]
-        cat_tmp_final['base_PsfFlux_magErr'] = magerrs_dict[band]
+        cat_tmp_final["base_PsfFlux_mag"] = mags_dict[band]
+        cat_tmp_final["base_PsfFlux_magErr"] = magerrs_dict[band]
         # Put the bandpass name in the column names:
         for c in cat_tmp_final.colnames:
-            if c not in 'id':
-                cat_tmp_final[c].name = c+'_'+str(band)
+            if c not in "id":
+                cat_tmp_final[c].name = c + "_" + str(band)
         # Write the new catalog to the dict of catalogs:
         cat_dict[band] = cat_tmp_final
 
-    cat_combined = join(cat_dict[bands[1]], cat_dict[bands[0]], keys='id')
+    cat_combined = join(cat_dict[bands[1]], cat_dict[bands[0]], keys="id")
     if len(bands) > 2:
         for i in range(2, len(bands)):
-            cat_combined = join(cat_combined, cat_dict[bands[i]], keys='id')
+            cat_combined = join(cat_combined, cat_dict[bands[i]], keys="id")
 
-    qual_cuts = (cat_combined['base_ClassificationExtendedness_value_g'] < 0.5) &\
-                (cat_combined['base_PixelFlags_flag_saturated_g'] == False) &\
-                (cat_combined['base_PixelFlags_flag_cr_g'] == False) &\
-                (cat_combined['base_PixelFlags_flag_bad_g'] == False) &\
-                (cat_combined['base_PixelFlags_flag_edge_g'] == False) &\
-                (cat_combined['base_ClassificationExtendedness_value_r'] < 0.5) &\
-                (cat_combined['base_PixelFlags_flag_saturated_r'] == False) &\
-                (cat_combined['base_PixelFlags_flag_cr_r'] == False) &\
-                (cat_combined['base_PixelFlags_flag_bad_r'] == False) &\
-                (cat_combined['base_PixelFlags_flag_edge_r'] == False) &\
-                (cat_combined['base_ClassificationExtendedness_value_i'] < 0.5) &\
-                (cat_combined['base_PixelFlags_flag_saturated_i'] == False) &\
-                (cat_combined['base_PixelFlags_flag_cr_i'] == False) &\
-                (cat_combined['base_PixelFlags_flag_bad_i'] == False) &\
-                (cat_combined['base_PixelFlags_flag_edge_i'] == False)  # noqa: E712
+    qual_cuts = (
+        (cat_combined["base_ClassificationExtendedness_value_g"] < 0.5)
+        & (cat_combined["base_PixelFlags_flag_saturated_g"] is False)
+        & (cat_combined["base_PixelFlags_flag_cr_g"] is False)
+        & (cat_combined["base_PixelFlags_flag_bad_g"] is False)
+        & (cat_combined["base_PixelFlags_flag_edge_g"] is False)
+        & (cat_combined["base_ClassificationExtendedness_value_r"] < 0.5)
+        & (cat_combined["base_PixelFlags_flag_saturated_r"] is False)
+        & (cat_combined["base_PixelFlags_flag_cr_r"] is False)
+        & (cat_combined["base_PixelFlags_flag_bad_r"] is False)
+        & (cat_combined["base_PixelFlags_flag_edge_r"] is False)
+        & (cat_combined["base_ClassificationExtendedness_value_i"] < 0.5)
+        & (cat_combined["base_PixelFlags_flag_saturated_i"] is False)
+        & (cat_combined["base_PixelFlags_flag_cr_i"] is False)
+        & (cat_combined["base_PixelFlags_flag_bad_i"] is False)
+        & (cat_combined["base_PixelFlags_flag_edge_i"] is False)
+    )  # noqa: E712
 
     # Return the astropy table of matched catalogs:
-    return(cat_combined[qual_cuts])
+    return cat_combined[qual_cuts]
 
 
-def mergeCatalogs(catalogs,
-                  photoCalibs=None, astromCalibs=None,
-                  models=['slot_PsfFlux'], applyExternalWcs=False):
+def mergeCatalogs(
+    catalogs,
+    photoCalibs=None,
+    astromCalibs=None,
+    models=["slot_PsfFlux"],
+    applyExternalWcs=False,
+):
     """Merge catalogs and optionally apply photometric and astrometric calibrations.
     """
 
@@ -229,10 +267,12 @@ def mergeCatalogs(catalogs,
     aliasMap = schema.getAliasMap()
     for model in models:
         modelName = aliasMap[model] if model in aliasMap.keys() else model
-        mapper.addOutputField(Field[float](f'{modelName}_mag',
-                                           f'{modelName} magnitude'))
-        mapper.addOutputField(Field[float](f'{modelName}_magErr',
-                                           f'{modelName} magnitude uncertainty'))
+        mapper.addOutputField(
+            Field[float](f"{modelName}_mag", f"{modelName} magnitude")
+        )
+        mapper.addOutputField(
+            Field[float](f"{modelName}_magErr", f"{modelName} magnitude uncertainty")
+        )
     newSchema = mapper.getOutputSchema()
     newSchema.setAliasMap(schema.getAliasMap())
 

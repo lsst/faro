@@ -3,7 +3,7 @@ from lsst.pipe.base import Struct, Task
 from lsst.pex.config import Config
 from lsst.verify import Measurement
 
-__all__ = ("StarFracTask", )
+__all__ = ("StarFracTask",)
 
 
 class StarFracTask(Task):
@@ -14,9 +14,9 @@ class StarFracTask(Task):
         self.log.info("Measuring %s", metric_name)
         if not catalog.isContiguous():
             catalog = catalog.copy(deep=True)
-        extended = catalog.get('base_ClassificationExtendedness_value')
-        good_extended = extended[~catalog.get('base_ClassificationExtendedness_flag')]
+        extended = catalog.get("base_ClassificationExtendedness_value")
+        good_extended = extended[~catalog.get("base_ClassificationExtendedness_flag")]
         n_gals = sum(good_extended)
-        frac = 100*(len(good_extended) - n_gals)/len(good_extended)
+        frac = 100 * (len(good_extended) - n_gals) / len(good_extended)
         meas = Measurement("starFrac", frac * u.percent)
         return Struct(measurement=meas)

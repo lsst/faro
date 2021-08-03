@@ -19,31 +19,40 @@
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections
 
-from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConfig,
-                                                   CatalogMeasurementBaseTask)
+from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConfig,
+    CatalogMeasurementBaseTask,
+)
 
-__all__ = ("PatchMeasurementConnections", "PatchMeasurementConfig", "PatchMeasurementTask")
-
-
-class PatchMeasurementConnections(MetricConnections,
-                                  dimensions=("tract", "patch", "skymap",
-                                              "band")):
-
-    cat = pipeBase.connectionTypes.Input(doc="Object catalog.",
-                                         dimensions=("tract", "patch", "skymap",
-                                                     "band"),
-                                         storageClass="SourceCatalog",
-                                         name="deepCoadd_forced_src")
-
-    measurement = pipeBase.connectionTypes.Output(doc="Per-patch measurement.",
-                                                  dimensions=("tract", "patch", "skymap",
-                                                              "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+__all__ = (
+    "PatchMeasurementConnections",
+    "PatchMeasurementConfig",
+    "PatchMeasurementTask",
+)
 
 
-class PatchMeasurementConfig(CatalogMeasurementBaseConfig,
-                             pipelineConnections=PatchMeasurementConnections):
+class PatchMeasurementConnections(
+    MetricConnections, dimensions=("tract", "patch", "skymap", "band")
+):
+
+    cat = pipeBase.connectionTypes.Input(
+        doc="Object catalog.",
+        dimensions=("tract", "patch", "skymap", "band"),
+        storageClass="SourceCatalog",
+        name="deepCoadd_forced_src",
+    )
+
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Per-patch measurement.",
+        dimensions=("tract", "patch", "skymap", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+    )
+
+
+class PatchMeasurementConfig(
+    CatalogMeasurementBaseConfig, pipelineConnections=PatchMeasurementConnections
+):
     pass
 
 
@@ -57,10 +66,13 @@ class PatchMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs['vIds'] = inputRefs.cat.dataId
+        inputs["vIds"] = inputRefs.cat.dataId
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
-            self.log.debug("Skipping measurement of {!r} on {} "
-                           "as not applicable.", self, inputRefs)
+            self.log.debug(
+                "Skipping measurement of {!r} on {} " "as not applicable.",
+                self,
+                inputRefs,
+            )

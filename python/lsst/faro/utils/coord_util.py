@@ -2,7 +2,13 @@ import numpy as np
 
 import lsst.geom as geom
 
-__all__ = ("averageRaFromCat", "averageDecFromCat", "averageRaDecFromCat", "averageRaDec", "sphDist")
+__all__ = (
+    "averageRaFromCat",
+    "averageDecFromCat",
+    "averageRaDecFromCat",
+    "averageRaDec",
+    "sphDist",
+)
 
 
 def averageRaFromCat(cat):
@@ -59,7 +65,7 @@ def averageRaDecFromCat(cat):
     dec_mean : `float`
         Mean Dec in radians.
     """
-    return averageRaDec(cat.get('coord_ra'), cat.get('coord_dec'))
+    return averageRaDec(cat.get("coord_ra"), cat.get("coord_dec"))
 
 
 def averageRaDec(ra, dec):
@@ -75,11 +81,13 @@ def averageRaDec(ra, dec):
     float, float
        meanRa, meanDec -- Tuple of average RA, Dec [radians]
     """
-    assert(len(ra) == len(dec))
+    assert len(ra) == len(dec)
 
     angleRa = [geom.Angle(r, geom.radians) for r in ra]
     angleDec = [geom.Angle(d, geom.radians) for d in dec]
-    coords = [geom.SpherePoint(ar, ad, geom.radians) for (ar, ad) in zip(angleRa, angleDec)]
+    coords = [
+        geom.SpherePoint(ar, ad, geom.radians) for (ar, ad) in zip(angleRa, angleDec)
+    ]
 
     meanRa, meanDec = geom.averageSpherePoint(coords)
 
@@ -107,8 +115,9 @@ def sphDist(ra_mean, dec_mean, ra, dec):
     # Haversine
     dra = ra - ra_mean
     ddec = dec - dec_mean
-    a = np.square(np.sin(ddec/2)) + \
-        np.cos(dec_mean)*np.cos(dec)*np.square(np.sin(dra/2))
+    a = np.square(np.sin(ddec / 2)) + np.cos(dec_mean) * np.cos(dec) * np.square(
+        np.sin(dra / 2)
+    )
     dist = 2 * np.arcsin(np.sqrt(a))
 
     # This is what the law of cosines would look like
