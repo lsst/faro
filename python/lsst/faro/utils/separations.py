@@ -111,7 +111,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
     visit = matchKeyOutput[4 * jump: 5 * jump]
 
     # Calculate the mean position of each object from its constituent visits
-    # `aggregate` calulates a quantity for each object in the groupView.
+    # `aggregate` calculates a quantity for each object in the groupView.
     meanRa = groupViewInMagRange.aggregate(averageRaFromCat)
     meanDec = groupViewInMagRange.aggregate(averageDecFromCat)
 
