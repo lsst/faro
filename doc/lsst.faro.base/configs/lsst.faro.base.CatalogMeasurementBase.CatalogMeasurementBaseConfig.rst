@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseTaskConfig
+.. lsst-config-topic:: lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseConfig
 
-################################
-CatalogMeasurementBaseTaskConfig
-################################
+############################
+CatalogMeasurementBaseConfig
+############################
 
-.. _lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseTaskConfig-configs:
+.. _lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseTaskConfig
+.. lsst-config-fields:: lsst.faro.base.CatalogMeasurementBase.CatalogMeasurementBaseConfig

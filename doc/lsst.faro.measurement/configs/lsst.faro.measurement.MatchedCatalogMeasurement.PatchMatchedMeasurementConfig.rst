@@ -1,12 +1,12 @@
-.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTaskConfig
+.. lsst-config-topic:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementConfig
 
-#################################
-PatchMatchedMeasurementTaskConfig
-#################################
+#############################
+PatchMatchedMeasurementConfig
+#############################
 
-.. _lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTaskConfig-configs:
+.. _lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementConfig-configs:
 
 Configuration fields
 ====================
 
-.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementTaskConfig
+.. lsst-config-fields:: lsst.faro.measurement.MatchedCatalogMeasurement.PatchMatchedMeasurementConfig
