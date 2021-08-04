@@ -1,8 +1,8 @@
 .. lsst-config-topic:: lsst.faro.base.BaseSubTasks.NumpySummaryConfig
 
-######################
+##################
 NumpySummaryConfig
-######################
+##################
 
 .. _lsst.faro.base.BaseSubTasks.NumpySummaryConfig-configs:
 
