@@ -5,14 +5,14 @@ import lsst.pex.config as pexConfig
 from .BaseSubTasks import NumpySummaryTask
 
 __all__ = (
-    "CatalogSummaryBaseTaskConnections",
+    "CatalogSummaryBaseConnections",
     "CatalogSummaryBaseConfig",
     "CatalogSummaryBaseTask",
 )
 
 
 # Dimensions of the Connections class define the iterations of runQuantum
-class CatalogSummaryBaseTaskConnections(
+class CatalogSummaryBaseConnections(
     MetricConnections,
     defaultTemplates={"agg_name": None},
     dimensions=("band", "tract", "instrument", "skymap"),
@@ -27,7 +27,7 @@ class CatalogSummaryBaseTaskConnections(
 
 
 class CatalogSummaryBaseConfig(
-    MetricConfig, pipelineConnections=CatalogSummaryBaseTaskConnections
+    MetricConfig, pipelineConnections=CatalogSummaryBaseConnections
 ):
     agg = pexConfig.ConfigurableField(
         # This task is meant to make measurements of various types.

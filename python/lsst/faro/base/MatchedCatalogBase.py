@@ -6,14 +6,14 @@ import numpy as np
 from lsst.faro.utils.matcher import matchCatalogs
 
 __all__ = (
-    "MatchedBaseTaskConnections",
+    "MatchedBaseConnections",
     "MatchedBaseConfig",
     "MatchedBaseTask",
     "MatchedTractBaseTask",
 )
 
 
-class MatchedBaseTaskConnections(
+class MatchedBaseConnections(
     pipeBase.PipelineTaskConnections,
     dimensions=(),
     defaultTemplates={
@@ -115,7 +115,7 @@ class MatchedBaseTaskConnections(
 
 
 class MatchedBaseConfig(
-    pipeBase.PipelineTaskConfig, pipelineConnections=MatchedBaseTaskConnections
+    pipeBase.PipelineTaskConfig, pipelineConnections=MatchedBaseConnections
 ):
     match_radius = pexConfig.Field(
         doc="Match radius in arcseconds.", dtype=float, default=1
