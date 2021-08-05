@@ -1,15 +1,15 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.CatalogSummaryBase import (
-    CatalogSummaryBaseTaskConnections,
+    CatalogSummaryBaseConnections,
     CatalogSummaryBaseTask,
     CatalogSummaryBaseConfig,
 )
 
-__all__ = ("PatchSummaryTaskConnections", "PatchSummaryConfig", "PatchSummaryTask")
+__all__ = ("PatchSummaryConnections", "PatchSummaryConfig", "PatchSummaryTask")
 
 
-class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
+class PatchSummaryConnections(CatalogSummaryBaseConnections):
 
     measurements = pipeBase.connectionTypes.Input(
         doc="{package}_{metric}.",
@@ -21,7 +21,7 @@ class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
 
 class PatchSummaryConfig(
-    CatalogSummaryBaseConfig, pipelineConnections=PatchSummaryTaskConnections
+    CatalogSummaryBaseConfig, pipelineConnections=PatchSummaryConnections
 ):
     pass
 

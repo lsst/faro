@@ -1,20 +1,20 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.MatchedCatalogBase import (
-    MatchedBaseTaskConnections,
+    MatchedBaseConnections,
     MatchedBaseConfig,
     MatchedBaseTask,
     MatchedTractBaseTask,
 )
 
 __all__ = (
-    "PatchMatchedPreparationTaskConnections",
+    "PatchMatchedPreparationConnections",
     "PatchMatchedPreparationConfig",
     "PatchMatchedPreparationTask",
-    "TractMatchedPreparationTaskConnections",
+    "TractMatchedPreparationConnections",
     "TractMatchedPreparationConfig",
     "TractMatchedPreparationTask",
-    "PatchMatchedMultiBandPreparationTaskConnections",
+    "PatchMatchedMultiBandPreparationConnections",
     "PatchMatchedMultiBandPreparationConfig",
     "PatchMatchedMultiBandPreparationTask",
 )
@@ -22,8 +22,8 @@ __all__ = (
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
-class PatchMatchedPreparationTaskConnections(
-    MatchedBaseTaskConnections,
+class PatchMatchedPreparationConnections(
+    MatchedBaseConnections,
     dimensions=("tract", "patch", "band", "instrument", "skymap"),
 ):
     outputCatalog = pipeBase.connectionTypes.Output(
@@ -35,7 +35,7 @@ class PatchMatchedPreparationTaskConnections(
 
 
 class PatchMatchedPreparationConfig(
-    MatchedBaseConfig, pipelineConnections=PatchMatchedPreparationTaskConnections
+    MatchedBaseConfig, pipelineConnections=PatchMatchedPreparationConnections
 ):
     pass
 
@@ -46,8 +46,8 @@ class PatchMatchedPreparationTask(MatchedBaseTask):
     _DefaultName = "patchMatchedPreparationTask"
 
 
-class TractMatchedPreparationTaskConnections(
-    MatchedBaseTaskConnections, dimensions=("tract", "band", "instrument", "skymap")
+class TractMatchedPreparationConnections(
+    MatchedBaseConnections, dimensions=("tract", "band", "instrument", "skymap")
 ):
     outputCatalog = pipeBase.connectionTypes.Output(
         doc="Resulting matched catalog.",
@@ -58,7 +58,7 @@ class TractMatchedPreparationTaskConnections(
 
 
 class TractMatchedPreparationConfig(
-    MatchedBaseConfig, pipelineConnections=TractMatchedPreparationTaskConnections
+    MatchedBaseConfig, pipelineConnections=TractMatchedPreparationConnections
 ):
     pass
 
@@ -69,8 +69,8 @@ class TractMatchedPreparationTask(MatchedTractBaseTask):
     _DefaultName = "tractMatchedPreparationTask"
 
 
-class PatchMatchedMultiBandPreparationTaskConnections(
-    MatchedBaseTaskConnections, dimensions=("tract", "patch", "instrument", "skymap")
+class PatchMatchedMultiBandPreparationConnections(
+    MatchedBaseConnections, dimensions=("tract", "patch", "instrument", "skymap")
 ):
     outputCatalog = pipeBase.connectionTypes.Output(
         doc="Resulting matched catalog.",
@@ -82,7 +82,7 @@ class PatchMatchedMultiBandPreparationTaskConnections(
 
 class PatchMatchedMultiBandPreparationConfig(
     MatchedBaseConfig,
-    pipelineConnections=PatchMatchedMultiBandPreparationTaskConnections,
+    pipelineConnections=PatchMatchedMultiBandPreparationConnections,
 ):
     pass
 

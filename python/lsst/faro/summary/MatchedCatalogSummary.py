@@ -1,23 +1,23 @@
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.CatalogSummaryBase import (
-    CatalogSummaryBaseTaskConnections,
+    CatalogSummaryBaseConnections,
     CatalogSummaryBaseTask,
     CatalogSummaryBaseConfig,
 )
 
 __all__ = (
-    "PatchMatchedSummaryTaskConnections",
+    "PatchMatchedSummaryConnections",
     "PatchMatchedSummaryConfig",
     "PatchMatchedSummaryTask",
-    "TractMatchedSummaryTaskConnections",
+    "TractMatchedSummaryConnections",
     "TractMatchedSummaryConfig",
     "TractMatchedSummaryTask",
 )
 
 
 # Dimensions of the Connections class define the iterations of runQuantum
-class PatchMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
+class PatchMatchedSummaryConnections(CatalogSummaryBaseConnections):
     measurements = pipeBase.connectionTypes.Input(
         doc="{package}_{metric}.",
         dimensions=("tract", "patch", "instrument", "band"),
@@ -28,7 +28,7 @@ class PatchMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
 
 class PatchMatchedSummaryConfig(
-    CatalogSummaryBaseConfig, pipelineConnections=PatchMatchedSummaryTaskConnections
+    CatalogSummaryBaseConfig, pipelineConnections=PatchMatchedSummaryConnections
 ):
     pass
 
@@ -39,7 +39,7 @@ class PatchMatchedSummaryTask(CatalogSummaryBaseTask):
     _DefaultName = "patchMatchedSummaryTask"
 
 
-class TractMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
+class TractMatchedSummaryConnections(CatalogSummaryBaseConnections):
     measurements = pipeBase.connectionTypes.Input(
         doc="{package}_{metric}.",
         dimensions=("tract", "instrument", "band"),
@@ -50,7 +50,7 @@ class TractMatchedSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
 
 class TractMatchedSummaryConfig(
-    CatalogSummaryBaseConfig, pipelineConnections=TractMatchedSummaryTaskConnections
+    CatalogSummaryBaseConfig, pipelineConnections=TractMatchedSummaryConnections
 ):
     pass
 
