@@ -27,30 +27,35 @@ import lsst.geom
 
 from .BaseSubTasks import NumSourcesTask
 
-__all__ = ('CatalogMeasurementBaseConnections', 'CatalogMeasurementBaseConfig',
-           'CatalogMeasurementBaseTask')
+__all__ = (
+    "CatalogMeasurementBaseConnections",
+    "CatalogMeasurementBaseConfig",
+    "CatalogMeasurementBaseTask",
+)
 
 
-class CatalogMeasurementBaseConnections(MetricConnections,
-                                        defaultTemplates={'refDataset': ''}):
+class CatalogMeasurementBaseConnections(
+    MetricConnections, defaultTemplates={"refDataset": ""}
+):
 
     refCat = pipeBase.connectionTypes.PrerequisiteInput(
-        doc='Reference catalog',
-        name='{refDataset}',
-        storageClass='SimpleCatalog',
-        dimensions=('skypix',),
+        doc="Reference catalog",
+        name="{refDataset}",
+        storageClass="SimpleCatalog",
+        dimensions=("skypix",),
         deferLoad=True,
-        multiple=True
+        multiple=True,
     )
 
     def __init__(self, *, config=None):
         super().__init__(config=config)
-        if config.connections.refDataset == '':
-            self.prerequisiteInputs.remove('refCat')
+        if config.connections.refDataset == "":
+            self.prerequisiteInputs.remove("refCat")
 
 
-class CatalogMeasurementBaseConfig(MetricConfig,
-                                   pipelineConnections=CatalogMeasurementBaseConnections):
+class CatalogMeasurementBaseConfig(
+    MetricConfig, pipelineConnections=CatalogMeasurementBaseConnections
+):
     """Configuration for CatalogMeasurementBaseTask."""
 
     measure = pexConfig.ConfigurableField(
@@ -59,23 +64,27 @@ class CatalogMeasurementBaseConfig(MetricConfig,
         # It is expected that this will be overridden in the pipeline
         # definition in most cases.
         target=NumSourcesTask,
-        doc="Measure task")
+        doc="Measure task",
+    )
 
     referenceCatalogLoader = pexConfig.ConfigurableField(
-        target=LoadReferenceCatalogTask,
-        doc="Reference catalog loader",
+        target=LoadReferenceCatalogTask, doc="Reference catalog loader",
     )
 
     def setDefaults(self):
-        self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ''
+        self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ""
         self.referenceCatalogLoader.doApplyColorTerms = False
 
     def validate(self):
         super().validate()
-        if self.connections.refDataset != self.referenceCatalogLoader.refObjLoader.ref_dataset_name:
+        if (
+            self.connections.refDataset
+            != self.referenceCatalogLoader.refObjLoader.ref_dataset_name
+        ):
             msg = "The reference datasets specified in connections and reference catalog loader must match."
             raise pexConfig.FieldValidationError(
-                CatalogMeasurementBaseConfig.referenceCatalogLoader, self, msg)
+                CatalogMeasurementBaseConfig.referenceCatalogLoader, self, msg
+            )
 
 
 class CatalogMeasurementBaseTask(MetricTask):
@@ -86,7 +95,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
-        self.makeSubtask('measure')
+        self.makeSubtask("measure")
 
     def run(self, catalog, **kwargs):
         return self.measure.run(self.config.connections.metric, catalog, **kwargs)
@@ -118,23 +127,24 @@ class CatalogMeasurementBaseTask(MetricTask):
             Catalog of reference objects with proper motions and color terms
             (optionally) applied.
         """
-        center = lsst.geom.SpherePoint(butlerQC.quantum.dataId.region.getBoundingCircle().getCenter())
+        center = lsst.geom.SpherePoint(
+            butlerQC.quantum.dataId.region.getBoundingCircle().getCenter()
+        )
         radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
         loaderTask = LoadReferenceCatalogTask(
-            config=self.config.referenceCatalogLoader,
-            dataIds=dataIds,
-            refCats=refCats)
+            config=self.config.referenceCatalogLoader, dataIds=dataIds, refCats=refCats
+        )
 
         # Get catalog with proper motion and color terms applied
-        refCatCorrected = loaderTask.getSkyCircleCatalog(center, radius,
-                                                         filterList,
-                                                         epoch=epoch)
+        refCatCorrected = loaderTask.getSkyCircleCatalog(
+            center, radius, filterList, epoch=epoch
+        )
 
         # Get unformatted catalog w/ all columns
-        skyCircle = loaderTask.refObjLoader.loadSkyCircle(center, radius,
-                                                          loaderTask._referenceFilter,
-                                                          epoch=epoch)
+        skyCircle = loaderTask.refObjLoader.loadSkyCircle(
+            center, radius, loaderTask._referenceFilter, epoch=epoch
+        )
         refCat = skyCircle.refCat
 
         return refCat, refCatCorrected

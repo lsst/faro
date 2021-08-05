@@ -22,45 +22,56 @@
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 
-from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConnections,
-                                                   CatalogMeasurementBaseConfig,
-                                                   CatalogMeasurementBaseTask)
+from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
+    CatalogMeasurementBaseConfig,
+    CatalogMeasurementBaseTask,
+)
 
 __all__ = ("DetectorTableMeasurementConfig", "DetectorTableMeasurementTask")
 
 
-class DetectorTableMeasurementConnections(CatalogMeasurementBaseConnections,
-                                          dimensions=("instrument", "visit", "detector", "band"),
-                                          defaultTemplates={"refDataset": ""}):
+class DetectorTableMeasurementConnections(
+    CatalogMeasurementBaseConnections,
+    dimensions=("instrument", "visit", "detector", "band"),
+    defaultTemplates={"refDataset": ""},
+):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per visit",
         dimensions=("instrument", "visit", "band"),
         storageClass="DataFrame",
         name="sourceTable_visit",
-        deferLoad=True
+        deferLoad=True,
     )
 
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="MetricValue",
-        name="metricvalue_{package}_{metric}"
+        name="metricvalue_{package}_{metric}",
     )
 
 
-class DetectorTableMeasurementConfig(CatalogMeasurementBaseConfig,
-                                     pipelineConnections=DetectorTableMeasurementConnections):
+class DetectorTableMeasurementConfig(
+    CatalogMeasurementBaseConfig,
+    pipelineConnections=DetectorTableMeasurementConnections,
+):
     """Configuration for DetectorTableMeasurementTask."""
 
-    columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
-                                  dtype=str, default=['coord_ra', 'coord_dec', 'detector'])
+    columns = pexConfig.ListField(
+        doc="Columns from sourceTable_visit to load.",
+        dtype=str,
+        default=["coord_ra", "coord_dec", "detector"],
+    )
 
     def validate(self):
         super().validate()
-        if 'detector' not in self.columns:
+        if "detector" not in self.columns:
             msg = "The column `detector` must be appear in the list of columns."
-            raise pexConfig.FieldValidationError(DetectorTableMeasurementConfig.columns, self, msg)
+            raise pexConfig.FieldValidationError(
+                DetectorTableMeasurementConfig.columns, self, msg
+            )
 
 
 class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
@@ -71,28 +82,32 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
-        selection = (catalog['detector'] == butlerQC.quantum.dataId['detector'])
+        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
+        selection = catalog["detector"] == butlerQC.quantum.dataId["detector"]
         catalog = catalog[selection]
 
         kwargs = {}
-        if self.config.connections.refDataset != '':
-            refCats = inputs.pop('refCat')
-            filterList = [butlerQC.quantum.dataId.records['physical_filter'].name]
+        if self.config.connections.refDataset != "":
+            refCats = inputs.pop("refCat")
+            filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
             # Time at the start of the visit
-            epoch = butlerQC.quantum.dataId.records['visit'].timespan.begin
-            refCat, refCatCorrected = self._getReferenceCatalog(butlerQC,
-                                                                [ref.datasetRef.dataId
-                                                                 for ref in inputRefs.refCat],
-                                                                refCats,
-                                                                filterList,
-                                                                epoch)
-            kwargs['refCat'] = refCat
-            kwargs['refCatCorrected'] = refCatCorrected
+            epoch = butlerQC.quantum.dataId.records["visit"].timespan.begin
+            refCat, refCatCorrected = self._getReferenceCatalog(
+                butlerQC,
+                [ref.datasetRef.dataId for ref in inputRefs.refCat],
+                refCats,
+                filterList,
+                epoch,
+            )
+            kwargs["refCat"] = refCat
+            kwargs["refCatCorrected"] = refCatCorrected
 
         outputs = self.run(catalog, **kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
-            self.log.debug("Skipping measurement of {!r} on {} "
-                           "as not applicable.", self, inputRefs)
+            self.log.debug(
+                "Skipping measurement of {!r} on {} " "as not applicable.",
+                self,
+                inputRefs,
+            )

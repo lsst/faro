@@ -29,7 +29,7 @@ def photRepeat(matchedCatalog, magName=None, nMinPhotRepeat=50, **filterargs):
         nMinPhotRepeat sources in the matched catalog.
     """
     if magName is None:
-        magName = 'slot_PsfFlux_mag'
+        magName = "slot_PsfFlux_mag"
     filteredCat = filterMatches(matchedCatalog, **filterargs)
     magKey = filteredCat.schema.find(magName).key
 
@@ -37,13 +37,13 @@ def photRepeat(matchedCatalog, magName=None, nMinPhotRepeat=50, **filterargs):
     if filteredCat.count > nMinPhotRepeat:
         phot_resid_meas = calcPhotRepeat(filteredCat, magKey)
         # Check that the number of stars with >2 visits is >nMinPhotRepeat:
-        okcount = (phot_resid_meas['count'] > 2)
+        okcount = phot_resid_meas["count"] > 2
         if np.sum(okcount) > nMinPhotRepeat:
             return phot_resid_meas
         else:
-            return {'nomeas': np.nan*u.mmag}
+            return {"nomeas": np.nan * u.mmag}
     else:
-        return {'nomeas': np.nan*u.mmag}
+        return {"nomeas": np.nan * u.mmag}
 
 
 def calcPhotRepeat(matches, magKey):
@@ -76,17 +76,27 @@ def calcPhotRepeat(matches, magKey):
         - ``magResid``: `~astropy.unit.Quantity` array for each input source,
           containing the magnitude residuals, in mmag, with respect to ``magMean``.
     """
-    matches_rms = (matches.aggregate(np.nanstd, field=magKey)*u.mag).to(u.mmag)
+    matches_rms = (matches.aggregate(np.nanstd, field=magKey) * u.mag).to(u.mmag)
     matches_count = matches.aggregate(np.count_nonzero, field=magKey)
-    matches_mean = matches.aggregate(np.mean, field=magKey)*u.mag
+    matches_mean = matches.aggregate(np.mean, field=magKey) * u.mag
     magResid = []
     for gp in matches.groups:
-        magResid.append(((gp[magKey]-np.mean(gp[magKey]))*(u.mag)).to(u.mmag))
-    magResid = np.array(magResid, dtype='object')
-    okrms = (matches_count > 2)
+        magResid.append(((gp[magKey] - np.mean(gp[magKey])) * (u.mag)).to(u.mmag))
+    magResid = np.array(magResid, dtype="object")
+    okrms = matches_count > 2
     if np.sum(okrms) > 0:
-        return {'count': matches_count, 'magMean': matches_mean, 'rms': matches_rms,
-                'repeatability': np.median(matches_rms[okrms]), 'magResid': magResid}
+        return {
+            "count": matches_count,
+            "magMean": matches_mean,
+            "rms": matches_rms,
+            "repeatability": np.median(matches_rms[okrms]),
+            "magResid": magResid,
+        }
     else:
-        return {'count': 0, 'magMean': np.nan*u.mag, 'rms': np.nan*u.mmag,
-                'repeatability': np.nan*u.mmag, 'magDiffs': 0*u.mmag}
+        return {
+            "count": 0,
+            "magMean": np.nan * u.mag,
+            "rms": np.nan * u.mmag,
+            "repeatability": np.nan * u.mmag,
+            "magDiffs": 0 * u.mmag,
+        }

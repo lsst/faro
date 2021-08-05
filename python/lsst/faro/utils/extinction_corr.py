@@ -6,14 +6,17 @@ log = logging.getLogger(__name__)
 try:
     from dustmaps.sfd import SFDQuery
 except ModuleNotFoundError as e:
-    log.debug("The extinction_corr method is not available without first installing the dustmaps module:\n"
-              "$> pip install --user dustmaps\n\n"
-              "Then in a python interpreter:\n"
-              ">>> import dustmaps.sfd\n"
-              ">>> dustmaps.sfd.fetch()\n"
-              "%s", e.msg)
+    log.debug(
+        "The extinction_corr method is not available without first installing the dustmaps module:\n"
+        "$> pip install --user dustmaps\n\n"
+        "Then in a python interpreter:\n"
+        ">>> import dustmaps.sfd\n"
+        ">>> dustmaps.sfd.fetch()\n"
+        "%s",
+        e.msg,
+    )
 
-__all__ = ("extinction_corr", )
+__all__ = ("extinction_corr",)
 
 
 def extinction_corr(catalog, bands):
@@ -40,15 +43,15 @@ def extinction_corr(catalog, bands):
 
     bands = list(bands)
     sfd = SFDQuery()
-    coord_string_ra = 'coord_ra_'+str(bands[0])
-    coord_string_dec = 'coord_dec_'+str(bands[0])
+    coord_string_ra = "coord_ra_" + str(bands[0])
+    coord_string_dec = "coord_dec_" + str(bands[0])
     coords = SkyCoord(catalog[coord_string_ra], catalog[coord_string_dec])
     ebvValues = sfd(coords)
-    extinction_dict = {'E(B-V)': ebvValues}
+    extinction_dict = {"E(B-V)": ebvValues}
 
     # Create a dict with the extinction values for each band (and E(B-V), too):
     for band in bands:
-        coeff_name = 'A_'+str(band)
-        extinction_dict[coeff_name] = ebvValues*extinctionCoeffs_HSC[band]
+        coeff_name = "A_" + str(band)
+        extinction_dict[coeff_name] = ebvValues * extinctionCoeffs_HSC[band]
 
-    return(extinction_dict)
+    return extinction_dict

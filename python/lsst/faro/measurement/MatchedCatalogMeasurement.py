@@ -21,36 +21,47 @@ import traceback
 import lsst.pipe.base as pipeBase
 from lsst.verify.tasks import MetricConnections, MetricComputationError
 
-from lsst.faro.base.CatalogMeasurementBase import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
+from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConfig,
+    CatalogMeasurementBaseTask,
+)
 
-__all__ = ("PatchMatchedMeasurementConnections", "PatchMatchedMeasurementConfig",
-           "PatchMatchedMeasurementTask",
-           "TractMatchedMeasurementConnections", "TractMatchedMeasurementConfig",
-           "TractMatchedMeasurementTask",
-           "PatchMatchedMultiBandMeasurementConnections", "PatchMatchedMultiBandMeasurementConfig",
-           "PatchMatchedMultiBandMeasurementTask")
+__all__ = (
+    "PatchMatchedMeasurementConnections",
+    "PatchMatchedMeasurementConfig",
+    "PatchMatchedMeasurementTask",
+    "TractMatchedMeasurementConnections",
+    "TractMatchedMeasurementConfig",
+    "TractMatchedMeasurementTask",
+    "PatchMatchedMultiBandMeasurementConnections",
+    "PatchMatchedMultiBandMeasurementConfig",
+    "PatchMatchedMultiBandMeasurementTask",
+)
 
 # The first thing to do is to define a Connections class. This will define all
 # the inputs and outputs that our task requires
 
 
-class PatchMatchedMeasurementConnections(MetricConnections,
-                                         dimensions=("tract", "patch", "band",
-                                                     "instrument", "skymap")):
-    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                         dimensions=("tract", "patch", "instrument",
-                                                     "band"),
-                                         storageClass="SimpleCatalog",
-                                         name="matchedCatalogPatch")
-    measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
-                                                  dimensions=("tract", "patch",
-                                                              "instrument", "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+class PatchMatchedMeasurementConnections(
+    MetricConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+):
+    cat = pipeBase.connectionTypes.Input(
+        doc="Input matched catalog.",
+        dimensions=("tract", "patch", "instrument", "band"),
+        storageClass="SimpleCatalog",
+        name="matchedCatalogPatch",
+    )
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Resulting matched catalog.",
+        dimensions=("tract", "patch", "instrument", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+    )
 
 
-class PatchMatchedMeasurementConfig(CatalogMeasurementBaseConfig,
-                                    pipelineConnections=PatchMatchedMeasurementConnections):
+class PatchMatchedMeasurementConfig(
+    CatalogMeasurementBaseConfig, pipelineConnections=PatchMatchedMeasurementConnections
+):
     pass
 
 
@@ -59,23 +70,27 @@ class PatchMatchedMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "patchMatchedMeasurementTask"
 
 
-class TractMatchedMeasurementConnections(PatchMatchedMeasurementConnections,
-                                         dimensions=("tract", "instrument",
-                                                     "band", "skymap")):
-    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                         dimensions=("tract", "instrument",
-                                                     "band"),
-                                         storageClass="SimpleCatalog",
-                                         name="matchedCatalogTract")
-    measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
-                                                  dimensions=("tract",
-                                                              "instrument", "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+class TractMatchedMeasurementConnections(
+    PatchMatchedMeasurementConnections,
+    dimensions=("tract", "instrument", "band", "skymap"),
+):
+    cat = pipeBase.connectionTypes.Input(
+        doc="Input matched catalog.",
+        dimensions=("tract", "instrument", "band"),
+        storageClass="SimpleCatalog",
+        name="matchedCatalogTract",
+    )
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Resulting matched catalog.",
+        dimensions=("tract", "instrument", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+    )
 
 
-class TractMatchedMeasurementConfig(CatalogMeasurementBaseConfig,
-                                    pipelineConnections=TractMatchedMeasurementConnections):
+class TractMatchedMeasurementConfig(
+    CatalogMeasurementBaseConfig, pipelineConnections=TractMatchedMeasurementConnections
+):
     pass
 
 
@@ -84,23 +99,27 @@ class TractMatchedMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "tractMatchedMeasurementTask"
 
 
-class PatchMatchedMultiBandMeasurementConnections(MetricConnections,
-                                                  dimensions=("tract", "patch", "band",
-                                                              "instrument", "skymap")):
-    cat = pipeBase.connectionTypes.Input(doc="Input matched catalog.",
-                                         dimensions=("tract", "patch", "instrument"),
-                                         storageClass="SimpleCatalog",
-                                         name="matchedCatalogPatchMultiBand")
-    measurement = pipeBase.connectionTypes.Output(doc="Resulting matched catalog.",
-                                                  dimensions=("tract", "patch",
-                                                              "instrument", "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}")
+class PatchMatchedMultiBandMeasurementConnections(
+    MetricConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+):
+    cat = pipeBase.connectionTypes.Input(
+        doc="Input matched catalog.",
+        dimensions=("tract", "patch", "instrument"),
+        storageClass="SimpleCatalog",
+        name="matchedCatalogPatchMultiBand",
+    )
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Resulting matched catalog.",
+        dimensions=("tract", "patch", "instrument", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+    )
 
 
 class PatchMatchedMultiBandMeasurementConfig(
-        CatalogMeasurementBaseConfig,
-        pipelineConnections=PatchMatchedMultiBandMeasurementConnections):
+    CatalogMeasurementBaseConfig,
+    pipelineConnections=PatchMatchedMultiBandMeasurementConnections,
+):
     pass
 
 
@@ -121,14 +140,23 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
             in_id = butlerQC.registry.expandDataId(inputRefs.cat.dataId)
             out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
             inputs = butlerQC.get(inputRefs)
-            inputs['in_id'] = in_id
-            inputs['out_id'] = out_id
+            inputs["in_id"] = in_id
+            inputs["out_id"] = out_id
             outputs = self.run(**inputs)
             if outputs.measurement is not None:
                 butlerQC.put(outputs, outputRefs)
             else:
-                self.log.debug("Skipping measurement of {!r} on {} "
-                               "as not applicable.", self, inputRefs)
+                self.log.debug(
+                    "Skipping measurement of {!r} on {} " "as not applicable.",
+                    self,
+                    inputRefs,
+                )
         except MetricComputationError as e:
-            self.log.error("Measurement of {!r} failed on {}->{}\n{}\n,%s",
-                           self, inputRefs, outputRefs, traceback.format_exc(), e.msg)
+            self.log.error(
+                "Measurement of {!r} failed on {}->{}\n{}\n,%s",
+                self,
+                inputRefs,
+                outputRefs,
+                traceback.format_exc(),
+                e.msg,
+            )

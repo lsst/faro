@@ -1,27 +1,32 @@
 import lsst.pipe.base as pipeBase
 
-from lsst.faro.base.CatalogSummaryBase import (CatalogSummaryBaseTaskConnections, CatalogSummaryBaseTask,
-                                               CatalogSummaryBaseTaskConfig)
+from lsst.faro.base.CatalogSummaryBase import (
+    CatalogSummaryBaseTaskConnections,
+    CatalogSummaryBaseTask,
+    CatalogSummaryBaseConfig,
+)
 
-__all__ = ("PatchSummaryTaskConnections", "PatchSummaryTaskConfig", "PatchSummaryTask")
+__all__ = ("PatchSummaryTaskConnections", "PatchSummaryConfig", "PatchSummaryTask")
 
 
 class PatchSummaryTaskConnections(CatalogSummaryBaseTaskConnections):
 
-    measurements = pipeBase.connectionTypes.Input(doc="{package}_{metric}.",
-                                                  dimensions=("tract", "patch", "skymap",
-                                                              "band"),
-                                                  storageClass="MetricValue",
-                                                  name="metricvalue_{package}_{metric}",
-                                                  multiple=True)
+    measurements = pipeBase.connectionTypes.Input(
+        doc="{package}_{metric}.",
+        dimensions=("tract", "patch", "skymap", "band"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+        multiple=True,
+    )
 
 
-class PatchSummaryTaskConfig(CatalogSummaryBaseTaskConfig,
-                             pipelineConnections=PatchSummaryTaskConnections):
+class PatchSummaryConfig(
+    CatalogSummaryBaseConfig, pipelineConnections=PatchSummaryTaskConnections
+):
     pass
 
 
 class PatchSummaryTask(CatalogSummaryBaseTask):
 
-    ConfigClass = PatchSummaryTaskConfig
+    ConfigClass = PatchSummaryConfig
     _DefaultName = "patchSummaryTask"

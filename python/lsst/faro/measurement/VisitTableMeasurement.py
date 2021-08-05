@@ -22,42 +22,50 @@
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 
-from lsst.faro.base.CatalogMeasurementBase import (CatalogMeasurementBaseConnections,
-                                                   CatalogMeasurementBaseConfig,
-                                                   CatalogMeasurementBaseTask)
+from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
+    CatalogMeasurementBaseConfig,
+    CatalogMeasurementBaseTask,
+)
 
 __all__ = ("VisitTableMeasurementConfig", "VisitTableMeasurementTask")
 
 
-class VisitTableMeasurementConnections(CatalogMeasurementBaseConnections,
-                                       dimensions=("instrument", "visit", "band")):
+class VisitTableMeasurementConnections(
+    CatalogMeasurementBaseConnections, dimensions=("instrument", "visit", "band")
+):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per visit",
         dimensions=("instrument", "visit", "band"),
         storageClass="DataFrame",
         name="sourceTable_visit",
-        deferLoad=True
+        deferLoad=True,
     )
 
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-visit measurement",
         dimensions=("instrument", "visit", "band"),
         storageClass="MetricValue",
-        name="metricvalue_{package}_{metric}"
+        name="metricvalue_{package}_{metric}",
     )
 
 
-class VisitTableMeasurementConfig(CatalogMeasurementBaseConfig,
-                                  pipelineConnections=VisitTableMeasurementConnections):
+class VisitTableMeasurementConfig(
+    CatalogMeasurementBaseConfig, pipelineConnections=VisitTableMeasurementConnections
+):
     """Configuration for VisitTableMeasurementTask."""
 
-    columns = pexConfig.ListField(doc="Columns from sourceTable_visit to load.",
-                                  dtype=str, default=['coord_ra', 'coord_dec'])
+    columns = pexConfig.ListField(
+        doc="Columns from sourceTable_visit to load.",
+        dtype=str,
+        default=["coord_ra", "coord_dec"],
+    )
 
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for science performance metrics measured on single-visit source catalogs."""
+
     ConfigClass = VisitTableMeasurementConfig
     _DefaultName = "visitTableMeasurementTask"
 
@@ -66,10 +74,13 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs['catalog'].get(parameters={'columns': self.config.columns})
+        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
         outputs = self.run(catalog)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
-            self.log.debugf("Skipping measurement of {!r} on {} "
-                            "as not applicable.", self, inputRefs)
+            self.log.debugf(
+                "Skipping measurement of {!r} on {} " "as not applicable.",
+                self,
+                inputRefs,
+            )
