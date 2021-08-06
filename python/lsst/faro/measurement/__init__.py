@@ -3,6 +3,7 @@ from .GeneralMeasurementTasks import *
 from .MatchedCatalogMeasurementTasks import *
 from .PatchMeasurementTasks import *
 from .VisitMeasurementTasks import *
+from .DetectorMeasurementTasks import *
 from .TractMeasurementTasks import *
 from .MatchedCatalogMeasurement import *
 from .DetectorMeasurement import *
