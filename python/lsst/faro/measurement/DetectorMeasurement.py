@@ -17,10 +17,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
 import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
@@ -29,7 +29,7 @@ __all__ = ("DetectorMeasurementConfig", "DetectorMeasurementTask")
 
 
 class DetectorMeasurementConnections(
-    MetricConnections,
+    CatalogMeasurementBaseConnections,
     dimensions=("instrument", "visit", "detector", "band"),
     defaultTemplates={
         "photoCalibName": "calexp.photoCalib",

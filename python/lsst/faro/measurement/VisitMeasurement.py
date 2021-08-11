@@ -17,9 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
 
 from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
@@ -28,7 +28,7 @@ __all__ = ("VisitMeasurementConfig", "VisitMeasurementTask")
 
 
 class VisitMeasurementConnections(
-    MetricConnections,
+    CatalogMeasurementBaseConnections,
     dimensions=("instrument", "visit", "band"),
     defaultTemplates={"photoCalibName": "calexp.photoCalib", "wcsName": "calexp.wcs"},
 ):
