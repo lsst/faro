@@ -17,9 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
 
 from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
@@ -35,7 +35,7 @@ __all__ = (
 
 
 class TractMeasurementConnections(
-    MetricConnections,
+    CatalogMeasurementBaseConnections,
     dimensions=("tract", "skymap", "band"),
     defaultTemplates={
         "coaddName": "deepCoadd",

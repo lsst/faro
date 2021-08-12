@@ -17,9 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections
 
 from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
@@ -32,7 +32,7 @@ __all__ = (
 
 
 class PatchMeasurementConnections(
-    MetricConnections, dimensions=("tract", "patch", "skymap", "band")
+    CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "skymap", "band")
 ):
 
     cat = pipeBase.connectionTypes.Input(

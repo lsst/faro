@@ -19,9 +19,10 @@
 import traceback
 
 import lsst.pipe.base as pipeBase
-from lsst.verify.tasks import MetricConnections, MetricComputationError
+from lsst.verify.tasks import MetricComputationError
 
 from lsst.faro.base.CatalogMeasurementBase import (
+    CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
@@ -43,7 +44,7 @@ __all__ = (
 
 
 class PatchMatchedMeasurementConnections(
-    MetricConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+    CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
 ):
     cat = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
@@ -100,7 +101,7 @@ class TractMatchedMeasurementTask(CatalogMeasurementBaseTask):
 
 
 class PatchMatchedMultiBandMeasurementConnections(
-    MetricConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+    CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
 ):
     cat = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
