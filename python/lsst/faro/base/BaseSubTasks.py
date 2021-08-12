@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 import astropy.units as u
 import numpy as np
 from lsst.pipe.base import Struct, Task
