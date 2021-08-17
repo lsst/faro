@@ -120,7 +120,7 @@ class TractMultiBandMeasurementConnections(
     },
 ):
 
-    cat = pipeBase.connectionTypes.Input(
+    catalogs = pipeBase.connectionTypes.Input(
         doc="Object catalog.",
         dimensions=("tract", "skymap", "patch", "band"),
         storageClass="SourceCatalog",

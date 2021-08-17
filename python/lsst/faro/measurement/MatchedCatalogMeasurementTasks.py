@@ -107,7 +107,7 @@ class PA1Task(Task):
     def __init__(self, config: PA1Config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
-    def run(self, matchedCatalog, metricName):
+    def run(self, metricName, matchedCatalog):
         """Calculate the photometric repeatability.
 
         Parameters
@@ -200,7 +200,7 @@ class PF1Task(Task):
     def __init__(self, config: PF1Config, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
-    def run(self, matchedCatalog, metricName):
+    def run(self, metricName, matchedCatalog):
         """Calculate the percentage of outliers in the photometric repeatability values.
 
         Parameters
@@ -288,7 +288,7 @@ class AMxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "AMxTask"
 
-    def run(self, matchedCatalog, metric_name):
+    def run(self, metric_name, matchedCatalog):
         self.log.info("Measuring %s", metric_name)
 
         filteredCat = filterMatches(matchedCatalog)
@@ -328,7 +328,7 @@ class ADxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "ADxTask"
 
-    def run(self, matchedCatalog, metric_name):
+    def run(self, metric_name, matchedCatalog):
         self.log.info("Measuring %s", metric_name)
 
         sepDistances = astromResiduals(
@@ -362,7 +362,7 @@ class AFxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "AFxTask"
 
-    def run(self, matchedCatalog, metric_name):
+    def run(self, metric_name, matchedCatalog):
         self.log.info("Measuring %s", metric_name)
 
         sepDistances = astromResiduals(
@@ -406,7 +406,7 @@ class AB1Task(Task):
     ConfigClass = AB1Config
     _DefaultName = "AB1Task"
 
-    def run(self, matchedCatalogMulti, metric_name, in_id, out_id):
+    def run(self, metric_name, matchedCatalogMulti, in_id, out_id):
         self.log.info("Measuring %s", metric_name)
 
         if self.config.ref_filter not in filter_dict:
@@ -502,7 +502,7 @@ class ModelPhotRepTask(Task):
     def __init__(self, config: ModelPhotRepConfig, *args, **kwargs):
         super().__init__(*args, config=config, **kwargs)
 
-    def run(self, matchedCatalog, metricName):
+    def run(self, metricName, matchedCatalog):
         """Calculate the photometric repeatability.
 
         Parameters

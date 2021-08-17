@@ -52,7 +52,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = CatalogMeasurementBaseConfig()
         t = CatalogMeasurementBaseTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -61,7 +61,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitTableMeasurementConfig()
         t = VisitTableMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -70,7 +70,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = DetectorTableMeasurementConfig()
         t = DetectorTableMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -79,7 +79,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitMeasurementConfig()
         t = VisitMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -88,7 +88,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = DetectorMeasurementConfig()
         t = DetectorMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 

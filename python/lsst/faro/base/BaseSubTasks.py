@@ -29,6 +29,7 @@ from lsst.faro.utils.matcher import mergeCatalogs
 
 __all__ = (
     "NumSourcesTask",
+    "NumSourcesMatchedTask",
     "NumSourcesMergeTask",
     "NumpySummaryConfig",
     "NumpySummaryTask",
@@ -44,7 +45,7 @@ class NumSourcesConfig(Config):
 
 
 class NumSourcesTask(Task):
-    r"""Simple default task count the number of sources/objects in catalog."""
+    r"""Simple default task to count the number of sources/objects in catalog."""
 
     ConfigClass = NumSourcesConfig
     _DefaultName = "numSourcesTask"
@@ -74,6 +75,15 @@ class NumSourcesTask(Task):
         self.log.info("Number of sources (nSources) = %i" % nSources)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
+
+
+class NumSourcesMatchedTask(NumSourcesTask):
+    r"""Extension of NumSourcesTask to count sources in a matched catalog"""
+
+    # The only purpose of this task is to rename the catalog arg to matchedCatalog
+    # TODO: Review the necessity of this in DM-31061
+    def run(self, metricName, matchedCatalog, **kwargs):
+        return super().run(metricName, matchedCatalog, **kwargs)
 
 
 class NumSourcesMergeTask(Task):
