@@ -19,6 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from lsst.afw.geom import SkyWcs
+from lsst.afw.image import PhotoCalib
+from lsst.afw.table import SourceCatalog
 import lsst.pipe.base as pipeBase
 
 from lsst.faro.base.CatalogMeasurementBase import (
@@ -26,6 +29,10 @@ from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
+
+from collections import defaultdict
+from typing import List
 
 __all__ = ("VisitMeasurementConfig", "VisitMeasurementTask")
 
@@ -77,6 +84,19 @@ class VisitMeasurementConfig(
 class VisitMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = VisitMeasurementConfig
     _DefaultName = "visitMeasurementTask"
+
+    def run(
+            self,
+            catalogs: List[SourceCatalog],
+            photoCalibs: List[PhotoCalib],
+            astromCalibs: List[SkyWcs],
+            dataIds: List[dict],
+    ):
+        data = defaultdict(list)
+        for catalog, photoCalib, astromCalib, dataId in zip(catalogs, photoCalibs, astromCalibs, dataIds):
+            data[dataId['band']].append(CalibratedCatalog(catalog, photoCalib, astromCalib))
+
+        return self.measure.run(self.config.connections.metric, data)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)

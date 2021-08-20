@@ -19,25 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import astropy.units as u
-from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config
-from lsst.verify import Measurement
+from lsst.afw.geom import SkyWcs
+from lsst.afw.image import PhotoCalib
+from lsst.afw.table import SourceCatalog
 
-__all__ = ("StarFracTask",)
+from dataclasses import dataclass
 
 
-class StarFracTask(Task):
-    ConfigClass = Config
-    _DefaultName = "starFracTask"
-
-    def run(self, catalog, metricName, vIds):
-        self.log.info("Measuring %s", metricName)
-        if not catalog.isContiguous():
-            catalog = catalog.copy(deep=True)
-        extended = catalog.get("base_ClassificationExtendedness_value")
-        good_extended = extended[~catalog.get("base_ClassificationExtendedness_flag")]
-        n_gals = sum(good_extended)
-        frac = 100 * (len(good_extended) - n_gals) / len(good_extended)
-        meas = Measurement("starFrac", frac * u.percent)
-        return Struct(measurement=meas)
+@dataclass(frozen=True)
+class CalibratedCatalog:
+    catalog: SourceCatalog
+    photoCalib: PhotoCalib = None
+    astromCalib: SkyWcs = None

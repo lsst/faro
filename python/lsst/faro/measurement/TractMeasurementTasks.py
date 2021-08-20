@@ -19,16 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import astropy.units as u
-import numpy as np
-
+from lsst.afw.table import SourceCatalog
+from lsst.pex.config import Config, Field
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
-from lsst.pex.config import Config, Field
+
 from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
 from lsst.faro.utils.matcher import makeMatchedPhotom
 from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.utils.tex import calculateTEx
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
+
+import astropy.units as u
+import numpy as np
+from typing import Dict, List
 
 __all__ = ("WPerpConfig", "WPerpTask", "TExConfig", "TExTask")
 
@@ -48,29 +52,30 @@ class WPerpTask(Task):
     _DefaultName = "WPerpTask"
 
     def run(
-        self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None
+        self, metricName: str, data: Dict[str, List[CalibratedCatalog]],
     ):
         self.log.info("Measuring %s", metricName)
-        bands = set([f["band"] for f in dataIds])
+        bands = set("gri")
 
-        if ("g" in bands) & ("r" in bands) & ("i" in bands):
-            rgicatAll = makeMatchedPhotom(dataIds, catalogs, photoCalibs)
+        if bands.issubset(set(data.keys())):
+            data = {b: data[b] for b in bands}
+            rgicatAll = makeMatchedPhotom(data)
             magcut = (rgicatAll["base_PsfFlux_mag_r"] < self.config.faint_rmag_cut) & (
                 rgicatAll["base_PsfFlux_mag_r"] > self.config.bright_rmag_cut
             )
+            self.log.info("Merged multiband catalog is %d rows (%d match mag cut)",
+                          len(rgicatAll), np.sum(magcut))
             rgicat = rgicatAll[magcut]
             extVals = extinction_corr(rgicat, bands)
 
-            wPerp = self.calcWPerp(rgicat, extVals, metricName)
+            wPerp = self.calcWPerp(metricName, rgicat, extVals)
             return wPerp
         else:
             return Struct(measurement=Measurement(metricName, np.nan * u.mmag))
 
-    def calcWPerp(self, phot, extinctionVals, metricName):
+    def calcWPerp(self, metricName: str, phot: SourceCatalog, extinctionVals):
         p1, p2, p1coeffs, p2coeffs = stellarLocusResid(
-            phot["base_PsfFlux_mag_g"] - extinctionVals["A_g"],
-            phot["base_PsfFlux_mag_r"] - extinctionVals["A_r"],
-            phot["base_PsfFlux_mag_i"] - extinctionVals["A_i"],
+            *[phot[f"base_PsfFlux_mag_{b}"] - extinctionVals[f"A_{b}"] for b in 'gri'],
         )
 
         if np.size(p2) > 2:
@@ -125,11 +130,17 @@ class TExTask(Task):
     _DefaultName = "TExTask"
 
     def run(
-        self, metricName, catalogs, photoCalibs=None, astromCalibs=None, dataIds=None
+        self, metricName, data: Dict[str, List[CalibratedCatalog]]
     ):
+        bands = data.keys()
+        if len(bands) != 1:
+            raise RuntimeError(f'TEx task got bands: {bands} but expecting exactly one')
+        else:
+            data = data[list(bands)[0]]
+
         self.log.info("Measuring %s", metricName)
 
-        result = calculateTEx(catalogs, photoCalibs, astromCalibs, self.config)
+        result = calculateTEx(data, self.config)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))
 

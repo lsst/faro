@@ -288,8 +288,8 @@ class AMxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "AMxTask"
 
-    def run(self, metric_name, matchedCatalog):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, matchedCatalog):
+        self.log.info("Measuring %s", metricName)
 
         filteredCat = filterMatches(matchedCatalog)
 
@@ -314,12 +314,12 @@ class AMxTask(Task):
 
         if len(rmsDistances) == 0:
             return Struct(
-                measurement=Measurement(metric_name, np.nan * u.marcsec, extras=extras)
+                measurement=Measurement(metricName, np.nan * u.marcsec, extras=extras)
             )
 
         return Struct(
             measurement=Measurement(
-                metric_name, np.median(rmsDistances.to(u.marcsec)), extras=extras
+                metricName, np.median(rmsDistances.to(u.marcsec)), extras=extras
             )
         )
 
@@ -328,8 +328,8 @@ class ADxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "ADxTask"
 
-    def run(self, metric_name, matchedCatalog):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, matchedCatalog):
+        self.log.info("Measuring %s", metricName)
 
         sepDistances = astromResiduals(
             matchedCatalog,
@@ -343,7 +343,7 @@ class ADxTask(Task):
         afPercentile = 100.0 * u.percent - afThresh
 
         if len(sepDistances) <= 1:
-            return Struct(measurement=Measurement(metric_name, np.nan * u.marcsec))
+            return Struct(measurement=Measurement(metricName, np.nan * u.marcsec))
         else:
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
@@ -351,7 +351,7 @@ class ADxTask(Task):
             absDiffsMarcsec = (sepDistances - np.median(sepDistances)).to(u.marcsec)
             return Struct(
                 measurement=Measurement(
-                    metric_name,
+                    metricName,
                     np.percentile(absDiffsMarcsec.value, afPercentile.value)
                     * u.marcsec,
                 )
@@ -362,8 +362,8 @@ class AFxTask(Task):
     ConfigClass = AMxConfig
     _DefaultName = "AFxTask"
 
-    def run(self, metric_name, matchedCatalog):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, matchedCatalog):
+        self.log.info("Measuring %s", metricName)
 
         sepDistances = astromResiduals(
             matchedCatalog,
@@ -376,7 +376,7 @@ class AFxTask(Task):
         adxThresh = self.config.threshAD * u.marcsec
 
         if len(sepDistances) <= 1:
-            return Struct(measurement=Measurement(metric_name, np.nan * u.percent))
+            return Struct(measurement=Measurement(metricName, np.nan * u.percent))
         else:
             # absolute value of the difference between each astrometric rms
             #    and the median astrometric RMS
@@ -387,7 +387,7 @@ class AFxTask(Task):
                 * np.mean(np.abs(absDiffsMarcsec.value) > adxThresh.value)
                 * u.percent
             )
-            return Struct(measurement=Measurement(metric_name, percentileAtADx))
+            return Struct(measurement=Measurement(metricName, percentileAtADx))
 
 
 class AB1Config(Config):
@@ -406,8 +406,8 @@ class AB1Task(Task):
     ConfigClass = AB1Config
     _DefaultName = "AB1Task"
 
-    def run(self, metric_name, matchedCatalogMulti, in_id, out_id):
-        self.log.info("Measuring %s", metric_name)
+    def run(self, metricName, matchedCatalogMulti, in_id, out_id):
+        self.log.info("Measuring %s", metricName)
 
         if self.config.ref_filter not in filter_dict:
             raise Exception("Reference filter supplied for AB1 not in dictionary.")
@@ -441,15 +441,15 @@ class AB1Task(Task):
                     rmsDistancesAll.append(rmsDistances[finiteEntries])
 
             if len(rmsDistancesAll) == 0:
-                return Struct(measurement=Measurement(metric_name, np.nan * u.marcsec))
+                return Struct(measurement=Measurement(metricName, np.nan * u.marcsec))
             else:
                 rmsDistancesAll = np.concatenate(rmsDistancesAll)
                 return Struct(
-                    measurement=Measurement(metric_name, np.mean(rmsDistancesAll))
+                    measurement=Measurement(metricName, np.mean(rmsDistancesAll))
                 )
 
         else:
-            return Struct(measurement=Measurement(metric_name, np.nan * u.marcsec))
+            return Struct(measurement=Measurement(metricName, np.nan * u.marcsec))
 
 
 class ModelPhotRepConfig(Config):

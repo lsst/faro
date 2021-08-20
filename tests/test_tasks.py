@@ -26,7 +26,7 @@ import astropy.units as u
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 
-from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
+from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask, NumSourcesMergeTask
 from lsst.faro.measurement import (VisitTableMeasurementConfig, VisitTableMeasurementTask,
                                    DetectorTableMeasurementConfig, DetectorTableMeasurementTask,
                                    VisitMeasurementConfig, VisitMeasurementTask,
@@ -78,8 +78,15 @@ class TaskTest(unittest.TestCase):
         """Test run method of VisitMeasurementTask."""
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
         t = VisitMeasurementTask(config)
-        outputs = t.run(catalog=catalog)
+        outputs = t.run(
+            catalogs=[catalog, ],
+            photoCalibs=[None, ],
+            astromCalibs=[None, ],
+            dataIds=[{'band': 'r'}, ],
+        )
+        print(outputs)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 

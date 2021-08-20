@@ -30,6 +30,7 @@ import logging
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import TExTask
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 
 log = logging.getLogger(__name__)
 
@@ -67,9 +68,9 @@ class Te1Test(unittest.TestCase):
         config.minSep = 0.25
         config.maxSep = 1.0
         task = TExTask(config=config)
-        for band in ('i'):
+        for band in ('i',):
             catalog, expected = self.load_data(('TE1', band))
-            result = task.run('TE1', [catalog])
+            result = task.run('TE1', {'i': [CalibratedCatalog(catalog), ]})
             log.debug('result: ', result)
             log.debug('expected: ', expected)
             self.assertEqual(result.measurement, expected)
