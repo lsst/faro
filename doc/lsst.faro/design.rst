@@ -7,11 +7,16 @@
 References and prior art
 ========================
 
-``lsst.faro`` builds on
- - The lsst.verify framework for computing data quality metrics,  described in `DMTN-098 <https://dmtn-098.lsst.io>`_ and `DMTN-057 <https://dmtn-057.lsst.io>`_
+``lsst.faro`` builds on concepts, designs, and recommendations in the following documents:
 
- - The validate_drp package, the Gen2 middleware based code for computing KPMs, as described in `DMTN-008 <https://dmtn-008.lsst.io>`_
+ - The ``lsst.verify`` framework for computing data quality metrics,  described in `DMTN-098 <https://dmtn-098.lsst.io>`_ and `DMTN-057 <https://dmtn-057.lsst.io>`_
 
+ - The ``lsst.validate_drp`` package, the Gen2 middleware based code for computing KPMs, as described in `DMTN-008 <https://dmtn-008.lsst.io>`_
+
+- Recommendations for metrics-level provenance, as described in `DMTN-185 <https://dmtn-185.lsst.io/#metrics-level-provenance>`_
+
+- Recommendations of the QA Strategy Working Group, as described in `DMTN-085 <https://dmtn-085.lsst.io/>`_
+  
 .. _lsst.faro-design_goals:
 
 Design goals
@@ -31,14 +36,7 @@ Intended uses:
 
 * Computing additional non-normative metrics for science validation
       
-``lsst.faro`` is NOT a visualization tool, but rather generates scalar metric values that could be used as input to visualization tools.
-
-      
-Here we outline the architecture and design concepts of ``lsst.faro``
-
-- Enable the computation of scalar performance metrics for LSST
-
-- Gen3 based
+Note that ``lsst.faro`` is NOT itself a visualization tool, but rather generates scalar metric values that could be used as input to visualization tools.
 
 Builds upon Science Pipelines infrastructure:
 
@@ -113,81 +111,6 @@ Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``
 
 For a given analysis context, selecting a specific metric to run is accomplished in configuration by `retargeting <https://pipelines.lsst.io/modules/lsst.pipe.base/task-framework-overview.html>`_ the generic subtask of, e.g., ``VisitTableMeasurementTask``, with the particular instance of ``lsst.pipe.base.Task`` for that metric. In this way, a large set of metrics can be readily computed from a set of common data inputs.
 
-Key features
-------------
-
-* Each metric has an associated `lsst.pipe.base.Task <https://pipelines.lsst.io/py-api/lsst.pipe.base.Task.html>`_ class that measures a scalar value based on data previously written to a Butler repository (i.e., ``faro`` runs as afterburner to the Science Pipelines).
-
-    * The ``lsst.pipe.base.Task`` for metric measurement works with in-memory python objects and does NOT perform IO with a data butler.
-
-* Persist the computed metric scalar values as `lsst.verify.Measurement <https://pipelines.lsst.io/py-api/lsst.verify.Measurement.html>`_ objects in the Butler repository alongside the associated input data products; each measurement has an associated searchable `data ID <https://pipelines.lsst.io/modules/lsst.daf.butler/dimensions.html#data-ids>`_.
-
-* Compute metrics for multiple *analysis contexts*, each corresponding to a different unit of input data (e.g., per-detector, per-visit, per-patch, per-tract).
-
-    * The ``lsst.verify`` package contains base classes `MetricConnections <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConnections.html>`_, `MetricConfig <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConfig.html>`_, and `MetricTask <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricTask.html>`_ that are used for generating scalar metric values (``lsst.verify.Measurement``) given input data. This structure follows the general pattern of using `PipelineTaskConnections <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConnections.html>`_ to define the desired IO, `PipelineTaskConfig <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConfig.html>`_ to provide configuration, and `PipelineTask <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTask.html>`_ to run an algorithm on input data and store output data in a data butler.
-  
-    * The primary base classes in the ``lsst.faro`` package, ``CatalogMeasurementBaseConnections``, ``CatalogMeasurementBaseConfig``, and ``CatalogMeasurementBaseTask``, inherit from ``MetricConnections``, ``MetricConfig``, and ``MetricTask``, respectively, and add general functionality for computing science performance metrics based on source/object catalog inputs. See `CatalogMeasurementBase.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/base/CatalogMeasurementBase.py>`_.
-
-    * Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``CatalogMeasurementBaseConnections``, ``CatalogMeasurementBaseConfig``, and ``CatalogMeasurementBaseTask`` to manage the particular inputs and outputs for the relevant unit of data for that analysis context. For example see `VisitTableMeasurement.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/measurement/VisitTableMeasurement.py>`_ for per-visit source catalogs.
-
-    * Selecting a specific metric to run is accomplished by `retargeting <https://pipelines.lsst.io/modules/lsst.pipe.base/task-framework-overview.html>`_ a generic subtask of, e.g., ``VisitTableMeasurementTask``, with the particular instance of ``lsst.pipe.base.Task`` for that metric.
-
-* Survey-scale summary statistics are computed by aggregating intermediate measurements (``lsst.verify.Measurement``) made on smaller units of data (e.g., set of individual visits, set of individual tracts)
-      
-   * Each unit of data corresponds to a `Quantum <https://pipelines.lsst.io/py-api/lsst.daf.butler.Quantum.html>`_ of processing, i.e., discrete unit of work. These quanta can be executed in parallel if the calculations are independent of each other, allowing the possibility to efficiently scale to large datasets.
-
-* Modular design
-
-    * Configurable to run subset of metrics on subset of data products; build pipelines in configuration
-
-    * Can run same metric multiple times with different configurations
-
-    * For a given analysis context, once the base classes to manage data IO exist, a metric can be added by writing a new ``lsst.pipe.base.Task`` to perform the necessary operations on input data products.
-
-      
-* Compute metrics for various *analysis contexts* corresponding to different units of data (e.g., per-detector, per-visit, per-patch, per-tract)
-
-  * The Science Pipelines follow 
-  
-  * The primary base class for the ``lsst.faro`` package, ``CatalogMeasurementBaseTask``, inherits from `lsst.verify.MetricTask <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricTask.html>`_, a base class for generating a ``lsst.verify.Measurement`` given input data. Each analysis context uses a subclass ``CatalogMeasurementBaseTask`` and associated configuration and connection classes to define the particular inputs for the relevant unit of data. Each analysis context has a subclass of `PipelineTaskConnections <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConnections.html>`_ 
-
-    `PipelineTask <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTask.html>`
-
-    ).
-
-
-
-* Persistence of the configuration with the measurements in the Butler repo with the dataset
-
-* Compute metrics for various *analysis contexts* corresponding to different units of data (e.g., per-detector, per-visit, per-patch/tract, ensemble of Measurements)
-
-    * In principle, could use any data product available in butler repo as inputs, e.g., images, DIASources, healsparse maps (?), ...
-
-    * Survey-scale summary statistics calculated from intermediate faro Measurements made on smaller units of data (e.g., set of individual visits, set of individual tracts)
-
-* Parallelizable / scalable to survey-scale datasets
-
-* Modular design
-    * Configurable to run subset of metrics on subset of data products; build pipelines in configuration
-
-    * Can run same metric multiple times with different configurations
-
-    * Once base class for a given analysis context exists to handle input data wrangling, straightforward to add metrics by writing new functions to perform the necessary operations on input data products
-
-Three stages of metric calculation
-----------------------------------
-      
-In general, metrics are computed in thee steps. While every metric will require the measurement step, the preparation and summary steps are not required for 
-
-1. Preparation: assembles intermediate data product used as input to the measurement step
-
-2. Measurement: produced a measurement (lsst.verify.Measurement) for each unit of data (quantum of processing corresponding to a dataId)
-
-3. Summary: Generate a summary statistic (lsst.verify.Measurement) based on a collection of input measurements (lsst.verify.Measurement) 
-
-For example, consider the photometric repeatability requirement PA1 that characterizes the dispersion across an ensemble of flux measurements made on individual visits (i.e., source detections) for a given astronomical object. The *preparation* step involves the creation of matched catalog for each given tract and band in a dataset. The *measurement* step takes the  
-
-
 Architecture
 ============
 
@@ -213,11 +136,6 @@ Directory structure
 * ``python/lsst/faro/summary``:  contains classes that take a collection of ``lsst.verify.Measurement`` objects as input and produce a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms, etc.) of the per-tract, per-patch, etc. metrics.
  
 * ``python/lsst/faro/utils``: contains utility classes that are used in multiple instances throughout the package
-
-Patterns
---------
-
-``lsst.faro`` makes extensive use of 
   
 Naming conventions
 ------------------
