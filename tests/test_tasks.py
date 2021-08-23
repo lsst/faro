@@ -30,7 +30,8 @@ from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseT
 from lsst.faro.measurement import (VisitTableMeasurementConfig, VisitTableMeasurementTask,
                                    DetectorTableMeasurementConfig, DetectorTableMeasurementTask,
                                    VisitMeasurementConfig, VisitMeasurementTask,
-                                   DetectorMeasurementConfig, DetectorMeasurementTask)
+                                   DetectorMeasurementConfig, DetectorMeasurementTask,
+                                   TractMeasurementConfig, TractMeasurementTask,)
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -71,6 +72,21 @@ class TaskTest(unittest.TestCase):
         config = DetectorTableMeasurementConfig()
         t = DetectorTableMeasurementTask(config)
         outputs = t.run(catalog=catalog)
+        expected = 771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testTractMeasurementTask(self):
+        """Test run method of TractMeasurementTask."""
+        catalog = self.load_data('CatalogMeasurementBaseTask')
+        config = TractMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
+        t = TractMeasurementTask(config)
+        outputs = t.run(
+            catalogs=[catalog, ],
+            photoCalibs=[None, ],
+            astromCalibs=[None, ],
+            dataIds=[{'band': 'r'}, ],
+        )
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
