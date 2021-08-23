@@ -18,6 +18,41 @@ Running faro
 - Running and building ``lsst.faro`` locally.
 - Running faro on an reprocessed Gen3 repository at NCSA
 
+``lsst.faro`` is can be run using `pipetask <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html>`_.
+
+Before running faro
+-------------------
+
+Authentication
+
+Authentication file: .pgpass mechanism and ~/.lsst/db-auth.yaml
+
+A word of caution about dataset type names if you are developing metrics in ``faro``.
+
+*Before* running faro, care should be taken when creating a new dataset type name associated with a metric. As noted in `DMTN-167 <https://dmtn-167.lsst.io/#naming-conventions-for-dataset-types>`_, the dataset type names are *global* with no implicit name spacing. This may change in the future, see `DM-29817 <https://jira.lsstcorp.org/browse/DM-29817>`_.
+
+Example: ci_hsc_gen3
+--------------------
+
+``ci_hsc_gen3`` is a small CI dataset that may be useful as a sandbox when running faro for the first time. The example below discusses how to build this dataset locally and run a simple metric with ``faro``.
+
+1. Set up `testdata_ci_hsc <https://github.com/lsst/testdata_ci_hsc>`_
+
+2. Set up `ci_hsc_gen3 <https://github.com/lsst/ci_hsc_gen3>`_
+
+3. An example command::
+
+     pipetask run -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -p $FARO_DIR/pipelines/measurement/measurement_detector.yaml -d "skymap='discrete/ci_hsc' AND instrument='HSC'" --output myusername/faro_test -i HSC/runs/ci_hsc
+
+Update your username.
+     
+Example: HSC RC2 dataset
+------------------------
+
+Is there a general link to recent HSC RC2 re-processing?
+
+
+  
 .. _lsst.faro-adding_a_metric:
 
 Adding a metric to faro
@@ -65,14 +100,14 @@ Adding a Metric
 
 Currently implemented analysis contexts include...
 
-2. Implement Measurement task. This will be an instance of ``lsst.pipe.base.Task`` that performs the specific operations of a given metric. See ``NumSourcesTask`` defined in `BaseSubTasks.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/base/BaseSubTasks.py>`_ for a simple example metric that returns the number of rows in an input source/object catalog.
+2. Implement Measurement task. This will be an instance of ``lsst.pipe.base.Task`` that performs the specific operations of a given metric. See ``NumSourcesTask`` defined in `BaseSubTasks.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/base/BaseSubTasks.py>`_ for a simple example metric that returns the number of rows in an input source/object catalog. Additional examples of measurement tasks can be found in the ``python/lsst/faro/measurement`` directory of the package.
    
 3. Implement unit tests. All algorithmic code used for metric computation should have associated unit tests. Examples can be found in the package ``tests`` directory.
 
-4. Add metric to a pipeline yaml file. The pipeline yaml contains the configuration information to execute metrics. See `measurement_visit_table.yaml <https://github.com/lsst/faro/blob/master/pipelines/measurement/measurement_visit_table.yaml>` for an example that uses ``VisitTableMeasurementTask`` to count the number of rows in an input source/object catalog.
+4. Add metric to a pipeline yaml file. The pipeline yaml contains the configuration information to execute metrics. See `measurement_visit_table.yaml <https://github.com/lsst/faro/blob/master/pipelines/measurement/measurement_visit_table.yaml>` for an example that uses ``VisitTableMeasurementTask`` to count the number of rows in an input source/object catalog. Additional examples of pipeline files can be found in ``pipelines/measurement`` directory of the package.
    
 Review
---------------------
+------
 
 The following is brief summary of the steps for `Review preparation <https://developer.lsst.io/work/flow.html#review-preparation>`_.
 
