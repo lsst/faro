@@ -1,13 +1,13 @@
 description: Compute metrics from tract catalogs
 tasks:
-#  nsrcMeasTract:
-#    class: lsst.faro.measurement.TractMeasurementTask
-#    config:
-#      connections.package: info
-#      connections.metric: nsrcMeasTract
-#      python: |
-#        from lsst.faro.base import NumSourcesMergeTask
-#        config.measure.retarget(NumSourcesMergeTask)
+  nsrcMeasTract:
+    class: lsst.faro.measurement.TractMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasTract
+      python: |
+        from lsst.faro.base import NumSourcesMergeTask
+        config.measure.retarget(NumSourcesMergeTask)
   TE1:
     class: lsst.faro.measurement.TractMeasurementTask
     config:
