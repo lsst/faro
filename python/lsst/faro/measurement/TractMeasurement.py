@@ -22,9 +22,10 @@
 from lsst.afw.geom import SkyWcs
 from lsst.afw.image import PhotoCalib
 from lsst.afw.table import SourceCatalog
+import lsst.pex.config as pexConfig
 import lsst.pipe.base as pipeBase
 
-
+from lsst.faro.base.BaseSubTasks import NumSourcesMergeTask
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
     CatalogMeasurementBaseConfig,
@@ -90,7 +91,12 @@ class TractMeasurementConnections(
 class TractMeasurementConfig(
     CatalogMeasurementBaseConfig, pipelineConnections=TractMeasurementConnections
 ):
-    pass
+    measure = pexConfig.ConfigurableField(
+        # The (plain old) Task that actually measures the desired metric
+        # Should be overridden in pipelines
+        target=NumSourcesMergeTask,
+        doc="Measure task",
+    )
 
 
 class TractMeasurementTask(CatalogMeasurementBaseTask):
