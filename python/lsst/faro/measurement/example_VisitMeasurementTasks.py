@@ -31,7 +31,7 @@ class StarFracTask(Task):
     ConfigClass = Config
     _DefaultName = "starFracTask"
 
-    def run(self, catalog, metricName, vIds):
+    def run(self, metricName, catalog, vIds):
         self.log.info("Measuring %s", metricName)
         if not catalog.isContiguous():
             catalog = catalog.copy(deep=True)
