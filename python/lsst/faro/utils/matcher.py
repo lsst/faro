@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from lsst.afw.geom import SkyWcs
+from lsst.afw.image import PhotoCalib
 from lsst.afw.table import (
     SchemaMapper,
     Field,
@@ -27,9 +29,11 @@ from lsst.afw.table import (
     SourceCatalog,
     updateSourceCoords,
 )
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 
 import numpy as np
 from astropy.table import join, Table
+from typing import Dict, List
 
 __all__ = (
     "matchCatalogs",
@@ -40,7 +44,14 @@ __all__ = (
 )
 
 
-def matchCatalogs(inputs, photoCalibs, astromCalibs, dataIds, matchRadius, logger=None):
+def matchCatalogs(
+        inputs: List[SourceCatalog],
+        photoCalibs: List[PhotoCalib],
+        astromCalibs: List[SkyWcs],
+        dataIds,
+        matchRadius: float,
+        logger=None,
+):
     schema = inputs[0].schema
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
@@ -203,73 +214,46 @@ def ellipticity(i_xx, i_xy, i_yy):
     return e, e1, e2
 
 
-def makeMatchedPhotom(dataIds, catalogs, photoCalibs):
-    # inputs: dataIds, catalogs, photoCalibs
+def makeMatchedPhotom(data: Dict[str, List[CalibratedCatalog]]):
+    """ Merge catalogs in multiple bands into a single shared catalog.
+    """
 
-    # Match all input bands:
-    bands = list(set([f["band"] for f in dataIds]))
+    cat_all = None
 
-    # Should probably add an "assert" that requires bands>1...
+    for band, cat_list in data.items():
+        cat_tmp = []
+        calibs_photo = []
+        for cat_calib in cat_list:
+            cat_tmp_i = cat_calib.catalog
+            qual_cuts = (
+                (cat_tmp_i["base_ClassificationExtendedness_value"] < 0.5)
+                & ~cat_tmp_i["base_PixelFlags_flag_saturated"]
+                & ~cat_tmp_i["base_PixelFlags_flag_cr"]
+                & ~cat_tmp_i["base_PixelFlags_flag_bad"]
+                & ~cat_tmp_i["base_PixelFlags_flag_edge"]
+            )
+            cat_tmp.append(cat_tmp_i[qual_cuts])
+            calibs_photo.append(cat_calib.photoCalib)
 
-    empty_cat = catalogs[0].copy()
-    empty_cat.clear()
-
-    cat_dict = {}
-    mags_dict = {}
-    magerrs_dict = {}
-    for band in bands:
-        cat_dict[band] = empty_cat.copy()
-        mags_dict[band] = []
-        magerrs_dict[band] = []
-
-    for i in range(len(catalogs)):
-        for band in bands:
-            if dataIds[i]["band"] in band:
-                cat_dict[band].extend(catalogs[i].copy(deep=True))
-                mags = photoCalibs[i].instFluxToMagnitude(catalogs[i], "base_PsfFlux")
-                mags_dict[band] = np.append(mags_dict[band], mags[:, 0])
-                magerrs_dict[band] = np.append(magerrs_dict[band], mags[:, 1])
-
-    for band in bands:
-        cat_tmp = cat_dict[band]
+        cat_tmp = mergeCatalogs(cat_tmp, calibs_photo, models=['base_PsfFlux'])
         if cat_tmp:
             if not cat_tmp.isContiguous():
                 cat_tmp = cat_tmp.copy(deep=True)
-        cat_tmp_final = cat_tmp.asAstropy()
-        cat_tmp_final["base_PsfFlux_mag"] = mags_dict[band]
-        cat_tmp_final["base_PsfFlux_magErr"] = magerrs_dict[band]
+
+        cat_tmp = cat_tmp.asAstropy()
+
         # Put the bandpass name in the column names:
-        for c in cat_tmp_final.colnames:
-            if c not in "id":
-                cat_tmp_final[c].name = c + "_" + str(band)
-        # Write the new catalog to the dict of catalogs:
-        cat_dict[band] = cat_tmp_final
+        for c in cat_tmp.colnames:
+            if c != "id":
+                cat_tmp[c].name = f"{c}_{band}"
 
-    cat_combined = join(cat_dict[bands[1]], cat_dict[bands[0]], keys="id")
-    if len(bands) > 2:
-        for i in range(2, len(bands)):
-            cat_combined = join(cat_combined, cat_dict[bands[i]], keys="id")
-
-    qual_cuts = (
-        (cat_combined["base_ClassificationExtendedness_value_g"] < 0.5)
-        & (cat_combined["base_PixelFlags_flag_saturated_g"] is False)
-        & (cat_combined["base_PixelFlags_flag_cr_g"] is False)
-        & (cat_combined["base_PixelFlags_flag_bad_g"] is False)
-        & (cat_combined["base_PixelFlags_flag_edge_g"] is False)
-        & (cat_combined["base_ClassificationExtendedness_value_r"] < 0.5)
-        & (cat_combined["base_PixelFlags_flag_saturated_r"] is False)
-        & (cat_combined["base_PixelFlags_flag_cr_r"] is False)
-        & (cat_combined["base_PixelFlags_flag_bad_r"] is False)
-        & (cat_combined["base_PixelFlags_flag_edge_r"] is False)
-        & (cat_combined["base_ClassificationExtendedness_value_i"] < 0.5)
-        & (cat_combined["base_PixelFlags_flag_saturated_i"] is False)
-        & (cat_combined["base_PixelFlags_flag_cr_i"] is False)
-        & (cat_combined["base_PixelFlags_flag_bad_i"] is False)
-        & (cat_combined["base_PixelFlags_flag_edge_i"] is False)
-    )  # noqa: E712
+        if cat_all:
+            cat_all = join(cat_all, cat_tmp, keys="id")
+        else:
+            cat_all = cat_tmp
 
     # Return the astropy table of matched catalogs:
-    return cat_combined[qual_cuts]
+    return cat_all
 
 
 def mergeCatalogs(
@@ -314,9 +298,10 @@ def mergeCatalogs(
 
         if photoCalibs is not None:
             photoCalib = photoCalibs[ii]
-            for model in models:
-                modelName = aliasMap[model] if model in aliasMap.keys() else model
-                photoCalib.instFluxToMagnitude(tempCat, modelName, modelName)
+            if photoCalib is not None:
+                for model in models:
+                    modelName = aliasMap[model] if model in aliasMap.keys() else model
+                    photoCalib.instFluxToMagnitude(tempCat, modelName, modelName)
 
         catalog.extend(tempCat)
 

@@ -26,11 +26,12 @@ import astropy.units as u
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 
-from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask
+from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask, NumSourcesMergeTask
 from lsst.faro.measurement import (VisitTableMeasurementConfig, VisitTableMeasurementTask,
                                    DetectorTableMeasurementConfig, DetectorTableMeasurementTask,
                                    VisitMeasurementConfig, VisitMeasurementTask,
-                                   DetectorMeasurementConfig, DetectorMeasurementTask)
+                                   DetectorMeasurementConfig, DetectorMeasurementTask,
+                                   TractMeasurementConfig, TractMeasurementTask,)
 
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
@@ -52,7 +53,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = CatalogMeasurementBaseConfig()
         t = CatalogMeasurementBaseTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -61,7 +62,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitTableMeasurementConfig()
         t = VisitTableMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -70,7 +71,22 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = DetectorTableMeasurementConfig()
         t = DetectorTableMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
+        expected = 771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testTractMeasurementTask(self):
+        """Test run method of TractMeasurementTask."""
+        catalog = self.load_data('CatalogMeasurementBaseTask')
+        config = TractMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
+        t = TractMeasurementTask(config)
+        outputs = t.run(
+            catalogs=[catalog, ],
+            photoCalibs=[None, ],
+            astromCalibs=[None, ],
+            dataIds=[{'band': 'r'}, ],
+        )
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -78,8 +94,15 @@ class TaskTest(unittest.TestCase):
         """Test run method of VisitMeasurementTask."""
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
         t = VisitMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(
+            catalogs=[catalog, ],
+            photoCalibs=[None, ],
+            astromCalibs=[None, ],
+            dataIds=[{'band': 'r'}, ],
+        )
+        print(outputs)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -88,7 +111,7 @@ class TaskTest(unittest.TestCase):
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = DetectorMeasurementConfig()
         t = DetectorMeasurementTask(config)
-        outputs = t.run(catalog)
+        outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 

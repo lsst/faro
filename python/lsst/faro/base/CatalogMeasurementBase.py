@@ -97,8 +97,8 @@ class CatalogMeasurementBaseTask(MetricTask):
         super().__init__(*args, config=config, **kwargs)
         self.makeSubtask("measure")
 
-    def run(self, catalog, **kwargs):
-        return self.measure.run(self.config.connections.metric, catalog, **kwargs)
+    def run(self, **kwargs):
+        return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
         """Load reference catalog in sky region of interest.

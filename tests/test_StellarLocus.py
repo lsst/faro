@@ -40,7 +40,7 @@ DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 class StellarLocusTest(unittest.TestCase):
 
     def load_data(self):
-        '''Helper to load data to process.'''
+        """Helper to load data to process."""
         cat_file = 'tract9813_patches55to72_gri_filtered.fits.gz'
         catalog = Table.read(os.path.join(DATADIR, cat_file))
         return catalog
@@ -68,7 +68,7 @@ class StellarLocusTest(unittest.TestCase):
 
         config = WPerpTask.ConfigClass()
         task = WPerpTask(config=config)
-        result = task.calcWPerp(cat, ext_vals, 'wPerp')
+        result = task.calcWPerp('wPerp', cat, ext_vals)
         self.assertEqual(result.measurement.quantity, expected_wperp)
 
     def test_stellarLocusResid(self):

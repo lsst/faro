@@ -47,6 +47,9 @@ def extinction_corr(catalog, bands):
     #
     # Band, A_filter/E(B-V)
     extinctionCoeffs_HSC = {
+        # See https://www.sdss.org/dr16/spectro/sspp/
+        # Assuming diff of ~0.65, given 0.553, 0.475, 0.453 for gri
+        "u": 4.505,
         "g": 3.240,
         "r": 2.276,
         "i": 1.633,

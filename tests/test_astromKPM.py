@@ -73,7 +73,7 @@ class AmxTest(unittest.TestCase):
         task = AMxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AM1', band))
-            result = task.run(catalog, 'AM1')
+            result = task.run('AM1', catalog)
             self.assertEqual(result.measurement, expected)
             self.assertTrue(u.allclose(result.measurement.extras['values'].quantity,
                             expected.extras['values'].quantity))
@@ -85,7 +85,7 @@ class AmxTest(unittest.TestCase):
         task = AFxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AF1', band))
-            result = task.run(catalog, 'AF1_design')
+            result = task.run('AF1_design', catalog)
             self.assertEqual(result.measurement, expected)
 
     def test_ad1(self):
@@ -95,7 +95,7 @@ class AmxTest(unittest.TestCase):
         task = ADxTask(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AD1', band))
-            result = task.run(catalog, 'AD1_design')
+            result = task.run('AD1_design', catalog)
             self.assertEqual(result.measurement, expected)
 
     def test_ab1(self):
@@ -104,7 +104,7 @@ class AmxTest(unittest.TestCase):
         task = AB1Task(config=config)
         for band in ('i', 'r'):
             catalog, expected = self.load_data(('AB1', band))
-            result = task.run(catalog, 'AB1_design', in_id={'this': 'is ignored'},
+            result = task.run('AB1_design', catalog, in_id={'this': 'is ignored'},
                               out_id={'band': band})
             self.assertEqual(result.measurement, expected)
 

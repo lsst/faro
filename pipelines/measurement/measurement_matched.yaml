@@ -128,8 +128,8 @@ tasks:
       connections.package: info
       connections.metric: nsrcMeas
       python: |
-        from lsst.faro.base import NumSourcesTask
-        config.measure.retarget(NumSourcesTask)
+        from lsst.faro.base import NumSourcesMatchedTask
+        config.measure.retarget(NumSourcesMatchedTask)
   modelPhotRepGal1:
     class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:

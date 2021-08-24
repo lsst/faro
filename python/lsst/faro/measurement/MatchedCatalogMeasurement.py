@@ -49,7 +49,7 @@ __all__ = (
 class PatchMatchedMeasurementConnections(
     CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
 ):
-    cat = pipeBase.connectionTypes.Input(
+    matchedCatalog = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
         dimensions=("tract", "patch", "instrument", "band"),
         storageClass="SimpleCatalog",
@@ -78,7 +78,7 @@ class TractMatchedMeasurementConnections(
     PatchMatchedMeasurementConnections,
     dimensions=("tract", "instrument", "band", "skymap"),
 ):
-    cat = pipeBase.connectionTypes.Input(
+    matchedCatalog = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
         dimensions=("tract", "instrument", "band"),
         storageClass="SimpleCatalog",
@@ -106,7 +106,7 @@ class TractMatchedMeasurementTask(CatalogMeasurementBaseTask):
 class PatchMatchedMultiBandMeasurementConnections(
     CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
 ):
-    cat = pipeBase.connectionTypes.Input(
+    matchedCatalogMulti = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
         dimensions=("tract", "patch", "instrument"),
         storageClass="SimpleCatalog",
@@ -131,8 +131,8 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = PatchMatchedMultiBandMeasurementConfig
     _DefaultName = "patchMatchedMultiBandMeasurementTask"
 
-    def run(self, cat, in_id, out_id):
-        return self.measure.run(cat, self.config.connections.metric, in_id, out_id)
+    def run(self, matchedCatalogMulti, in_id, out_id):
+        return self.measure.run(self.config.connections.metric, matchedCatalogMulti, in_id, out_id)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         """Do Butler I/O to provide in-memory objects for run.
@@ -141,7 +141,7 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
         activators in the future.
         """
         try:
-            in_id = butlerQC.registry.expandDataId(inputRefs.cat.dataId)
+            in_id = butlerQC.registry.expandDataId(inputRefs.matchedCatalogMulti.dataId)
             out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
             inputs = butlerQC.get(inputRefs)
             inputs["in_id"] = in_id

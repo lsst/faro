@@ -22,7 +22,9 @@
 import astropy.units as u
 import numpy as np
 import treecorr
+from typing import List
 
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 from lsst.faro.utils.matcher import mergeCatalogs
 
 
@@ -432,11 +434,15 @@ def corrSpin2(
     return xy
 
 
-def calculateTEx(catalogs, photoCalibs, astromCalibs, config):
+def calculateTEx(data: List[CalibratedCatalog], config):
     """Compute ellipticity residual correlation metrics.
     """
 
-    catalog = mergeCatalogs(catalogs, photoCalibs, astromCalibs)
+    catalog = mergeCatalogs(
+        [x.catalog for x in data],
+        [x.photoCalib for x in data],
+        [x.astromCalib for x in data],
+    )
 
     # Filtering should be pulled out into a separate function for standard quality selections
     snrMin = 50

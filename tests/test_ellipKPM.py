@@ -30,6 +30,7 @@ import logging
 from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import TExTask
+from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 class Te1Test(unittest.TestCase):
 
     def load_data(self, key):
-        '''Helper to load data to process and the expected value.'''
+        """Load data to process along with the expected value."""
         cat_file, expected_file = self.file_map[key]
         catalog = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
         with open(os.path.join(DATADIR, expected_file), 'r') as fh:
@@ -48,8 +49,7 @@ class Te1Test(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        '''This gets called once so can be used to set up
-           state that is used by all test methods.'''
+        """Setup initial state that is used by all test methods."""
         super().setUpClass()
         cls.file_map = {('TE1', 'i'):
                         ('src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits',
@@ -57,7 +57,7 @@ class Te1Test(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        '''Delete any variables set in setUpClass.'''
+        """Delete any variables set in setUpClass."""
         del cls.file_map
         super().tearDownClass()
 
@@ -68,9 +68,9 @@ class Te1Test(unittest.TestCase):
         config.minSep = 0.25
         config.maxSep = 1.0
         task = TExTask(config=config)
-        for band in ('i'):
+        for band in ('i',):
             catalog, expected = self.load_data(('TE1', band))
-            result = task.run('TE1', [catalog])
+            result = task.run('TE1', {'i': [CalibratedCatalog(catalog), ]})
             log.debug('result: ', result)
             log.debug('expected: ', expected)
             self.assertEqual(result.measurement, expected)
