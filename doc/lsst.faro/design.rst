@@ -46,10 +46,6 @@ Builds upon Science Pipelines infrastructure:
 
 * `lsst.verify <https://pipelines.lsst.io/modules/lsst.verify/index.html>`_ framework
 
-Modular:
-- "straightforward" to implement new metrics
-- selectively run subsets of metrics on subsets of data in configuration
-- able to apply at survey scale
   
 .. _lsst.faro-architecture:
 
@@ -111,11 +107,6 @@ Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``
 
 For a given analysis context, selecting a specific metric to run is accomplished in configuration by `retargeting <https://pipelines.lsst.io/modules/lsst.pipe.base/task-framework-overview.html>`_ the generic subtask of, e.g., ``VisitTableMeasurementTask``, with the particular instance of ``lsst.pipe.base.Task`` for that metric. In this way, a large set of metrics can be readily computed from a set of common data inputs.
 
-Architecture
-============
-
-``faro`` is based on the :ref:``lsst.verify`` framework for computing key performance metrics.
-
 
 .. _lsst.faro-package_organization:
 
@@ -125,17 +116,15 @@ Organization of the faro package
 Directory structure
 -------------------
 
-* ``python/lsst/faro/base``:  contains base classes used throughout the package
+* ``python/lsst/faro/base``:  contains base classes used throughout the package.
 
-* ``python/lsst/faro/preparation``: contains classes that generate intermediate data products
+* ``python/lsst/faro/preparation``: contains classes that generate intermediate data products.
 
-* ``python/lsst/faro/measurement``: contains classes to generate metric values based on 
+* ``python/lsst/faro/measurement``: contains classes to generate metric values. Each measurement produces one scalar ``lsst.verify.Measurement`` per unit of data (e.g., per tract, per patch).
 
-  produces one scalar ``lsst.verify.Measurement`` per unit of data (e.g., per tract, per patch).
-
-* ``python/lsst/faro/summary``:  contains classes that take a collection of ``lsst.verify.Measurement`` objects as input and produce a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms, etc.) of the per-tract, per-patch, etc. metrics.
+* ``python/lsst/faro/summary``:  contains classes that take a collection of ``lsst.verify.Measurement`` objects as input and produce a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms) of the per-tract, per-patch, etc. metrics.
  
-* ``python/lsst/faro/utils``: contains utility classes that are used in multiple instances throughout the package
+* ``python/lsst/faro/utils``: contains utility classes and functions that may be used in multiple instances throughout the package.
   
 Naming conventions
 ------------------
