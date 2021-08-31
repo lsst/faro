@@ -4,7 +4,7 @@ tasks:
     class: lsst.faro.measurement.TractMultiBandMeasurementTask
     config:
       connections.package: pipe_analysis
-      connections.metric: wPerp
+      connections.metric: stellar_locus_width_wPerp
       python: |
         from lsst.faro.measurement import WPerpTask
         config.measure.retarget(WPerpTask)
