@@ -1,0 +1,10 @@
+description: Compute metrics from objectTable_tract catalogs
+tasks:
+  nsrcMeasTractTable:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasTractTable
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        config.measure.retarget(NumSourcesTask)
