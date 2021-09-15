@@ -13,3 +13,4 @@ from .PatchMeasurement import *
 # Versions of metrics using parquet table inputs
 from .DetectorTableMeasurement import *
 from .VisitTableMeasurement import *
+from .TractTableMeasurement import *

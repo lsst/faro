@@ -43,12 +43,14 @@ class TractTableMeasurementConnections(
     dimensions=("tract", "skymap", "band"),
 ):
 
-    catalogs = pipeBase.connectionTypes.Input(
+    catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per tract",
-        dimensions=("tract", "patch", "skymap", "band"),
+        dimensions=("skymap","tract"),
+#        dimensions=("tract", "patch", "skymap", "band"),
+#        dimensions=("tract", "skymap", "band"),
         storageClass="DataFrame",
-        name="deepCoadd_forced_src",
-        multiple=True,
+        name="objectTable_tract",
+        deferLoad=True,
     )
 
     measurement = pipeBase.connectionTypes.Output(
@@ -99,12 +101,12 @@ class TractTableMultiBandMeasurementConnections(
     dimensions=("tract", "skymap"),
 ):
 
-    catalogs = pipeBase.connectionTypes.Input(
+    catalog = pipeBase.connectionTypes.Input(
         doc="Object catalog.",
         dimensions=("tract", "skymap", "patch", "band"),
-        storageClass="SourceCatalog",
-        name="deepCoadd_forced_src",
-        multiple=True,
+        storageClass="DataFrame",
+        name="objectTable_tract",
+        deferLoad=True,
     )
 
     measurement = pipeBase.connectionTypes.Output(
@@ -124,7 +126,7 @@ class TractTableMultiBandMeasurementConfig(
 
 class TractTableMultiBandMeasurementTask(TractTableMeasurementTask):
 
-"""Base class for science performance metrics measured on single-tract source catalogs, multi-band."""
+    """Base class for science performance metrics measured on single-tract source catalogs, multi-band."""
 
     ConfigClass = TractTableMultiBandMeasurementConfig
     _DefaultName = "tractTableMultiBandMeasurementTask"
