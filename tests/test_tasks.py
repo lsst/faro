@@ -23,6 +23,10 @@ import os
 import unittest
 import astropy.units as u
 
+import lsst.afw.geom as afwGeom
+import lsst.afw.image as afwImage
+import lsst.geom as geom
+
 from lsst.afw.table import SimpleCatalog
 
 from lsst.faro.base import CatalogMeasurementBaseConfig, CatalogMeasurementBaseTask, NumSourcesMergeTask
@@ -49,6 +53,14 @@ class TaskTest(unittest.TestCase):
         """This is called immediately before calling each test method."""
         self.file_map = {'CatalogMeasurementBaseTask':
                          'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'}
+        # Make a mock wcs
+        self.mockWcs = afwGeom.makeSkyWcs(
+            crpix=geom.Point2D(1, 1),
+            crval=geom.SpherePoint(0.0*geom.degrees, 90.0*geom.degrees),
+            cdMatrix=afwGeom.makeCdMatrix(scale=0.5*geom.arcseconds)
+        )
+        # Make a mock photoCalib
+        self.mockPhotoCalib = afwImage.PhotoCalib()
 
     def testCatalogMeasurementBaseTask(self):
         """Test run method of CatalogMeasurementBaseTask."""
@@ -79,11 +91,13 @@ class TaskTest(unittest.TestCase):
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
-    def testTractMeasurementTask(self):
-        """Test run method of TractMeasurementTask."""
+    def testTractMeasurementTaskNoCalibs(self):
+        """Test run method of TractMeasurementTask with calibs as None."""
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = TractMeasurementConfig()
         config.measure.retarget(NumSourcesMergeTask)
+        config.requireAstrometry = False  # We are passing in None, so can't require
+        config.requirePhotometry = False  # We are passing in None, so can't require
         t = TractMeasurementTask(config)
         outputs = t.run(
             catalogs=[catalog, ],
@@ -108,11 +122,58 @@ class TaskTest(unittest.TestCase):
         expected = 0 * u.Unit('')
         self.assertEqual(outputs.measurement[0].quantity, expected)
 
-    def testVisitMeasurementTask(self):
-        """Test run method of VisitMeasurementTask."""
+    def testTractMeasurementTask(self):
+        """Test run method of TractMeasurementTask with mixed calib as None."""
+        catalog = self.load_data('CatalogMeasurementBaseTask')
+        config = TractMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
+        t = TractMeasurementTask(config)
+
+        # Add four input catalogs, only one of which should get added because
+        # we have left requireAstrometry and requirePhotometry as True.
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+        # Add four input catalogs, only two of which should get added because
+        # we have set requireAstrometry to False but left requirePhotometry
+        # as True.
+        config.requireAstrometry = False
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 2*771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+        # Add four input catalogs, only two of which should get added because
+        # we have set requirePhotometry to False but left requireAstrometry
+        # as True.
+        config.requireAstrometry = True
+        config.requirePhotometry = False
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 2*771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testVisitMeasurementTaskNoCalibs(self):
+        """Test run method of VisitMeasurementTask with calibs as None."""
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = VisitMeasurementConfig()
         config.measure.retarget(NumSourcesMergeTask)
+        config.requireAstrometry = False  # We are passing in None, so can't require
+        config.requirePhotometry = False  # We are passing in None, so can't require
         t = VisitMeasurementTask(config)
         outputs = t.run(
             catalogs=[catalog, ],
@@ -120,8 +181,52 @@ class TaskTest(unittest.TestCase):
             astromCalibs=[None, ],
             dataIds=[{'band': 'r'}, ],
         )
-        print(outputs)
         expected = 771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testVisitMeasurementTask(self):
+        """Test run method of VisitMeasurementTask with mixed calib as None."""
+        catalog = self.load_data('CatalogMeasurementBaseTask')
+        config = VisitMeasurementConfig()
+        config.measure.retarget(NumSourcesMergeTask)
+        t = VisitMeasurementTask(config)
+
+        # Add four input catalogs, only one of which should get added because
+        # we have left requireAstrometry and requirePhotometry as True.
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+        # Add four input catalogs, only two of which should get added because
+        # we have set requireAstrometry to False but left requirePhotometry
+        # as True.
+        config.requireAstrometry = False
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 2*771 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+        # Add four input catalogs, only two of which should get added because
+        # we have set requirePhotometry to False but left requireAstrometry
+        # as True.
+        config.requireAstrometry = True
+        config.requirePhotometry = False
+        outputs = t.run(
+            catalogs=[catalog]*4,
+            photoCalibs=[None, self.mockPhotoCalib, None, self.mockPhotoCalib],
+            astromCalibs=[None, self.mockWcs, self.mockWcs, None],
+            dataIds=[{'band': 'r'}]*4,
+        )
+        expected = 2*771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
     def testDetectorMeasurementTask(self):

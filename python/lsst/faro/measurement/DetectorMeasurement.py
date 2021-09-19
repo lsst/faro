@@ -159,7 +159,7 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             else:
                 externalPhotoCalibCatalog = inputs.pop("externalPhotoCalibTractCatalog")
             row = externalPhotoCalibCatalog.find(detector)
-            externalPhotoCalib = row.getPhotoCalib()
+            externalPhotoCalib = None if row is None else row.getPhotoCalib()
             inputs["photoCalib"] = externalPhotoCalib
         if self.config.doApplyExternalSkyWcs:
             detector = inputRefs.catalog.dataId["detector"]
@@ -168,7 +168,7 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             else:
                 externalSkyWcsCatalog = inputs.pop("externalSkyWcsTractCatalog")
             row = externalSkyWcsCatalog.find(detector)
-            externalSkyWcs = row.getWcs()
+            externalSkyWcs = None if row is None else row.getWcs()
             inputs["skyWcs"] = externalSkyWcs
 
         outputs = self.run(**inputs)

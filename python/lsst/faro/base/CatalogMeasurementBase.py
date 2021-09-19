@@ -72,6 +72,19 @@ class CatalogMeasurementBaseConfig(
         target=LoadReferenceCatalogTask, doc="Reference catalog loader",
     )
 
+    requireAstrometry = pexConfig.Field(
+        doc=("Require that a given catalog have a valid WCS in order to be included in metric "
+             "measurements?"),
+        dtype=bool,
+        default=True,
+    )
+    requirePhotometry = pexConfig.Field(
+        doc=("Require that a given catalog have a valid photoCalib in order to be included in metric "
+             "measurements?"),
+        dtype=bool,
+        default=True,
+    )
+
     def setDefaults(self):
         self.referenceCatalogLoader.doApplyColorTerms = False
 

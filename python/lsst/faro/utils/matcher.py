@@ -121,7 +121,14 @@ def matchCatalogs(
         photoCalib = photoCalibs[ind]
         wcs = astromCalibs[ind]
         dataId = dataIds[ind]
-
+        if wcs is None:
+            if logger:
+                logger.info("WCS is None for dataId %s.  Skipping...", dataId)
+            continue
+        if photoCalib is None:
+            if logger:
+                logger.info("photoCalib is None for dataId %s.  Skipping...", dataId)
+            continue
         if logger:
             logger.debug(
                 "%d sources in ccd %s visit %s",
