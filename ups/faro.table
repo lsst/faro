@@ -10,7 +10,6 @@ setupRequired(utils)
 setupRequired(verify)
 setupOptional(validate_drp)
 setupOptional(verify_metrics)
-setupOptional(rc2_subset)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
 envPrepend(PATH, ${PRODUCT_DIR}/bin)
