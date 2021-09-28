@@ -66,27 +66,39 @@ class TractTableMeasurementConfig(
     """Configuration for TractTableMeasurementTask."""
 
     columns = pexConfig.ListField(
-        doc="Columns from objectTable_tract to load.",
+        doc="Band-independent columns from objectTable_tract to load.",
         dtype=str,
-        default=["coord_ra", "coord_dec"],
+        default=["coord_ra", "coord_dec", "detect_isPrimary"],
     )
 
+    columnsBand = pexConfig.ListField(
+        doc="Band-specific columns from objectTable_tract to load.",
+        dtype=str,
+        # TODO: Verify the most recent names of these columns
+        default=["PsFlux", "PsFluxErr"],
+    )
     
 class TractTableMeasurementTask(CatalogMeasurementBaseTask):
-    """Base class for science performance metrics measured on single-tract source catalogs."""
+    """Base class for per-band science performance metrics measured on single-tract object catalogs."""
 
     ConfigClass = TractTableMeasurementConfig
     _DefaultName = "tractTableMeasurementTask"
 
-    def run(self, catalog):
-        return self.measure.run(self.config.connections.metric, catalog)
+    # def run(self, catalog, band):
+    #     return self.measure.run(self.config.connections.metric, catalog, band)
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        band=butlerQC.quantum.dataId['band']
-        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
-#        import pdb; pdb.set_trace()
-        outputs = self.run(catalog)
+        kwargs = {"band": butlerQC.quantum.dataId['band']}
+
+        columns = self.config.columns.list()
+        for column in self.config.columnsBand:
+            columns.append(kwargs["band"] + column)
+        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+
+        # TODO: Add reference catalog comparison
+
+        outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
