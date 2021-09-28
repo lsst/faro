@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 
@@ -45,9 +46,7 @@ class TractTableMeasurementConnections(
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Source table in parquet format, per tract",
-        dimensions=("skymap","tract"),
-#        dimensions=("tract", "patch", "skymap", "band"),
-#        dimensions=("tract", "skymap", "band"),
+        dimensions=("tract", "skymap"),
         storageClass="DataFrame",
         name="objectTable_tract",
         deferLoad=True,
@@ -84,7 +83,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
+        band=butlerQC.quantum.dataId['band']
         catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
+#        import pdb; pdb.set_trace()
         outputs = self.run(catalog)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
@@ -98,12 +99,12 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
             
 class TractTableMultiBandMeasurementConnections(
     TractTableMeasurementConnections,
-    dimensions=("tract", "skymap"),
+    dimensions=("tract", "skymap", "band"),
 ):
 
     catalog = pipeBase.connectionTypes.Input(
         doc="Object catalog.",
-        dimensions=("tract", "skymap", "patch", "band"),
+        dimensions=("tract", "skymap"),
         storageClass="DataFrame",
         name="objectTable_tract",
         deferLoad=True,
