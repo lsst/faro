@@ -38,7 +38,7 @@ Contributing
 ``lsst.faro`` is developed at https://github.com/lsst/faro.
 You can find Jira issues for this module under the `faro <https://jira.lsstcorp.org/issues/?jql=project%20%3D%20DM%20AND%20component%20%3D%20faro>`_ component.
 
-.. _lsst.faro.api-ref:
+.. _lsst.faro.api_ref:
 
 Python API reference
 ====================

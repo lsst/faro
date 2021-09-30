@@ -58,7 +58,7 @@ Builds upon Science Pipelines infrastructure:
 * `lsst.verify <https://pipelines.lsst.io/modules/lsst.verify/index.html>`_ framework
 
   
-.. _lsst.faro.design-concepts:
+.. _lsst.faro.design_concepts:
 
 Design Concepts
 ===============
@@ -99,7 +99,7 @@ In general, metrics are computed in thee stages. Every metric calculation includ
 
 3. During the *summary* stage, for each band, load the measured metric values from the ensemble of individual tracts and compute a summary statistic (e.g., mean, median). Persis the output metric value that now characterizes the overall performance for the dataset for that band.
 
-.. _lsst.faro.main-components:
+.. _lsst.faro.main_components:
    
 Main Components
 ---------------
@@ -110,7 +110,7 @@ The structure of ``faro`` code includes two main components:
 
 Each metric has an associated `lsst.pipe.base.Task <https://pipelines.lsst.io/py-api/lsst.pipe.base.Task.html>`_ class that measures a scalar value based on data previously written to a Butler repository (i.e., ``faro`` runs as afterburner to the Science Pipelines). The ``lsst.pipe.base.Task`` for metric measurement works with in-memory python objects and does NOT perform IO with a data butler.
 
-2. Set of **base classes for various analysis contexts** that use Gen3 middleware to understand how to build quantum graph and interact with data butler. A lst of :ref:`currently implemented <lsst.faro.currently-implemented-analysis-contexts>` is below.
+2. Set of **base classes for various analysis contexts** that use Gen3 middleware to understand how to build quantum graph and interact with data butler. A lst of :ref:`currently implemented <lsst.faro.currently_implemented_analysis_contexts>` is below.
 
 The ``lsst.verify`` package contains base classes `MetricConnections <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConnections.html>`_, `MetricConfig <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConfig.html>`_, and `MetricTask <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricTask.html>`_ that are used for generating scalar metric values (``lsst.verify.Measurement``) given input data. This structure follows the general pattern adopted in the Science Pipelines of using `PipelineTaskConnections <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConnections.html>`_ to define the desired IO, `PipelineTaskConfig <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConfig.html>`_ to provide configuration, and `PipelineTask <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTask.html>`_ to run an algorithm on input data and store output data in a data butler.
   
@@ -120,7 +120,7 @@ Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``
 
 For a given analysis context, selecting a specific metric to run is accomplished in configuration by `retargeting <https://pipelines.lsst.io/modules/lsst.pipe.base/task-framework-overview.html>`_ the generic subtask of, e.g., ``VisitTableMeasurementTask``, with the particular instance of ``lsst.pipe.base.Task`` for that metric. In this way, a large set of metrics can be readily computed from a set of common data inputs.
 
-.. _lsst.faro.currently-implemented-analysis-contexts:
+.. _lsst.faro.currently_implemented_analysis_contexts:
 
 Currently Implemented Analysis Contexts
 ---------------------------------------
