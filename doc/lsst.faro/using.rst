@@ -11,7 +11,7 @@ Getting started
 
 If developing on Rubin computing facilities, a `shared version of the software stack <https://developer.lsst.io/services/software.html#shared-software-stack>`_ should be available for use.
 
-.. _lsst.faro-running:
+.. _lsst.faro.running:
 
 Running faro
 ============
@@ -22,6 +22,8 @@ Running faro
 
 ``lsst.faro`` is can be run using `pipetask <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html>`_.
 
+.. _lsst.faro.shared:
+
 Shared Gen3 Data Repositories
 -----------------------------
 
@@ -29,24 +31,19 @@ Information on shared Gen3 data repositories for data managed at NCSA can be fou
 
 When developing metrics in ``faro``, particular care should be taken when creating a new dataset type name associated with a metric. As noted in `DMTN-167 <https://dmtn-167.lsst.io/#naming-conventions-for-dataset-types>`_, the dataset type names are *global* with no implicit name spacing. This may change in the future; see `DM-29817 <https://jira.lsstcorp.org/browse/DM-29817>`_.
 
-Example: ci_hsc_gen3
---------------------
+Example: rc2_subset
+-------------------
 
-Running and building ``faro`` locally.
+Running and building ``faro`` locally. `rc2_subset <git@github.com:lsst-dm/rc2_subset.git>`_ is the smallest CI dataset for which all faro metrics can be run without error and produce meaingful results.
 
-``ci_hsc_gen3`` is a small CI dataset that may be useful as a sandbox when running faro for the first time. The example below discusses how to build this dataset locally and run a simple metric with ``faro``.
+1. Set up rc2_subset ... point to documentation likely in README file...
 
-1. Set up `testdata_ci_hsc <https://github.com/lsst/testdata_ci_hsc>`_ package.
-
-2. Set up `ci_hsc_gen3 <https://github.com/lsst/ci_hsc_gen3>`_ package.
-
-3. Set up ``faro`` package; see below.
+2. Set up ``faro`` package; see below.
    
-4. An example command::
-
+3. An example command (update the command)::
+     
      pipetask run -b "$CI_HSC_GEN3_DIR"/DATA/butler.yaml -p $FARO_DIR/pipelines/measurement/measurement_detector.yaml -d "skymap='discrete/ci_hsc' AND instrument='HSC'" --output u/username/faro_test -i HSC/runs/ci_hsc
 
-Use your username.
      
 Example: HSC RC2 dataset
 ------------------------
@@ -55,7 +52,7 @@ Running faro on an reprocessed Gen3 repository at NCSA
 
 TODO: Is there a general link to recent HSC RC2 re-processing?
 
-1. Set up ``faro`` package; see below.
+1. Set up ``lsst.faro`` package; see below.
 
 2. An example command, in this case running metrics on the source catalog of single visit::
    
@@ -66,40 +63,49 @@ Use your username.
 Example: DRP processing
 -----------------------
 
-``faro`` can be run together with other processing steps in a pipeline, e.g., as part of DRP processing. Examples of this functionality can be found in the `ci_hsc_gen3 <https://github.com/lsst/ci_hsc_gen3/blob/master/bin/pipeline.sh>`_ and `ci_imsim <https://github.com/lsst/ci_imsim/blob/master/bin.src/ci_imsim_run.py>`_ packages.
+``lsst.faro`` can be run together with other processing steps in a pipeline, e.g., as part of DRP processing. Examples of this functionality can be found in the `ci_hsc_gen3 <https://github.com/lsst/ci_hsc_gen3/blob/master/bin/pipeline.sh>`_ and `ci_imsim <https://github.com/lsst/ci_imsim/blob/master/bin.src/ci_imsim_run.py>`_ packages.
+
+TODO: add link to DRP.yaml used for DC2 DP0.2 processing.
     
-.. _lsst.faro-adding_a_metric:
+.. _lsst.faro.adding_a_metric:
 
 Adding a metric to faro
 =======================
 
 Before making contributions to faro, we recommend to consult the `LSST DM Developers Guide <https://developer.lsst.io/index.html>`_ as a general reference for software development in Rubin DM, and in particular, the best practices covered in the  `DM development workflow <https://developer.lsst.io/work/flow.html>`_.
 
+Normative Science Verification Metrics
+--------------------------------------
+
+``lsst.faro`` is used for both science verification as well as scientific validation and charactization. 
+
+Normative metrics are associated with science performance requirements defined in the `DMSR <https://ls.st/dmsr>`_, `OSS <https://ls.st/oss>`_, and `LSR <https://ls.st/lsr>`_ that will be verified by the Rubin Observatory Construction Project. If you are intending to implement a normative metric, please read the information below; for non-normative metrics skip to the next section.
+
+1. Please contact the core development team by posting on the #rubinobs-science-verification Slack channel or by reaching out to one of the main developers. This will facilitate coordination and scheduling of work.
+
+2. Review the detailed metric specification and algorithm definition. Detailed requirement specifications and associated test cases are being developed in the `LSST Verification and Validation (LVV) project <https://jira.lsstcorp.org/projects/LVV>`_ in JIRA. (For more systems engineering details, see the `LSST Verification & Validation Documentation <https://confluence.lsstcorp.org/pages/viewpage.action?pageId=100173626>`_ and `LSST Verification Architecture <https://confluence.lsstcorp.org/display/SYSENG/LSST+Verification+Architecture>`_.) 
+
 Setting Up
 ----------
 
-1. Identify the metric to be implemented. Examples of normative requirements related to science performance to be verified by the Rubin Construction Project can be found in the `DMSR <https://ls.st/dmsr>`_, `OSS <https://ls.st/oss>`_, and `LSR <https://ls.st/lsr>`_. faro also includes many non-normative science validation metrics.
+1. `Create JIRA ticket <https://developer.lsst.io/work/flow.html#agile-development-with-jira>`_. ``faro`` has been tracking development using 6-month work cycles, i.e., JIRA epics. There is also a `backlog epic <https://jira.lsstcorp.org/browse/DM-29525>`_. When starting faro development, or making a bugfix, create a JIRA ticket. Include "faro" as a Component and set the team as "DM Science". It is recommended to contact the ``faro`` team to help everyone stay on the same page.
 
-2. For normative requirements, review the detailed metric specification and algorithm definition. Detailed requirement specifications and associated test cases are being developed in the `LSST Verification and Validation (LVV) project <https://jira.lsstcorp.org/projects/LVV>`_ in JIRA. (For more systems engineering details, see the `LSST Verification & Validation Documentation <https://confluence.lsstcorp.org/pages/viewpage.action?pageId=100173626>`_ and `LSST Verification Architecture <https://confluence.lsstcorp.org/display/SYSENG/LSST+Verification+Architecture>`_.) 
+2. Development can be done from the `Rubin Science Platform (RSP) notebook aspect <https://nb.lsst.io/>`_, `lsst-devl services <https://developer.lsst.io/services/lsst-devl.html>`_, or using `Docker image <https://pipelines.lsst.io/install/docker.html>`_ containing the Science Pipelines software. If using the RSP, suggest to read the `tutorial <https://nb.lsst.io/science-pipelines/development-tutorial.html>`_ on developing Science Pipelines in the notebook aspect.
 
-3. `Create JIRA ticket <https://developer.lsst.io/work/flow.html#agile-development-with-jira>`_. faro has been tracking development using 6-month work cycles, i.e., JIRA epics. There is also a `backlog epic <https://jira.lsstcorp.org/browse/DM-29525>`_. When starting faro development, or making a bugfix, create a JIRA ticket. Include "faro" as a Component and set the team as "DM Science".
-
-4. Development can be done from the `Rubin Science Platform (RSP) notebook aspect <https://nb.lsst.io/>`_, `lsst-devl services <https://developer.lsst.io/services/lsst-devl.html>`_, or using `Docker image <https://pipelines.lsst.io/install/docker.html>`_ containing the Science Pipelines software. If using the RSP, suggest to read the `tutorial <https://nb.lsst.io/science-pipelines/development-tutorial.html>`_ on developing Science Pipelines in the notebook aspect.
-
-5. Set up `Science Pipelines <https://pipelines.lsst.io/install/setup.html>`_::
+3. Set up `Science Pipelines <https://pipelines.lsst.io/install/setup.html>`_::
 
      source /software/lsstsw/stack/loadLSST.bash
      setup lsst_distrib
 
 The example above points to a `shared version of the software stack <https://developer.lsst.io/services/software.html#shared-software-stack>`_ on the GPFS file systems.
      
-6. `Clone the faro repo <https://github.com/lsst/faro>`_::
+4. `Clone the faro repo <https://github.com/lsst/faro>`_::
 
      git clone https://github.com/lsst/faro.git
 
 This is a local version of ``faro`` package to do development work.
      
-7. Set up local version of the ``faro`` package. ::
+5. Set up local version of the ``faro`` package. ::
 
     cd faro
     setup -k -r .
@@ -108,22 +114,24 @@ At this point you can verify that you are using your local version::
 
     eups list -s | grep faro
 
-8. `Create a development branch <https://developer.lsst.io/work/flow.html#ticket-branches>`_::
+6. `Create a development branch <https://developer.lsst.io/work/flow.html#ticket-branches>`_::
 
     git checkout -b git checkout -b tickets/DM-NNNNN
+
+All development should happen on ticket branches (and should have associated JIRA tickets). User branches (e.g., ``u/jcarlin/``) can be used for experimenting/testing.
 
 Adding a Metric
 ---------------
 
-1. Identify the analysis context. Review the associated connections, config, and task base classes for that analysis context to understand the in-memory python objects that will be passed to the ``run`` method of the metric measurement task and the configuration options. See design for more information.
-
-Currently implemented analysis contexts include... TODO
+1. Identify the analysis context. Review the associated connections, config, and task base classes for that analysis context to understand the in-memory python objects that will be passed to the ``run`` method of the metric measurement task and the configuration options. See :ref:`design concepts <lsst.faro.design-concepts>` for more information. Currently implemented analysis contexts are listed :ref:`here<lsst.faro.currently-implemented-analysis-contexts>`.
 
 2. Implement Measurement task. This will be an instance of ``lsst.pipe.base.Task`` that performs the specific operations of a given metric. See ``NumSourcesTask`` defined in `BaseSubTasks.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/base/BaseSubTasks.py>`_ for a simple example metric that returns the number of rows in an input source/object catalog. Additional examples of measurement tasks can be found in the ``python/lsst/faro/measurement`` directory of the package.
    
 3. Implement unit tests. All algorithmic code used for metric computation should have associated unit tests. Examples can be found in the package ``tests`` directory.
 
 4. Add metric to a pipeline yaml file. The pipeline yaml contains the configuration information to execute metrics. See `measurement_visit_table.yaml <https://github.com/lsst/faro/blob/master/pipelines/measurement/measurement_visit_table.yaml>` for an example that uses ``VisitTableMeasurementTask`` to count the number of rows in an input source/object catalog. Additional examples of pipeline files can be found in ``pipelines/measurement`` directory of the package.
+
+5. Name the metric. Currently each metric is associated with separately named dataset type that is global (more info :ref:`here<lsst.faro.shared>`). To date, metric names have followed the pattern "metricvalue_{package}_{metric}" where the "package" and "metric" are given in the yaml configuration file. Metric naming conventions is an area of active development and it is recommended to contact the ``faro`` development team for up-to-date guidance.
    
 Review
 ------

@@ -1,23 +1,34 @@
-.. _lsst.faro-design:
+.. _lsst.faro.design:
 
 .. py:currentmodule:: lsst.faro
 
-.. _lsst.faro-references:
+.. _lsst.faro.references:
 
 References and prior art
 ========================
 
 ``lsst.faro`` builds on concepts, designs, and recommendations in the following documents:
 
- - The ``lsst.verify`` framework for computing data quality metrics,  described in `DMTN-098 <https://dmtn-098.lsst.io>`_ and `DMTN-057 <https://dmtn-057.lsst.io>`_
+- The ``lsst.verify`` framework for computing data quality metrics,  described in `DMTN-098 <https://dmtn-098.lsst.io>`_ and `DMTN-057 <https://dmtn-057.lsst.io>`_.
 
- - The ``lsst.validate_drp`` package, the Gen2 middleware based code for computing KPMs, as described in `DMTN-008 <https://dmtn-008.lsst.io>`_
+- Recommendations for metrics-level provenance, as described in `DMTN-185 <https://dmtn-185.lsst.io/#metrics-level-provenance>`_.
 
-- Recommendations for metrics-level provenance, as described in `DMTN-185 <https://dmtn-185.lsst.io/#metrics-level-provenance>`_
+- Recommendations of the QA Strategy Working Group, as described in `DMTN-085 <https://dmtn-085.lsst.io/>`_.
+   
+- The Gen2-based ``lsst.validate_drp`` package for computing science performance metrics, described in `DMTN-008 <https://dmtn-008.lsst.io>`_.
 
-- Recommendations of the QA Strategy Working Group, as described in `DMTN-085 <https://dmtn-085.lsst.io/>`_
+  - The algorithms implemented in ``validate_drp`` were initially ported as-is to run in ``lsst.faro``.  ``validate_drp`` is now deprecated; all future development of metrics will be carried out in ``lsst.faro``. Many of the algorithms have been updated since the initial transition to ``lsst.faro``. 
+
+..
+  ``lsst.validate_drp`` package computed scientific performance metrics, as described in 
+
+..
+  Prior to the development of the Gen3 middleware, the Gen2-based  ``lsst.validate_drp`` package computed scientific performance metrics, as described in `DMTN-008 <https://dmtn-008.lsst.io>`_. The algorithms implemented in ``validate_drp`` were initially ported as-is to run in ``lsst.faro``.  ``validate_drp`` is now deprecated; all future development of metrics will be carried out in ``lsst.faro``. Many of the algorithms have been updated since the initial transition to ``lsst.faro``. 
+..
+  The ``lsst.validate_drp`` package, the Gen2 middleware based code for computing Key Performance Metrics, as described in `DMTN-008 <https://dmtn-008.lsst.io>`_.
   
-.. _lsst.faro-design_goals:
+  
+.. _lsst.faro.design_goals:
 
 Design goals
 ============
@@ -26,7 +37,7 @@ Design goals
 
 Intended uses:
 
-* Generating artifacts to verify DMSR, OSS, and LSR science performance metrics
+* Generating artifacts to verify `DMSR <https://ls.st/dmsr>`_, `OSS <https://ls.st/oss>`_, and `LSR <https://ls.st/lsr>`_ science performance metrics
 
 * Performance monitoring/regression analysis during Science Pipeline development
 
@@ -47,7 +58,7 @@ Builds upon Science Pipelines infrastructure:
 * `lsst.verify <https://pipelines.lsst.io/modules/lsst.verify/index.html>`_ framework
 
   
-.. _lsst.faro-architecture:
+.. _lsst.faro.design-concepts:
 
 Design Concepts
 ===============
@@ -65,7 +76,7 @@ We use the concept of *analysis contexts* to refer to the various types of input
 
 Modular design:
 
-    * Configurable to run subset of metrics on subset of data products; build pipelines in configuration; run the same metric multiple times with different configurations as needed
+    * Configurable to run subset of metrics on subset of data products; build pipelines in configuration; run the same metric multiple times with different configurations as needed; configuration is persisted with the same dataId as the metric measurement in the data butler.
 
     * For a given analysis context, once the base classes to manage data IO are defined, users can add metrics by creating a dedicated ``Task`` to perform the particular operations on in-memory python objects. By design, the details of managing parallel and sequential metric calculcation stages and data IO are abstracted away and developers can focus on the algorithmic implementation of the metric.
 
@@ -88,6 +99,8 @@ In general, metrics are computed in thee stages. Every metric calculation includ
 
 3. During the *summary* stage, for each band, load the measured metric values from the ensemble of individual tracts and compute a summary statistic (e.g., mean, median). Persis the output metric value that now characterizes the overall performance for the dataset for that band.
 
+.. _lsst.faro.main-components:
+   
 Main Components
 ---------------
 
@@ -97,18 +110,64 @@ The structure of ``faro`` code includes two main components:
 
 Each metric has an associated `lsst.pipe.base.Task <https://pipelines.lsst.io/py-api/lsst.pipe.base.Task.html>`_ class that measures a scalar value based on data previously written to a Butler repository (i.e., ``faro`` runs as afterburner to the Science Pipelines). The ``lsst.pipe.base.Task`` for metric measurement works with in-memory python objects and does NOT perform IO with a data butler.
 
-2. Set of **base classes for various analysis contexts** that use Gen3 middleware to understand how to build quantum graph and interact with data butler.
+2. Set of **base classes for various analysis contexts** that use Gen3 middleware to understand how to build quantum graph and interact with data butler. A lst of :ref:`currently implemented <lsst.faro.currently-implemented-analysis-contexts>` is below.
 
 The ``lsst.verify`` package contains base classes `MetricConnections <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConnections.html>`_, `MetricConfig <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricConfig.html>`_, and `MetricTask <https://pipelines.lsst.io/modules/lsst.verify/tasks/lsst.verify.tasks.MetricTask.html>`_ that are used for generating scalar metric values (``lsst.verify.Measurement``) given input data. This structure follows the general pattern adopted in the Science Pipelines of using `PipelineTaskConnections <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConnections.html>`_ to define the desired IO, `PipelineTaskConfig <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTaskConfig.html>`_ to provide configuration, and `PipelineTask <https://pipelines.lsst.io/py-api/lsst.pipe.base.PipelineTask.html>`_ to run an algorithm on input data and store output data in a data butler.
   
 The primary base classes in the ``lsst.faro`` package, ``CatalogMeasurementBaseConnections``, ``CatalogMeasurementBaseConfig``, and ``CatalogMeasurementBaseTask``, inherit from ``MetricConnections``, ``MetricConfig``, and ``MetricTask``, respectively, and add general functionality for computing science performance metrics based on source/object catalog inputs. See `CatalogMeasurementBase.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/base/CatalogMeasurementBase.py>`_.
 
-Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``CatalogMeasurementBaseConnections``, ``CatalogMeasurementBaseConfig``, and ``CatalogMeasurementBaseTask`` to manage the particular inputs and outputs for the relevant type of data unit for that analysis context. For example see `VisitTableMeasurement.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/measurement/VisitTableMeasurement.py>`_ for the case of metric calculation on per-visit source catalogs.
+Each analysis context in the ``lsst.faro`` package uses a subclass of each of ``CatalogMeasurementBaseConnections``, ``CatalogMeasurementBaseConfig``, and ``CatalogMeasurementBaseTask`` to manage the particular inputs and outputs for the relevant type of data unit for that analysis context. For example see `VisitTableMeasurement.py <https://github.com/lsst/faro/blob/master/python/lsst/faro/measurement/VisitTableMeasurement.py>`_ for the case of metric calculation on per-visit source catalogs. All the interactions with the data butler occur in the ``runQuantum`` method of the measurement task base class for each analysis context. The in-memory python objects are then passed to the ``run`` method.
 
 For a given analysis context, selecting a specific metric to run is accomplished in configuration by `retargeting <https://pipelines.lsst.io/modules/lsst.pipe.base/task-framework-overview.html>`_ the generic subtask of, e.g., ``VisitTableMeasurementTask``, with the particular instance of ``lsst.pipe.base.Task`` for that metric. In this way, a large set of metrics can be readily computed from a set of common data inputs.
 
+.. _lsst.faro.currently-implemented-analysis-contexts:
 
-.. _lsst.faro-package_organization:
+Currently Implemented Analysis Contexts
+---------------------------------------
+
+Currently implemented analysis contexts are listed below. The associated measurement task base class for each analysis context is indicated. Note that the ``faro`` team is currently converting all metrics to use parquet file inputs. The base classes for the various analysis contexts are located in the ``python/lsst/faro/measurement`` directory.
+
+* Metrics computed using per-detector source catalogs (i.e., single-visit detections)
+
+  * FITS file input (``src``): ``DetectorMeasurementTask``
+
+  * parquet file input (``sourceTable_visit``): ``DetectorTableMeasurementTask``
+
+* Metrics computed using per-visit source catalogs (i.e., single-visit detections)
+
+  * FITS file input (``src``): ``VisitMeasurementTask``
+
+  * parquet file input (``sourceTable_visit``): ``VisitTableMeasurementTask``
+
+* Metrics computed using per-patch object catalogs (i.e., coadd detections)
+
+* Per-band FITS file input (``deepCoadd_forced_src``): ``PatchMeasurementTask``
+
+  * Per-band parquet file input (``objectTable_tract``): ``PatchTableMeasurementTask``
+
+  * Multi-band parquet file input (``objectTable_tract``): ``PatchMultiBandTableMeasurementTask``
+
+* Metrics computed using per-tract object catalogs (i.e., coadd detections)
+
+  * Per-band FITS file input (``deepCoadd_forced_src``): ``TractMeasurementTask`` 
+
+  * Multi-band FITS file input (``deepCoadd_forced_src``): ``TractMultiBandMeasurementTask``
+
+  * Per-band parquet file input (``objectTable_tract``): ``TractTableMeasurementTask``
+
+  * Multi-band parquet file input (``objectTable_tract``): ``TractMultiBandTableMeasurementTask``
+    
+* Metrics computed using per-patch matched source catalogs (i.e., set of single-visit detections of the same objects)
+
+  * Per-band FITS file input: ``PatchMatchedMeasurementTask``
+
+  * Multi-band FITS file input: ``PatchMatchedMultiBandMeasurementTask``
+
+* Metrics computed using per-tract matched source catalogs (i.e., set of single-visit detections of the same objects)
+
+  * Per-band FITS file input: ``TractMatchedMeasurementTask``
+    
+.. _lsst.faro.package_organization:
 
 Organization of the faro package
 ================================
@@ -116,17 +175,26 @@ Organization of the faro package
 Directory structure
 -------------------
 
-* ``python/lsst/faro/base``:  contains base classes used throughout the package.
+* ``python``
 
-* ``python/lsst/faro/preparation``: contains classes that generate intermediate data products.
+  * ``python/lsst/faro/base``:  contains base classes used throughout the package.
 
-* ``python/lsst/faro/measurement``: contains classes to generate metric values. Each measurement produces one scalar ``lsst.verify.Measurement`` per unit of data (e.g., per tract, per patch).
+  * ``python/lsst/faro/preparation``: contains classes that generate intermediate data products.
 
-* ``python/lsst/faro/summary``:  contains classes that take a collection of ``lsst.verify.Measurement`` objects as input and produce a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms) of the per-tract, per-patch, etc. metrics.
+  * ``python/lsst/faro/measurement``: contains classes to generate metric values. Each measurement produces one scalar ``lsst.verify.Measurement`` per unit of data (e.g., per tract, per patch).
+
+  * ``python/lsst/faro/summary``:  contains classes that take a collection of ``lsst.verify.Measurement`` objects as input and produce a single scalar ``lsst.verify.Measurement`` that is an aggregation (e.g., mean, median, rms) of the per-tract, per-patch, etc. metrics.
  
-* ``python/lsst/faro/utils``: contains utility classes and functions that may be used in multiple instances throughout the package.
-  
+  * ``python/lsst/faro/utils``: contains utility classes and functions that may be used in multiple instances throughout the package.
+
+* ``pipelines``: contains yaml files to configure which metrics are run as part of a pipeline and the detailed execution parameters for metric calculations. Pipelines can be built hierarchically. The organization of the pipeline directories mirrors the organization of the python directories.
+
+* ``config``: contains general configuration for the ``lsst.faro`` package (e.g., mappings between bands/filters to facilitate calculation of color terms)
+
+* ``bin`` and ``bin.sh``: contain scripts for exporting metrics to `SQuaSH <https://sqr-009.lsst.io/>`_.
+
+
 Naming conventions
 ------------------
 
-
+``lsst.faro`` uses camelCase variable names.
