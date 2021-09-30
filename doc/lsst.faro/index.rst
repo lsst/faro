@@ -8,22 +8,7 @@ lsst.faro
 
 .. toctree::
 
-The ``lsst.faro`` module contains code for computing scientific performance metrics on the outputs of the LSST science pipelines.
-
-Prior to the development of the Gen3 middleware, the Gen2-based  ``lsst.validate.drp`` package computed scientific performance metrics.
-``lsst.faro`` is a Gen3 middleware- and PipelineTask- based package for computing scientific performance metrics.
-The algorithms implemented in ``validate_drp`` were ported as-is to run in ``lsst.faro``.
-``validate_drp`` is now deprecated; all future development of metrics will be carried out in ``lsst.faro``.
-
-.. _lsst.faro.design:
-
-Design and Development
-======================
-
-.. toctree::
-  :maxdepth: 1
-
-  design.rst
+The ``lsst.faro`` module contains code for computing scientific performance metrics on the outputs of the LSST science pipelines. ``lsst.faro`` is a Gen3 middleware- and PipelineTask- based package for computing scientific performance metrics.
 
 .. _lsst.faro.using:
 
@@ -34,6 +19,16 @@ Using faro
   :maxdepth: 1
 
   using.rst
+
+.. _lsst.faro.design:
+
+Design and Development
+======================
+
+.. toctree::
+  :maxdepth: 1
+
+  design.rst
 
 .. _lsst.faro.contributing:
 
