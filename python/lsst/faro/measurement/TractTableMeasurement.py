@@ -91,9 +91,6 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = TractTableMeasurementConfig
     _DefaultName = "tractTableMeasurementTask"
 
-    # def run(self, catalog, band):
-    #     return self.measure.run(self.config.connections.metric, catalog, band)
-
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         kwargs = {"band": butlerQC.quantum.dataId['band']}
@@ -105,16 +102,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
-            #filterList = [butlerQC.quantum.dataId['band']]
-
-            #from lsst.faro.utils.filter_map import FilterMap
-            #import os
-            #from lsst.utils import getPackageDir
-            #filter_map = FilterMap(os.path.join(getPackageDir('faro'), 'config', 'filterMap.py'))
             filter_map = FilterMap()
             filterList = filter_map.getFilters(self.config.instrument,
                                                [kwargs["band"]])
-            #filterList = [filter_map.data[self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name].data[butlerQC.quantum.dataId['band']]]
 
             # TODO: add capability to select the reference epoch
             epoch = None
@@ -128,6 +118,7 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
             kwargs["refCat"] = refCat
             kwargs["refCatCorrected"] = refCatCorrected
 
+            # TODO: remove plotting when confident things are working.
             import matplotlib.pyplot as plt
             import numpy as np
             plt.ion()
@@ -184,7 +175,7 @@ class TractMultiBandTableMeasurementConfig(
     bands = pexConfig.ListField(
         doc="Bands for band-specific column loading from objectTable_tract.",
         dtype=str,
-        default=["g", "r", "i"],
+        default=["g", "r", "i", "z", "y"],
     )
 
 
@@ -205,6 +196,40 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
             for column in self.config.columnsBand:
                 columns.append(band + column)
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+
+        if self.config.connections.refDataset != "":
+            refCats = inputs.pop("refCat")
+            filter_map = FilterMap()
+            filterList = filter_map.getFilters(self.config.instrument,
+                                               self.config.bands)
+
+            # TODO: add capability to select the reference epoch
+            epoch = None
+            refCat, refCatCorrected = self._getReferenceCatalog(
+                butlerQC,
+                [ref.datasetRef.dataId for ref in inputRefs.refCat],
+                refCats,
+                filterList,
+                epoch,
+            )
+            kwargs["refCat"] = refCat
+            kwargs["refCatCorrected"] = refCatCorrected
+
+            # TODO: remove plotting when confident things are working.
+            import matplotlib.pyplot as plt
+            import numpy as np
+            plt.ion()
+            plt.figure()
+            plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
+                        np.degrees(kwargs["refCat"]["coord_dec"]),
+                        marker='.', edgecolor='none', s=1, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
+            plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
+                        marker='.', edgecolor='none', s=1, label='HSC')
+            plt.xlabel('RA (deg)')
+            plt.ylabel('Dec (deg)')
+            plt.legend(markerscale=5)
+
+            import pdb; pdb.set_trace()
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
