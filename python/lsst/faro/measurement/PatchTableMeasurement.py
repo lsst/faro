@@ -31,22 +31,22 @@ from lsst.faro.base.CatalogMeasurementBase import (
 from lsst.faro.utils.filter_map import FilterMap
 
 __all__ = (
-    "TractTableMeasurementConnections",
-    "TractTableMeasurementConfig",
-    "TractTableMeasurementTask",
-    "TractMultiBandTableMeasurementConnections",
-    "TractMultiBandTableMeasurementConfig",
-    "TractMultiBandTableMeasurementTask",
+    "PatchTableMeasurementConnections",
+    "PatchTableMeasurementConfig",
+    "PatchTableMeasurementTask",
+    "PatchMultiBandTableMeasurementConnections",
+    "PatchMultiBandTableMeasurementConfig",
+    "PatchMultiBandTableMeasurementTask",
 )
 
 
-class TractTableMeasurementConnections(
+class PatchTableMeasurementConnections(
     CatalogMeasurementBaseConnections,
-    dimensions=("tract", "skymap", "band"),
+    dimensions=("tract", "patch", "skymap", "band"),
 ):
 
     catalog = pipeBase.connectionTypes.Input(
-        doc="Object table in parquet format, per tract",
+        doc="Object table in parquet format, per tract.",
         dimensions=("tract", "skymap"),
         storageClass="DataFrame",
         name="objectTable_tract",
@@ -55,21 +55,21 @@ class TractTableMeasurementConnections(
 
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-tract measurement.",
-        dimensions=("tract", "skymap", "band"),
+        dimensions=("tract", "patch", "skymap", "band"),
         storageClass="MetricValue",
         name="metricvalue_{package}_{metric}",
     )
 
     
-class TractTableMeasurementConfig(
-    CatalogMeasurementBaseConfig, pipelineConnections=TractTableMeasurementConnections
+class PatchTableMeasurementConfig(
+    CatalogMeasurementBaseConfig, pipelineConnections=PatchTableMeasurementConnections
 ):
-    """Configuration for TractTableMeasurementTask."""
+    """Configuration for PatchTableMeasurementTask."""
 
     columns = pexConfig.ListField(
         doc="Band-independent columns from objectTable_tract to load.",
         dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary"],
+        default=["coord_ra", "coord_dec", "detect_isPrimary", "patch"],
     )
 
     columnsBand = pexConfig.ListField(
@@ -85,10 +85,10 @@ class TractTableMeasurementConfig(
         default='hsc',
     )
     
-class TractTableMeasurementTask(CatalogMeasurementBaseTask):
+class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for per-band science performance metrics measured on single-tract object catalogs."""
 
-    ConfigClass = TractTableMeasurementConfig
+    ConfigClass = PatchTableMeasurementConfig
     _DefaultName = "tractTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
@@ -98,7 +98,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
         columns = self.config.columns.list()
         for column in self.config.columnsBand:
             columns.append(kwargs["band"] + column)
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+        catalog = inputs["catalog"].get(parameters={"columns": columns})
+        selection = (catalog["patch"] == butlerQC.quantum.dataId["patch"])
+        kwargs["catalog"] = catalog[selection]
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
@@ -125,9 +127,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
             plt.figure()
             plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
                         np.degrees(kwargs["refCat"]["coord_dec"]),
-                        marker='.', edgecolor='none', s=1, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
+                        marker='.', edgecolor='none', s=3, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
             plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
-                        marker='.', edgecolor='none', s=1, label='HSC')
+                        marker='.', edgecolor='none', s=3, label='HSC')
             plt.xlabel('RA (deg)')
             plt.ylabel('Dec (deg)')
             plt.legend(markerscale=5)
@@ -145,9 +147,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
             )
 
             
-class TractMultiBandTableMeasurementConnections(
-    TractTableMeasurementConnections,
-    dimensions=("tract", "skymap"),
+class PatchMultiBandTableMeasurementConnections(
+    PatchTableMeasurementConnections,
+    dimensions=("tract", "patch", "skymap"),
 ):
 
     catalog = pipeBase.connectionTypes.Input(
@@ -160,17 +162,17 @@ class TractMultiBandTableMeasurementConnections(
 
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-tract measurement.",
-        dimensions=("tract", "skymap"),
+        dimensions=("tract", "patch", "skymap"),
         storageClass="MetricValue",
         name="metricvalue_{package}_{metric}",
     )
 
 
-class TractMultiBandTableMeasurementConfig(
-    TractTableMeasurementConfig,
-    pipelineConnections=TractMultiBandTableMeasurementConnections,
+class PatchMultiBandTableMeasurementConfig(
+    PatchTableMeasurementConfig,
+    pipelineConnections=PatchMultiBandTableMeasurementConnections,
 ):
-    """Configuration for TractMultiBandTableMeasurementTask."""
+    """Configuration for PatchMultiBandTableMeasurementTask."""
 
     bands = pexConfig.ListField(
         doc="Bands for band-specific column loading from objectTable_tract.",
@@ -179,11 +181,11 @@ class TractMultiBandTableMeasurementConfig(
     )
 
 
-class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
+class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
-    """Base class for science performance metrics measured on single-tract object catalogs, multi-band."""
+    """Base class for science performance metrics measured on single-tract source catalogs, multi-band."""
 
-    ConfigClass = TractMultiBandTableMeasurementConfig
+    ConfigClass = PatchMultiBandTableMeasurementConfig
     _DefaultName = "tractMultiBandTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
@@ -195,7 +197,9 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
         for band in self.config.bands:
             for column in self.config.columnsBand:
                 columns.append(band + column)
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+        catalog = inputs["catalog"].get(parameters={"columns": columns})
+        selection = (catalog["patch"] == butlerQC.quantum.dataId["patch"])
+        kwargs["catalog"] = catalog[selection]
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")

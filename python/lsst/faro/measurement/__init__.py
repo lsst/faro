@@ -14,3 +14,4 @@ from .PatchMeasurement import *
 from .DetectorTableMeasurement import *
 from .VisitTableMeasurement import *
 from .TractTableMeasurement import *
+from .PatchTableMeasurement import *
