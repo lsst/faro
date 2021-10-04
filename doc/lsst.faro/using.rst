@@ -152,7 +152,7 @@ The following is brief summary of the steps for `Review preparation <https://dev
 
      package-docs build
 
-4. `Run continuous Integration test with Jenkins <https://developer.lsst.io/work/flow.html#testing-with-jenkins>`_. Now that we have tested the package on its own, it is time to test integration with the rest of the Science Pipelines. When running Jenkins test, the list of EUPS packages to build should include `lsst_distrib lsst_ci ci_hsc_gen3 ci_imsim`. The latter two EUPS packages will run CI tests that includes executing faro on DRP products.
+4. `Run continuous Integration test with Jenkins <https://developer.lsst.io/work/flow.html#testing-with-jenkins>`_. Now that we have tested the package on its own, it is time to test integration with the rest of the Science Pipelines. When running the Jenkins test, the list of EUPS packages to build should include `lsst_distrib lsst_ci ci_hsc_gen3 ci_imsim`. The latter two EUPS packages will run CI tests that include executing ``faro`` on DRP products.
 
 5. `Make the Pull Request <https://developer.lsst.io/work/flow.html#make-a-pull-request>`_.
 
@@ -160,7 +160,8 @@ The following is brief summary of the steps for `Review preparation <https://dev
 
 7. `Merge <https://developer.lsst.io/work/flow.html#merging>`_. Rebase if needed -- see `pushing code <https://developer.lsst.io/work/flow.html#pushing-code>`_.
 
-Exporting Metrics
-=================
+..
+  Exporting Metrics
+  =================
 
-TODO
+  TODO
