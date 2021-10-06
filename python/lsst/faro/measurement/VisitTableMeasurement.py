@@ -69,13 +69,44 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = VisitTableMeasurementConfig
     _DefaultName = "visitTableMeasurementTask"
 
-    def run(self, catalog):
-        return self.measure.run(self.config.connections.metric, catalog)
-
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
-        outputs = self.run(catalog)
+
+        kwargs = {}
+        kwargs['catalog'] = catalog
+        if self.config.connections.refDataset != "":
+            refCats = inputs.pop("refCat")
+            filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
+            # Time at the start of the visit
+            epoch = butlerQC.quantum.dataId.records["visit"].timespan.begin
+            refCat, refCatCorrected = self._getReferenceCatalog(
+                butlerQC,
+                [ref.datasetRef.dataId for ref in inputRefs.refCat],
+                refCats,
+                filterList,
+                epoch,
+            )
+            kwargs["refCat"] = refCat
+            kwargs["refCatCorrected"] = refCatCorrected
+
+        # TODO: remove plotting when confident things are working.
+        import matplotlib.pyplot as plt
+        import numpy as np
+        plt.ion()
+        plt.figure()
+        plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
+                    np.degrees(kwargs["refCat"]["coord_dec"]),
+                    marker='.', edgecolor='none', s=1, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
+        plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
+                    marker='.', edgecolor='none', s=1, label='HSC')
+        plt.xlabel('RA (deg)')
+        plt.ylabel('Dec (deg)')
+        plt.legend(markerscale=5)
+
+        import pdb; pdb.set_trace()
+
+        outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
