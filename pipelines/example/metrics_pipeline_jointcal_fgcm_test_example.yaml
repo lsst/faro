@@ -1,13 +1,13 @@
 description: Complete metrics measurement pipeline with external calibrations
 imports:
   # Photometric and astrometric repeatability:
-  - location: $FARO_DIR/example/metrics_pipeline_matched_jointcal_fgcm_test_example.yaml 
+  - location: $FARO_DIR/pipelines/example/metrics_pipeline_matched_jointcal_fgcm_test_example.yaml 
   # Astrometry relative to a reference band:
-  - location: $FARO_DIR/example/metrics_pipeline_matched_multi_jointcal_fgcm_test_example.yaml
+  - location: $FARO_DIR/pipelines/example/metrics_pipeline_matched_multi_jointcal_fgcm_test_example.yaml
   # Ellipticity residual correlations, visit-level:
-  - location: $FARO_DIR/example/metrics_pipeline_visit_test_example.yaml
+  - location: $FARO_DIR/pipelines/example/metrics_pipeline_visit_test_example.yaml
   # Ellipticity residual correlations, coadds:
-  - location: $FARO_DIR/example/metrics_pipeline_tract_test_example.yaml
+  - location: $FARO_DIR/pipelines/example/metrics_pipeline_tract_test_example.yaml
   # Stellar locus width:
   - location: $FARO_DIR/pipelines/metrics_pipeline_tract_multi.yaml
   # Placeholder -- currently only counts sources per patch:
