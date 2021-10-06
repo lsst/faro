@@ -45,7 +45,7 @@ __all__ = (
 )
 
 
-class PatchMatchedMeasurementConnections(
+class PatchMatchedTableMeasurementConnections(
     CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
 ):
     matchedCatalog = pipeBase.connectionTypes.Input(
