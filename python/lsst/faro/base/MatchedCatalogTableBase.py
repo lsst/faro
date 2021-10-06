@@ -25,16 +25,63 @@ import lsst.geom as geom
 import numpy as np
 
 from lsst.faro.utils.matcher import matchCatalogs
+from lsst.faro.base.MatchedCatalogBase import (
+    MatchedBaseConnections,
+    MatchedBaseConfig,
+    MatchedBaseTask,
+    MatchedTractBaseTask
+)
 
 __all__ = (
-    "MatchedBaseConnections",
-    "MatchedBaseConfig",
-    "MatchedBaseTask",
-    "MatchedTractBaseTask",
+    "MatchedBaseTableConnections",
+    "MatchedBaseTableConfig",
+    "MatchedBaseTableTask",
+    "MatchedTractBaseTableTask",
 )
 
 
-class MatchedBaseConnections(
+class MatchedBaseTableConnections(
+    MatchedBaseConnections,
+    dimensions=(),
+    defaultTemplates={
+        "coaddName": "deep",
+        "photoCalibName": "calexp.photoCalib",
+        "wcsName": "calexp.wcs",
+        "externalPhotoCalibName": "fgcm",
+        "externalWcsName": "jointcal",
+    },
+):
+    sourceCatalogs = pipeBase.connectionTypes.Input(
+        doc="Source catalogs, in parquet format, to match up.",
+        dimensions=("instrument", "visit", "detector", "band"),
+        storageClass="DataFrame",
+        name="sourceTable_visit",
+        multiple=True,
+        deferLoad=True,
+    )
+
+    def __init__(self, *, config=None):
+        super().__init__(config=config)
+        if config.doApplyExternalSkyWcs:
+            if config.useGlobalExternalSkyWcs:
+                self.inputs.remove("externalSkyWcsTractCatalog")
+            else:
+                self.inputs.remove("externalSkyWcsGlobalCatalog")
+        else:
+            self.inputs.remove("externalSkyWcsTractCatalog")
+            self.inputs.remove("externalSkyWcsGlobalCatalog")
+        if config.doApplyExternalPhotoCalib:
+            if config.useGlobalExternalPhotoCalib:
+                self.inputs.remove("externalPhotoCalibTractCatalog")
+            else:
+                self.inputs.remove("externalPhotoCalibGlobalCatalog")
+        else:
+            self.inputs.remove("externalPhotoCalibTractCatalog")
+            self.inputs.remove("externalPhotoCalibGlobalCatalog")
+
+
+'''
+class MatchedBaseTableConnections(
     pipeBase.PipelineTaskConnections,
     dimensions=(),
     defaultTemplates={
@@ -46,13 +93,6 @@ class MatchedBaseConnections(
     },
 ):
     sourceCatalogs = pipeBase.connectionTypes.Input(
-        doc="Source catalogs to match up.",
-        dimensions=("instrument", "visit", "detector", "band"),
-        storageClass="SourceCatalog",
-        name="src",
-        multiple=True,
-    )
-    sourceTableCatalogs = pipeBase.connectionTypes.Input(
         doc="Source catalogs, in parquet format, to match up.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="DataFrame",
@@ -125,10 +165,6 @@ class MatchedBaseConnections(
 
     def __init__(self, *, config=None):
         super().__init__(config=config)
-        if config.useParquet:
-            self.inputs.remove("sourceCatalogs")
-        else:
-            self.inputs.remove("sourceTableCatalogs")
         if config.doApplyExternalSkyWcs:
             if config.useGlobalExternalSkyWcs:
                 self.inputs.remove("externalSkyWcsTractCatalog")
@@ -145,6 +181,7 @@ class MatchedBaseConnections(
         else:
             self.inputs.remove("externalPhotoCalibTractCatalog")
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
+'''
 
 
 class MatchedBaseConfig(
@@ -152,9 +189,6 @@ class MatchedBaseConfig(
 ):
     match_radius = pexConfig.Field(
         doc="Match radius in arcseconds.", dtype=float, default=1
-    )
-    useParquet = pexConfig.Field(
-        doc="Whether or not to use the parquet tables.", dtype=bool, default=True
     )
     doApplyExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False
@@ -190,7 +224,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         dataIds,
         wcs,
         box,
-        useParquet=True,
         doApplyExternalSkyWcs=False,
         doApplyExternalPhotoCalib=False,
     ):
@@ -231,7 +264,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         ]
         inputs["wcs"] = wcs
         inputs["box"] = box
-        inputs["useParquet"] = self.config.useParquet
         inputs["doApplyExternalSkyWcs"] = self.config.doApplyExternalSkyWcs
         inputs["doApplyExternalPhotoCalib"] = self.config.doApplyExternalPhotoCalib
 
