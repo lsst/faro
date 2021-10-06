@@ -33,6 +33,13 @@ class FilterMapNotFoundError(LookupError):
     """
     pass
 
+
+class ColortermNotFoundError(LookupError):
+    """Exception class indicating we couldn't find the color term
+    """
+    pass
+
+
 class FilterMapDict(Config):
     """A mapping of band to physical filter label.
     """
@@ -45,10 +52,10 @@ class FilterMapDict(Config):
 
 
 class FilterMap(Config):
-    """Doc string."""
+    """Config for mapping of band to physical filter label."""
     data = ConfigDictField(
         doc="Mapping of band to physical filter label.",
-        keytype=str, 
+        keytype=str,
         itemtype=FilterMapDict,
         default={},
     )
@@ -59,7 +66,7 @@ class FilterMap(Config):
         self.load(filename)
 
     def getFilters(self, instName, bands, doRaise=True):
-        """Doc string."""
+        """Get the physical filters that correspond with input bands."""
         try:
             trueInstName = None
             filterDictConfig = self.data.get(instName)
@@ -95,4 +102,3 @@ class FilterMap(Config):
                 raise
             else:
                 return bands
-

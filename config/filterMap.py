@@ -20,9 +20,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-
-# Map from band to physical_filter
-
 from lsst.faro.utils.filter_map import FilterMapDict
 
 config.data = {
@@ -33,4 +30,4 @@ config.data = {
         "z": "HSC-Z",
         "y": "HSC-Y"
     }),
-} 
+}

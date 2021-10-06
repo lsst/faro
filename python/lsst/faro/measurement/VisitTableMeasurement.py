@@ -90,22 +90,6 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
             kwargs["refCat"] = refCat
             kwargs["refCatCorrected"] = refCatCorrected
 
-        # TODO: remove plotting when confident things are working.
-        import matplotlib.pyplot as plt
-        import numpy as np
-        plt.ion()
-        plt.figure()
-        plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
-                    np.degrees(kwargs["refCat"]["coord_dec"]),
-                    marker='.', edgecolor='none', s=1, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
-        plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
-                    marker='.', edgecolor='none', s=1, label='HSC')
-        plt.xlabel('RA (deg)')
-        plt.ylabel('Dec (deg)')
-        plt.legend(markerscale=5)
-
-        import pdb; pdb.set_trace()
-
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)

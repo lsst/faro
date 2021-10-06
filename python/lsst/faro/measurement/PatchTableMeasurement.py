@@ -60,7 +60,7 @@ class PatchTableMeasurementConnections(
         name="metricvalue_{package}_{metric}",
     )
 
-    
+
 class PatchTableMeasurementConfig(
     CatalogMeasurementBaseConfig, pipelineConnections=PatchTableMeasurementConnections
 ):
@@ -84,7 +84,8 @@ class PatchTableMeasurementConfig(
         dtype=str,
         default='hsc',
     )
-    
+
+
 class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for per-band science performance metrics measured on single-tract object catalogs."""
 
@@ -120,22 +121,6 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
             kwargs["refCat"] = refCat
             kwargs["refCatCorrected"] = refCatCorrected
 
-            # TODO: remove plotting when confident things are working.
-            import matplotlib.pyplot as plt
-            import numpy as np
-            plt.ion()
-            plt.figure()
-            plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
-                        np.degrees(kwargs["refCat"]["coord_dec"]),
-                        marker='.', edgecolor='none', s=3, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
-            plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
-                        marker='.', edgecolor='none', s=3, label='HSC')
-            plt.xlabel('RA (deg)')
-            plt.ylabel('Dec (deg)')
-            plt.legend(markerscale=5)
-
-            import pdb; pdb.set_trace()
-
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
@@ -146,7 +131,7 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
                 inputRefs,
             )
 
-            
+
 class PatchMultiBandTableMeasurementConnections(
     PatchTableMeasurementConnections,
     dimensions=("tract", "patch", "skymap"),
@@ -190,7 +175,7 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        
+
         kwargs = {"bands": self.config.bands.list()}
 
         columns = self.config.columns.list()
@@ -219,22 +204,6 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
             kwargs["refCat"] = refCat
             kwargs["refCatCorrected"] = refCatCorrected
 
-            # TODO: remove plotting when confident things are working.
-            import matplotlib.pyplot as plt
-            import numpy as np
-            plt.ion()
-            plt.figure()
-            plt.scatter(np.degrees(kwargs["refCat"]["coord_ra"]), 
-                        np.degrees(kwargs["refCat"]["coord_dec"]),
-                        marker='.', edgecolor='none', s=1, label=self.config.referenceCatalogLoader.refObjLoader.ref_dataset_name)
-            plt.scatter(kwargs["catalog"]["coord_ra"], kwargs["catalog"]["coord_dec"],
-                        marker='.', edgecolor='none', s=1, label='HSC')
-            plt.xlabel('RA (deg)')
-            plt.ylabel('Dec (deg)')
-            plt.legend(markerscale=5)
-
-            import pdb; pdb.set_trace()
-
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
@@ -244,6 +213,3 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
                 self,
                 inputRefs,
             )
-        
-
-
