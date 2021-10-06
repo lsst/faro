@@ -1,15 +1,13 @@
 description: Compute metrics from tract catalogs
 tasks:
-  TE1:
+  nsrcMeasTract:
     class: lsst.faro.measurement.TractMeasurementTask
     config:
-      connections.package: validate_drp
-      connections.metric: TE1
+      connections.package: info
+      connections.metric: nsrcMeasTract
       python: |
-        from lsst.faro.measurement import TExTask
-        config.measure.retarget(TExTask)
-        config.measure.minSep = 0.25
-        config.measure.maxSep = 1.0
+        from lsst.faro.base import NumSourcesMergeTask
+        config.measure.retarget(NumSourcesMergeTask)
   TE2:
     class: lsst.faro.measurement.TractMeasurementTask
     config:

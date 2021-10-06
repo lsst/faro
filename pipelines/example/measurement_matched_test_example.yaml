@@ -1,0 +1,107 @@
+description: Compute metrics from matched catalogs
+tasks:
+  PA1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1
+      python: |
+        from lsst.faro.measurement import PA1Task
+        config.measure.retarget(PA1Task)
+  PF1_design:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PF1_design_gri
+      python: |
+        from lsst.faro.measurement import PF1Task
+        config.measure.retarget(PF1Task)
+        config.measure.threshPA2 = 15.0
+  AM1_info:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      # Compute this in the info namespace as well so we can
+      # show an example of changing the summary aggregation
+      # method without over writing the default one.
+      connections.package: info
+      connections.metric: AM1
+      python: |
+        from lsst.faro.measurement import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 5.0
+  AM1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AM1
+      python: |
+        from lsst.faro.measurement import AMxTask
+        config.measure.retarget(AMxTask)
+        config.measure.annulus_r = 5.0
+  AD1_design:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AD1_design
+      python: |
+        from lsst.faro.measurement import ADxTask
+        config.measure.retarget(ADxTask)
+        config.measure.annulus_r = 5.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  AF1_design:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AF1_design
+      python: |
+        from lsst.faro.measurement import AFxTask
+        config.measure.retarget(AFxTask)
+        config.measure.annulus_r = 5.0
+        config.measure.threshAD = 20.0
+        config.measure.threshAF = 10.0
+  nsrcMeas:
+    class: lsst.faro.measurement.PatchMatchedMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeas
+      python: |
+        from lsst.faro.base import NumSourcesMatchedTask
+        config.measure.retarget(NumSourcesMatchedTask)
+  modelPhotRepGal1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: modelPhotRepGal1
+      python: |
+        from lsst.faro.measurement import ModelPhotRepTask
+        config.measure.retarget(ModelPhotRepTask)
+        config.measure.index = 1
+        config.measure.selectExtended = True
+        config.measure.selectSnrMin = 5
+        config.measure.selectSnrMax = 10
+  modelPhotRepStar1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: modelPhotRepStar1
+      python: |
+        from lsst.faro.measurement import ModelPhotRepTask
+        config.measure.retarget(ModelPhotRepTask)
+        config.measure.index = 1
+        config.measure.selectExtended = False
+        config.measure.selectSnrMin = 5
+        config.measure.selectSnrMax = 10
+  psfPhotRepStar1:
+    class: lsst.faro.measurement.TractMatchedMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: psfPhotRepStar1
+      python: |
+        from lsst.faro.measurement import ModelPhotRepTask
+        config.measure.retarget(ModelPhotRepTask)
+        config.measure.index = 1
+        config.measure.selectExtended = False
+        config.measure.selectSnrMin = 5
+        config.measure.selectSnrMax = 10
+        config.measure.magName = "slot_PsfFlux_mag"
