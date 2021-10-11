@@ -120,7 +120,7 @@ At this point you can verify that you are using your local version::
 
 5. `Create a development branch <https://developer.lsst.io/work/flow.html#ticket-branches>`_::
 
-    git checkout -b git checkout -b tickets/DM-NNNNN
+    git checkout -b tickets/DM-NNNNN
 
 All development should happen on ticket branches (and should have associated JIRA tickets). User branches (e.g., ``u/jcarlin/``) can be used for experimenting/testing.
 
