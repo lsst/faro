@@ -99,3 +99,26 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
                 self,
                 inputRefs,
             )
+
+def starContamVisitTableConfig(VisitTableMeasurementConfig):
+    """Config columns needed to compute stellar contamination in this visit"""
+
+    columns = pexConfig.ListField(
+        doc="Columns from sourceTable_visit to load. we need positions, classification, and flag",
+        dtype=str,
+        default=["coord_ra", "coord_dec", "base_ClassificationExtendedness_value", "base_ClassificationExtendedness_flag"],
+    )
+
+
+class starContamVisitTableTask(VisitTableMeasurementTask):
+    """Base class for science performance metrics measured on single-visit source catalogs."""
+
+    ConfigClass = starContamVisitTableConfig
+    _DefaultName = "starContamVisitTableTask"
+
+    def run(self, catalog):
+        """
+        stuff goes here 
+        """
+        return self.measure.run(self.config.connections.metric, catalog)
+        

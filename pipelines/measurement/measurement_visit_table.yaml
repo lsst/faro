@@ -33,3 +33,14 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
+  starContamVisitTable:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: starContamVisitTable
+      python: |
+        from lsst.faro.base import starContamVisitTable
+        config.measure.retarget(starContamVisitTable)
+        config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'cosmos'
+        config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = ''
+        config.referenceCatalogLoader.doApplyColorTerms = False
