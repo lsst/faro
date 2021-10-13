@@ -75,8 +75,7 @@ class PatchTableMeasurementConfig(
     columnsBand = pexConfig.ListField(
         doc="Band-specific columns from objectTable_tract to load.",
         dtype=str,
-        # TODO: Verify the most recent names of these columns
-        default=["PsFlux", "PsFluxErr"],
+        default=["psfFlux", "psfFluxErr"],
     )
 
     instrument = pexConfig.Field(
