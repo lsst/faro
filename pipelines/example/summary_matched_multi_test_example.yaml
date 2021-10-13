@@ -1,0 +1,8 @@
+description: Compute aggregate metrics from a list of individual measurements
+tasks:
+  agg_summary_AB1:
+    class: lsst.faro.summary.PatchMatchedSummaryTask
+    config:
+      connections.package: validate_drp
+      connections.metric: AB1
+      connections.agg_name: summary

@@ -17,18 +17,6 @@ tasks:
         from lsst.faro.measurement import PF1Task
         config.measure.retarget(PF1Task)
         config.measure.threshPA2 = 15.0
-  AM1_info:
-    class: lsst.faro.measurement.TractMatchedMeasurementTask
-    config:
-      # Compute this in the info namespace as well so we can
-      # show an example of changing the summary aggregation
-      # method without over writing the default one.
-      connections.package: info
-      connections.metric: AM1
-      python: |
-        from lsst.faro.measurement import AMxTask
-        config.measure.retarget(AMxTask)
-        config.measure.annulus_r = 5.0
   AM1:
     class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:
@@ -122,14 +110,6 @@ tasks:
         config.measure.annulus_r = 200.0
         config.measure.threshAD = 30.0
         config.measure.threshAF = 10.0
-  nsrcMeas:
-    class: lsst.faro.measurement.PatchMatchedMeasurementTask
-    config:
-      connections.package: info
-      connections.metric: nsrcMeas
-      python: |
-        from lsst.faro.base import NumSourcesMatchedTask
-        config.measure.retarget(NumSourcesMatchedTask)
   modelPhotRepGal1:
     class: lsst.faro.measurement.TractMatchedMeasurementTask
     config:

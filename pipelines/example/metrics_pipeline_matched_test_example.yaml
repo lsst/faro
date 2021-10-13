@@ -1,0 +1,5 @@
+description: Full matched metrics pipeline with external calibrations
+imports:
+  - location: $FARO_DIR/pipelines/preparation/preparation_matched.yaml
+  - location: $FARO_DIR/pipelines/example/measurement_matched_test_example.yaml
+  - location: $FARO_DIR/pipelines/example/summary_matched_test_example.yaml
