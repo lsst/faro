@@ -33,23 +33,3 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
-  TE3:
-    class: lsst.faro.measurement.VisitTableMeasurementTask
-    config:
-      connections.package: validate_drp
-      connections.metric: TE3
-      python: |
-        from lsst.faro.measurement import TExTask
-        config.measure.retarget(TExTask)
-        config.measure.minSep = 0.25
-        config.measure.maxSep = 5.0
-  TE4:
-    class: lsst.faro.measurement.VisitTableMeasurementTask
-    config:
-      connections.package: validate_drp
-      connections.metric: TE4
-      python: |
-        from lsst.faro.measurement import TExTask
-        config.measure.retarget(TExTask)
-        config.measure.minSep = 5.0
-        config.measure.maxSep = 20.0
