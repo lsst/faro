@@ -10,7 +10,3 @@ imports:
   - location: $FARO_DIR/pipelines/example/metrics_pipeline_tract_test_example.yaml
   # Stellar locus width:
   - location: $FARO_DIR/pipelines/metrics_pipeline_tract_multi.yaml
-  # Placeholder -- currently only counts sources per patch:
-  #- location: $FARO_DIR/pipelines/metrics_pipeline_patch.yaml
-  # Placeholder -- currently only counts sources per detector:
-  #- location: $FARO_DIR/pipelines/metrics_pipeline_detector.yaml
