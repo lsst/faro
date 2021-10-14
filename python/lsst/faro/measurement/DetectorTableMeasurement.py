@@ -87,6 +87,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
         catalog = catalog[selection]
 
         kwargs = {}
+        kwargs['catalog'] = catalog
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
@@ -102,7 +103,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
             kwargs["refCat"] = refCat
             kwargs["refCatCorrected"] = refCatCorrected
 
-        outputs = self.run(catalog, **kwargs)
+        outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:

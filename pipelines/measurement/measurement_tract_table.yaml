@@ -1,10 +1,10 @@
-description: Compute per-visit metrics from sourceTable_visit catalogs
+description: Compute metrics from objectTable_tract catalogs
 tasks:
-  nsrcMeasVisitTable:
-    class: lsst.faro.measurement.VisitTableMeasurementTask
+  nsrcMeasTractTable:
+    class: lsst.faro.measurement.TractTableMeasurementTask
     config:
       connections.package: info
-      connections.metric: nsrcMeasVisitTable
+      connections.metric: nsrcMeasTractTable
       # Reference dataset must be consistently specified 
       # in connections and reference object loader.
       # Reference datasets include:
@@ -33,3 +33,4 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
+        # config.instrument: 'hsc'

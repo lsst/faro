@@ -69,13 +69,28 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     ConfigClass = VisitTableMeasurementConfig
     _DefaultName = "visitTableMeasurementTask"
 
-    def run(self, catalog):
-        return self.measure.run(self.config.connections.metric, catalog)
-
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
-        outputs = self.run(catalog)
+
+        kwargs = {}
+        kwargs['catalog'] = catalog
+        if self.config.connections.refDataset != "":
+            refCats = inputs.pop("refCat")
+            filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
+            # Time at the start of the visit
+            epoch = butlerQC.quantum.dataId.records["visit"].timespan.begin
+            refCat, refCatCorrected = self._getReferenceCatalog(
+                butlerQC,
+                [ref.datasetRef.dataId for ref in inputRefs.refCat],
+                refCats,
+                filterList,
+                epoch,
+            )
+            kwargs["refCat"] = refCat
+            kwargs["refCatCorrected"] = refCatCorrected
+
+        outputs = self.run(**kwargs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
