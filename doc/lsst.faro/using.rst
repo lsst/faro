@@ -43,7 +43,10 @@ Running ``faro`` on a small local dataset. The `rc2_subset <git@github.com:lsst-
      
      pipetask run -b $RC2_SUBSET_DIR/SMALL_HSC/butler.yaml -p $FARO_DIR/pipelines/metrics_pipeline_matched.yaml -i u/$USER/single_frame -o u/$USER/faro_matched_visits_r --register-dataset-types -d "instrument='HSC' AND detector=42 AND band='r'"
 
-     
+Documentation for using the ``pipetask run`` command and various options can be found `here <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html#pipetask-run>`_. Briefly, the example command above uses the ``-b`` option to specify the Butler repository, ``-p`` to specify the pipeline, ``-i`` to specify the input collection, ``-o`` to specify the output collection (this should almost always be a user collection prefixed with ``u/username/`` unless you are running in production), and ``-d`` to provide a query to select a subset of data on which to compute metrics.
+
+.. warning:: The ``--register-dataset-types`` option should be used with caution as this will allow the registration of new dataset types that are global across the repository.
+
 Example: HSC RC2 dataset
 ------------------------
 
