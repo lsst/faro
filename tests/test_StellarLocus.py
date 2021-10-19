@@ -27,6 +27,7 @@ import numpy as np
 import os
 import astropy.units as u
 
+import lsst.utils.tests
 from lsst.utils import getPackageDir
 from astropy.table import Table
 from lsst.faro.utils.stellar_locus import stellarLocusResid
@@ -37,7 +38,7 @@ from lsst.faro.measurement import WPerpTask
 DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
 
 
-class StellarLocusTest(unittest.TestCase):
+class StellarLocusTest(lsst.utils.tests.TestCase):
 
     def load_data(self):
         """Helper to load data to process."""
@@ -69,7 +70,10 @@ class StellarLocusTest(unittest.TestCase):
         config = WPerpTask.ConfigClass()
         task = WPerpTask(config=config)
         result = task.calcWPerp('wPerp', cat, ext_vals)
-        self.assertEqual(result.measurement.quantity, expected_wperp)
+        # checks modified to pass when using MKL conda stack
+        self.assertEqual(result.measurement.quantity.unit, expected_wperp.unit)
+        self.assertFloatsAlmostEqual(result.measurement.quantity.value,
+                                     expected_wperp.value, rtol=1E-10)
 
     def test_stellarLocusResid(self):
         """Test calculation of stellar locus residuals on a known catalog."""
@@ -87,10 +91,11 @@ class StellarLocusTest(unittest.TestCase):
                              -0.5279346639713699, 0.0, 0.03544642888292535]
         expected_p1median = 0.1775458238071685
         expected_p2median = 4.766061008374539e-05
-        self.assertEqual(np.median(p1), expected_p1median)
-        self.assertEqual(np.median(p2), expected_p2median)
-        self.assertEqual(p1coeffs, expected_p1coeffs)
-        self.assertEqual(p2coeffs, expected_p2coeffs)
+        # checks modified to pass when using MKL conda stack
+        self.assertFloatsAlmostEqual(np.median(p1), expected_p1median, rtol=1E-10)
+        self.assertFloatsAlmostEqual(np.median(p2), expected_p2median, rtol=1E-10)
+        self.assertFloatsAlmostEqual(np.array(p1coeffs), np.array(expected_p1coeffs), rtol=1E-10)
+        self.assertFloatsAlmostEqual(np.array(p2coeffs), np.array(expected_p2coeffs), rtol=1E-10)
 
 
 if __name__ == "__main__":
