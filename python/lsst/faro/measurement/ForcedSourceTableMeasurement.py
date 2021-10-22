@@ -69,14 +69,14 @@ class ForcedSourceTableMeasurementConfig(
     columns = pexConfig.ListField(
         doc="Band-independent columns from forcedSourceTable_tract to load.",
         dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary"],
+        default=["coord_ra", "coord_dec", "band", "detect_isPrimary", "psfFlux", "psfFluxErr"],
     )
 
-    columnsBand = pexConfig.ListField(
-        doc="Band-specific columns from forcedSourceTable_tract to load.",
-        dtype=str,
-        default=["psfFlux", "psfFluxErr"],
-    )
+    # columnsBand = pexConfig.ListField(
+        # doc="Band-specific columns from forcedSourceTable_tract to load.",
+        # dtype=str,
+        # default=["psfFlux", "psfFluxErr"],
+    # )
 
     instrument = pexConfig.Field(
         doc="Instrument.",
@@ -96,9 +96,11 @@ class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
         kwargs = {"band": butlerQC.quantum.dataId['band']}
 
         columns = self.config.columns.list()
-        for column in self.config.columnsBand:
-            columns.append(kwargs["band"] + column)
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+        # for column in self.config.columnsBand:
+            # columns.append(kwargs["band"] + column)
+        tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
+        # Extract only the entries from the band of interest:
+        kwargs["catalog"] = tmp_catalog[tmp_catalog.band == kwargs["band"]]
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
