@@ -34,9 +34,9 @@ __all__ = (
     "ForcedSourceTableMeasurementConnections",
     "ForcedSourceTableMeasurementConfig",
     "ForcedSourceTableMeasurementTask",
-    "ForcedSourceMultiBandTableMeasurementConnections",
-    "ForcedSourceMultiBandTableMeasurementConfig",
-    "ForcedSourceMultiBandTableMeasurementTask",
+    # "ForcedSourceMultiBandTableMeasurementConnections",
+    # "ForcedSourceMultiBandTableMeasurementConfig",
+    # "ForcedSourceMultiBandTableMeasurementTask",
 )
 
 
