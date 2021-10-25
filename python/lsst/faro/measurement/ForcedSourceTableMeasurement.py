@@ -34,9 +34,9 @@ __all__ = (
     "ForcedSourceTableMeasurementConnections",
     "ForcedSourceTableMeasurementConfig",
     "ForcedSourceTableMeasurementTask",
-    # "ForcedSourceMultiBandTableMeasurementConnections",
-    # "ForcedSourceMultiBandTableMeasurementConfig",
-    # "ForcedSourceMultiBandTableMeasurementTask",
+    "ForcedSourceMultiBandTableMeasurementConnections",
+    "ForcedSourceMultiBandTableMeasurementConfig",
+    "ForcedSourceMultiBandTableMeasurementTask",
 )
 
 
@@ -96,11 +96,69 @@ class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
         kwargs = {"band": butlerQC.quantum.dataId['band']}
 
         columns = self.config.columns.list()
-        # for column in self.config.columnsBand:
-            # columns.append(kwargs["band"] + column)
         tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
         # Extract only the entries from the band of interest:
         kwargs["catalog"] = tmp_catalog[tmp_catalog.band == kwargs["band"]]
+
+        outputs = self.run(**kwargs)
+        if outputs.measurement is not None:
+            butlerQC.put(outputs, outputRefs)
+        else:
+            self.log.debugf(
+                "Skipping measurement of {!r} on {} " "as not applicable.",
+                self,
+                inputRefs,
+            )
+
+
+class ForcedSourceMultiBandTableMeasurementConnections(
+    CatalogMeasurementBaseConnections,
+    dimensions=("tract", "skymap"),
+):
+
+    catalog = pipeBase.connectionTypes.Input(
+        doc="Forced source table in parquet format, per tract",
+        dimensions=("tract", "skymap"),
+        storageClass="DataFrame",
+        name="forcedSourceTable_tract",
+        deferLoad=True,
+    )
+
+    measurement = pipeBase.connectionTypes.Output(
+        doc="Per-tract measurement.",
+        dimensions=("tract", "skymap"),
+        storageClass="MetricValue",
+        name="metricvalue_{package}_{metric}",
+    )
+
+
+class ForcedSourceMultiBandTableMeasurementConfig(
+    ForcedSourceTableMeasurementConfig,
+    pipelineConnections=ForcedSourceMultiBandTableMeasurementConnections
+):
+    """Configuration for ForcedSourceMultiBandTableMeasurementTask."""
+
+    bands = pexConfig.ListField(
+        doc="Bands for band-specific column loading from ForcedSourceTable_tract.",
+        dtype=str,
+        default=["g", "r", "i", "z", "y"],
+    )
+
+
+class ForcedSourceMultiBandTableMeasurementTask(CatalogMeasurementBaseTask):
+    """Base class for multi-band science performance metrics measured on multi-visit forced source catalogs."""
+
+    ConfigClass = ForcedSourceMultiBandTableMeasurementConfig
+    _DefaultName = "forcedSourceMultiBandTableMeasurementTask"
+
+    def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        inputs = butlerQC.get(inputRefs)
+        kwargs = {"bands": self.config.bands.list()}
+
+        columns = self.config.columns.list()
+        tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
+        # Extract only the entries from the band of interest:
+        kwargs["catalog"] = tmp_catalog[tmp_catalog.band.isin(kwargs["bands"])]
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:

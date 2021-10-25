@@ -1,0 +1,10 @@
+description: Compute metrics from objectTable_tract catalogs
+tasks:
+  nsrcMeasForcedSourceMultiBandTable:
+    class: lsst.faro.measurement.ForcedSourceMultiBandTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasForcedSourceMultiBandTable
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        config.measure.retarget(NumSourcesTask)
