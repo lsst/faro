@@ -28,7 +28,6 @@ from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConfig,
     CatalogMeasurementBaseTask,
 )
-from lsst.faro.utils.filter_map import FilterMap
 
 __all__ = (
     "ForcedSourceTableMeasurementConnections",
@@ -71,12 +70,6 @@ class ForcedSourceTableMeasurementConfig(
         dtype=str,
         default=["coord_ra", "coord_dec", "band", "detect_isPrimary", "psfFlux", "psfFluxErr"],
     )
-
-    # columnsBand = pexConfig.ListField(
-        # doc="Band-specific columns from forcedSourceTable_tract to load.",
-        # dtype=str,
-        # default=["psfFlux", "psfFluxErr"],
-    # )
 
     instrument = pexConfig.Field(
         doc="Instrument.",
@@ -146,7 +139,8 @@ class ForcedSourceMultiBandTableMeasurementConfig(
 
 
 class ForcedSourceMultiBandTableMeasurementTask(CatalogMeasurementBaseTask):
-    """Base class for multi-band science performance metrics measured on multi-visit forced source catalogs."""
+    """Base class for multi-band science performance metrics measured on
+       multi-visit forced source catalogs."""
 
     ConfigClass = ForcedSourceMultiBandTableMeasurementConfig
     _DefaultName = "forcedSourceMultiBandTableMeasurementTask"
