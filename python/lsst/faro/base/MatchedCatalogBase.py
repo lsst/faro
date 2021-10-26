@@ -52,14 +52,6 @@ class MatchedBaseConnections(
         name="src",
         multiple=True,
     )
-    sourceTableCatalogs = pipeBase.connectionTypes.Input(
-        doc="Source catalogs, in parquet format, to match up.",
-        dimensions=("instrument", "visit", "detector", "band"),
-        storageClass="DataFrame",
-        name="sourceTable_visit",
-        multiple=True,
-        deferLoad=True,
-    )
     photoCalibs = pipeBase.connectionTypes.Input(
         doc="Photometric calibration object.",
         dimensions=("instrument", "visit", "detector", "band"),
@@ -125,10 +117,6 @@ class MatchedBaseConnections(
 
     def __init__(self, *, config=None):
         super().__init__(config=config)
-        if config.useParquet:
-            self.inputs.remove("sourceCatalogs")
-        else:
-            self.inputs.remove("sourceTableCatalogs")
         if config.doApplyExternalSkyWcs:
             if config.useGlobalExternalSkyWcs:
                 self.inputs.remove("externalSkyWcsTractCatalog")
@@ -152,9 +140,6 @@ class MatchedBaseConfig(
 ):
     match_radius = pexConfig.Field(
         doc="Match radius in arcseconds.", dtype=float, default=1
-    )
-    useParquet = pexConfig.Field(
-        doc="Whether or not to use the parquet tables.", dtype=bool, default=True
     )
     doApplyExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False
@@ -190,7 +175,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         dataIds,
         wcs,
         box,
-        useParquet=True,
         doApplyExternalSkyWcs=False,
         doApplyExternalPhotoCalib=False,
     ):
@@ -231,7 +215,6 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         ]
         inputs["wcs"] = wcs
         inputs["box"] = box
-        inputs["useParquet"] = self.config.useParquet
         inputs["doApplyExternalSkyWcs"] = self.config.doApplyExternalSkyWcs
         inputs["doApplyExternalPhotoCalib"] = self.config.doApplyExternalPhotoCalib
 
