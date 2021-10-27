@@ -98,7 +98,7 @@ class E1(object):
     """
 
     def __init__(self, ixxColumn, iyyColumn, 
-                 ixyColumn=ixyColumn, unitScale=1.0, shearConvention=False):
+                 ixyColumn, unitScale=1.0, shearConvention=False):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -186,7 +186,7 @@ class E1Resids(object):
     """
 
     def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn, 
-                 ixyColumn=ixyColumn, ixyPsfColumn=ixyPsfColumn, unitScale=1.0, 
+                 ixyColumn, ixyPsfColumn, unitScale=1.0, 
                  shearConvention=False):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
@@ -241,7 +241,7 @@ class E2Resids(object):
     """
 
     def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn, 
-                 ixyColumn=ixyColumn, ixyPsfColumn=ixyPsfColumn, unitScale=1.0, 
+                 ixyColumn, ixyPsfColumn, unitScale=1.0, 
                  shearConvention=False):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
@@ -295,8 +295,8 @@ class RhoStatistics(object):
     """
 
     def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn,
-                 raColumn, decColumn, ixyColumn=ixyColumn, 
-                 ixyPsfColumn=ixyPsfColumn, shearConvention=False, **kwargs):
+                 raColumn, decColumn, ixyColumn, 
+                 ixyPsfColumn, shearConvention=False, **kwargs):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -307,21 +307,21 @@ class RhoStatistics(object):
         self.raColumn = raColumn
         self.decColumn = decColumn
         self.e1Func = E1(self.ixxPsfColumn, self.iyyPsfColumn, 
-                         ixyPsfColumn=self.ixyPsfColumn, 
+                         self.ixyPsfColumn, 
                          shearConvention=self.shearConvention)
         self.e2Func = E2(self.ixxPsfColumn, self.iyyPsfColumn, 
-                         ixyPsfColumn=self.ixyPsfColumn, 
+                         self.ixyPsfColumn, 
                          shearConvention=self.shearConvention)
         self.e1ResidsFunc = E1Resids(self.ixxColumn, self.iyyColumn, 
                                      self.ixxPsfColumn, self.iyyPsfColumn, 
-                                     ixyColumn=self.ixyColumn, 
-                                     ixyPsfColumn=self.ixyPsfColumn,
+                                     self.ixyColumn, 
+                                     self.ixyPsfColumn,
                                      shearConvention=self.shearConvention
         )
         self.e2ResidsFunc = E2Resids(self.ixxColumn, self.iyyColumn, 
                                      self.ixxPsfColumn, self.iyyPsfColumn, 
-                                     ixyColumn=self.ixyColumn, 
-                                     ixyPsfColumn=self.ixyPsfColumn,
+                                     self.ixyColumn, 
+                                     self.ixyPsfColumn,
                                      shearConvention=self.shearConvention 
         )
         self.traceSizeFunc = TraceSize(self.ixxColumn,self.iyyColumn)
@@ -520,8 +520,8 @@ def calculateTEx(catalog, config):
     rhoStatisticsFunc = RhoStatistics(config.ixxColumn, config.iyyColumn, 
                                       config.ixxPsfColumn, config.iyyPsfColumn,
                                       config.raColumn, config.decColumn,
-                                      ixyColumn=config.ixyColumn, 
-                                      ixyPsfColumn=config.ixyPsfColumn,
+                                      config.ixyColumn, 
+                                      config.ixyPsfColumn,
                                       shearConvention=config.shearConvention, 
                                       **treecorrKwargs
     )
