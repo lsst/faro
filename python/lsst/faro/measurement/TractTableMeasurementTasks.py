@@ -51,7 +51,18 @@ class TExTableConfig(Config):
         dtype=bool,
         default=False,
     )
-    raColumn = Field(doc="RA column",dtype=str, default="ra_coord")
+    raColumn = Field(doc="RA column", dtype=str, default="ra_coord")
+    decColumn = Field(doc="Dec column", dtype=str, default="dec_coord")
+    ixxColumn = Field(doc="Ixx column", dtype=str, default="Ixx")
+    ixyColumn = Field(doc="Ixy column", dtype=str, default="Ixy")
+    iyyColumn = Field(doc="Iyy column", dtype=str, default="Iyy")
+    ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="IxxPsf")
+    ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="IxyPsf")
+    iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="IyyPsf")
+    extendednessColumn = Field(doc="Extendedness column", dtype=str, default="extendedness")
+    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="PsfFlux")
+    psfFluxErrColumn = Field(doc="PsfFlux column", dtype=str, default="PsfFluxErr")
+    deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="Deblend_nChild")
     # Eventually want to add option to use only PSF reserve stars
 
 
