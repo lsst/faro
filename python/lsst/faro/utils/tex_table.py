@@ -67,7 +67,7 @@ class PsfTraceSizeDiff(object):
             0.5 * (catalog["Ixx"] + catalog["Iyy"])
         )
         psfSize = np.sqrt(
-            0.5 * (catalog["IxxPSF"] + catalog["IyyPsf"])
+            0.5 * (catalog["IxxPsf"] + catalog["IyyPsf"])
         )
         sizeDiff = 100 * (srcSize - psfSize) / (0.5 * (srcSize + psfSize))
         return np.array(sizeDiff)
