@@ -75,7 +75,7 @@ class TractTableMeasurementConfig(
     columnsBand = pexConfig.ListField(
         doc="Band-specific columns from objectTable_tract to load.",
         dtype=str,
-        default=["psfFlux", "psfFluxErr"],
+        default=["PsFlux", "PsFluxErr"],
     )
 
     instrument = pexConfig.Field(
