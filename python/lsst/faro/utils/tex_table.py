@@ -40,35 +40,38 @@ __all__ = (
 
 
 class TraceSize(object):
-    """Functor to calculate trace radius size for sources.
+    """Functor to calculate trace radius size for sources. ixxColumn and 
+    iyyColumn are strings and must be defined in the Task Config.
     """
 
-    def __init__(self, column):
-        self.column = column
+    def __init__(self, ixxColumn, iyyColumn):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
 
     def __call__(self, catalog):
         srcSize = np.sqrt(
-            0.5 * (catalog["Ixx"] + catalog["Iyy"])
+            0.5 * (catalog[ixxColumn] + catalog[iyyColumn])
         )
         return np.array(srcSize)
 
 
 class PsfTraceSizeDiff(object):
     """Functor to calculate trace radius size difference (%) between object and
-    PSF model.
+    PSF model. Inherits from functor TraceSize.
     """
 
-    def __init__(self, column, psfColumn):
-        self.column = column
-        self.psfColumn = psfColumn
-
+    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixxPsfColumn = ixxPsfColumn
+        self.iyyPsfColumn = iyyPsfColumn
+        
+        self.traceSizeFunc = TraceSize(self.ixxColumn,self.iyyColumn)
+        self.psfTraceSizeFunc = TraceSize(self.ixxPsfColumn,self.iyyPsfColumn)
+        
     def __call__(self, catalog):
-        srcSize = np.sqrt(
-            0.5 * (catalog["Ixx"] + catalog["Iyy"])
-        )
-        psfSize = np.sqrt(
-            0.5 * (catalog["IxxPsf"] + catalog["IyyPsf"])
-        )
+        srcSize = traceSizeFunc(catalog)
+        psfSize = psfTraceSizeFunc(catalog)
         sizeDiff = 100 * (srcSize - psfSize) / (0.5 * (srcSize + psfSize))
         return np.array(sizeDiff)
 
@@ -77,11 +80,12 @@ class E1(object):
     """Function to calculate e1 ellipticities from a given catalog.
     Parameters
     ----------
-    column : `str`
-        The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments") or
-        ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments") for corresponding
-        PSF ellipticities.
+    ixxColumn : `str`
+        The name of the for corresponding ixx ellipticities column.
+    iyyColumn : `str`
+        The name of the for corresponding iyy ellipticities column.
+    ixyColumn : `str`
+        The name of the for corresponding ixy ellipticities column.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
     shearConvention: `bool`, optional
@@ -93,16 +97,19 @@ class E1(object):
         A numpy array of e1 ellipticity values.
     """
 
-    def __init__(self, column, unitScale=1.0, shearConvention=False):
-        self.column = column
+    def __init__(self, ixxColumn, iyyColumn, 
+                 ixyColumn=ixyColumn, unitScale=1.0, shearConvention=False):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixyColumn = ixyColumn
         self.unitScale = unitScale
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        xx = catalog["Ixx"]
-        yy = catalog["Iyy"]
+        xx = catalog[ixxColumn]
+        yy = catalog[iyyColumn]
         if self.shearConvention:
-            xy = catalog["Ixy"]
+            xy = catalog[ixyColumn]
             e1 = (xx - yy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
             e1 = (xx - yy) / (xx + yy)
@@ -113,9 +120,12 @@ class E2(object):
     """Function to calculate e2 ellipticities from a given catalog.
     Parameters
     ----------
-    column : `str`
-        The name of the shape measurement algorithm. It should be ixx for both
-        "base_SdssShape" and ext_shapeHSM_HsmSource"
+    ixxColumn : `str`
+        The name of the for corresponding ixx ellipticities column.
+    iyyColumn : `str`
+        The name of the for corresponding iyy ellipticities column.
+    ixyColumn : `str`
+        The name of the for corresponding ixy ellipticities column.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
     shearConvention: `bool`, optional
@@ -127,15 +137,18 @@ class E2(object):
         A numpy array of e2 ellipticity values.
     """
 
-    def __init__(self, column, unitScale=1.0, shearConvention=False):
-        self.column = column
+    def __init__(self, ixxColumn, 
+                 iyyColumn, ixyColumn, unitScale=1.0, shearConvention=False):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixyColumn = ixyColumn
         self.unitScale = unitScale
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        xx = catalog["Ixx"]
-        yy = catalog["Iyy"]
-        xy = catalog["Ixy"]
+        xx = catalog[ixxColumn]
+        yy = catalog[iyyColumn]
+        xy = catalog[ixyColumn]
         if self.shearConvention:
             e2 = (2.0 * xy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
@@ -148,13 +161,18 @@ class E1Resids(object):
     and PSF model.
     Parameters
     ----------
-    column : `str`
-        The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments").
-    psfColumn : `str`
-        The name used for PSF shape measurements from the same algorithm.
-        It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
-        and correspond to the algorithm name specified for ``column``.
+    ixxColumn : `str`
+        The name of the for corresponding ixx ellipticities column.
+    iyyColumn : `str`
+        The name of the for corresponding iyy ellipticities column.
+    ixyColumn : `str`
+        The name of the for corresponding ixy ellipticities column.
+    ixxPsfColumn : `str`
+        The name of the for corresponding ixx psf ellipticities column.
+    iyyPsfColumn : `str`
+        The name of the for corresponding iyy psf ellipticities column.
+    ixyPsfColumn : `str`
+        The name of the for corresponding ixy psf ellipticities column.
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
         ellipticities.
@@ -167,15 +185,24 @@ class E1Resids(object):
         A numpy array of e1 residual ellipticity values.
     """
 
-    def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
-        self.column = column
-        self.psfColumn = psfColumn
+    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn, 
+                 ixyColumn=ixyColumn, ixyPsfColumn=ixyPsfColumn, unitScale=1.0, 
+                 shearConvention=False):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixyColumn = ixyColumn
+        self.ixxPsfColumn = ixxPsfColumn
+        self.iyyPsfColumn = iyyPsfColumn
+        self.ixyPsfColumn = ixyPsfColumn
+
         self.unitScale = unitScale
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE1func = E1(self.column, self.unitScale, self.shearConvention)
-        psfE1func = E1(self.psfColumn, self.unitScale, self.shearConvention)
+        srcE1func = E1(self.ixxColumn, self.iyyColumn, self.ixyColumn, 
+                      self.unitScale, self.shearConvention)
+        psfE1func = E1(self.ixxPsfColumn, self.iyyPsfColumn, self.ixyPsfColumn, 
+                       self.unitScale, self.shearConvention)
 
         srcE1 = srcE1func(catalog)
         psfE1 = psfE1func(catalog)
@@ -189,13 +216,18 @@ class E2Resids(object):
     and PSF model.
     Parameters
     ----------
-    column : `str`
-        The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments").
-    psfColumn : `str`
-        The name used for PSF shape measurements from the same algorithm.
-        It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
-        and correspond to the algorithm name specified for ``column``.
+    ixxColumn : `str`
+        The name of the for corresponding ixx ellipticities column.
+    iyyColumn : `str`
+        The name of the for corresponding iyy ellipticities column.
+    ixyColumn : `str`
+        The name of the for corresponding ixy ellipticities column.
+    ixxPsfColumn : `str`
+        The name of the for corresponding ixx psf ellipticities column.
+    iyyPsfColumn : `str`
+        The name of the for corresponding iyy psf ellipticities column.
+    ixyPsfColumn : `str`
+        The name of the for corresponding ixy psf ellipticities column.
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
         ellipticities.
@@ -208,15 +240,23 @@ class E2Resids(object):
         A numpy array of e2 residual ellipticity values.
     """
 
-    def __init__(self, column, psfColumn, unitScale=1.0, shearConvention=False):
-        self.column = column
-        self.psfColumn = psfColumn
+    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn, 
+                 ixyColumn=ixyColumn, ixyPsfColumn=ixyPsfColumn, unitScale=1.0, 
+                 shearConvention=False):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixyColumn = ixyColumn
+        self.ixxPsfColumn = ixxPsfColumn
+        self.iyyPsfColumn = iyyPsfColumn
+        self.ixyPsfColumn = ixyPsfColumn
         self.unitScale = unitScale
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE2func = E2(self.column, self.unitScale, self.shearConvention)
-        psfE2func = E2(self.psfColumn, self.unitScale, self.shearConvention)
+        srcE2func = E2(self.ixxColumn, self.iyyColumn, self.ixyColumn, 
+                      self.unitScale, self.shearConvention)
+        psfE2func = E2(self.ixxPsfColumn, self.iyyPsfColumn, self.ixyPsfColumn, 
+                       self.unitScale, self.shearConvention)
 
         srcE2 = srcE2func(catalog)
         psfE2 = psfE2func(catalog)
@@ -254,20 +294,38 @@ class RhoStatistics(object):
         of PSF size residuals.
     """
 
-    def __init__(self, column, psfColumn, shearConvention=False, **kwargs):
-        self.column = column
-        self.psfColumn = psfColumn
+    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn,
+                 raColumn, decColumn, ixyColumn=ixyColumn, 
+                 ixyPsfColumn=ixyPsfColumn, shearConvention=False, **kwargs):
+        self.ixxColumn = ixxColumn
+        self.iyyColumn = iyyColumn
+        self.ixyColumn = ixyColumn
+        self.ixxPsfColumn = ixxPsfColumn
+        self.iyyPsfColumn = iyyPsfColumn
+        self.ixyPsfColumn = ixyPsfColumn
         self.shearConvention = shearConvention
-        self.e1Func = E1(self.psfColumn, shearConvention=self.shearConvention)
-        self.e2Func = E2(self.psfColumn, shearConvention=self.shearConvention)
-        self.e1ResidsFunc = E1Resids(
-            self.column, self.psfColumn, shearConvention=self.shearConvention
+        self.raColumn = raColumn
+        self.decColumn = decColumn
+        self.e1Func = E1(self.ixxPsfColumn, self.iyyPsfColumn, 
+                         ixyPsfColumn=self.ixyPsfColumn, 
+                         shearConvention=self.shearConvention)
+        self.e2Func = E2(self.ixxPsfColumn, self.iyyPsfColumn, 
+                         ixyPsfColumn=self.ixyPsfColumn, 
+                         shearConvention=self.shearConvention)
+        self.e1ResidsFunc = E1Resids(self.ixxColumn, self.iyyColumn, 
+                                     self.ixxPsfColumn, self.iyyPsfColumn, 
+                                     ixyColumn=self.ixyColumn, 
+                                     ixyPsfColumn=self.ixyPsfColumn,
+                                     shearConvention=self.shearConvention
         )
-        self.e2ResidsFunc = E2Resids(
-            self.column, self.psfColumn, shearConvention=self.shearConvention
+        self.e2ResidsFunc = E2Resids(self.ixxColumn, self.iyyColumn, 
+                                     self.ixxPsfColumn, self.iyyPsfColumn, 
+                                     ixyColumn=self.ixyColumn, 
+                                     ixyPsfColumn=self.ixyPsfColumn,
+                                     shearConvention=self.shearConvention 
         )
-        self.traceSizeFunc = TraceSize(self.column)
-        self.psfTraceSizeFunc = TraceSize(self.psfColumn)
+        self.traceSizeFunc = TraceSize(self.ixxColumn,self.iyyColumn)
+        self.psfTraceSizeFunc = TraceSize(self.ixxPsfColumn,self.iyyPsfColumn)
         self.kwargs = kwargs
 
     def __call__(self, catalog):
@@ -301,8 +359,8 @@ class RhoStatistics(object):
             5: (e1, e2, e1SizeRes, e2SizeRes),
         }
 
-        ra = np.rad2deg(catalog["coord_ra"][isFinite]) * 60.0  # arcmin
-        dec = np.rad2deg(catalog["coord_dec"][isFinite]) * 60.0  # arcmin
+        ra = catalog[self.raColumn][isFinite] * 60.0  # arcmin
+        dec = catalog[self.decColumn][isFinite] * 60.0  # arcmin
 
         # Pass the appropriate arguments to the correlator and build a dict
         rhoStats = {
@@ -435,17 +493,15 @@ def calculateTEx(catalog, config):
     """
 
     # Filtering should be pulled out into a separate function for standard quality selections
-
     # TO-DO: update column names following https://github.com/yalsayyad/dm_notebooks/blob/master/object-table/ci_imsim_check_for_DRP_Table_and_Column.ipynb
-
     snrMin = 50
     selection = (
-        (catalog["extendedness"] < 0.5)
+        (catalog[config.extendednessColumn] < 0.5)
         & (
-            (catalog["PsFlux"] / catalog["PsFluxErr"])
+            (catalog[config.psfFluxColumn] / catalog[config.psfFluxErrColumn])
             > snrMin
         )
-        & (catalog["Deblend_nChild"] == 0)
+        & (catalog[config.deblend_nChildColumn] == 0)
     )
 
     nMinSources = 50
@@ -458,10 +514,18 @@ def calculateTEx(catalog, config):
         max_sep=config.maxSep,
         sep_units="arcmin",
     )
-    rhoStatistics = RhoStatistics(
-        config.column, config.columnPsf, config.shearConvention, **treecorrKwargs
+    
+    # TO-DO: should shearConvention be passed to rhoStatisticsFunc as a keyword arguement? It 
+    # is not in the current implementation of tex.py
+    rhoStatisticsFunc = RhoStatistics(config.ixxColumn, config.iyyColumn, 
+                                      config.ixxPsfColumn, config.iyyPsfColumn,
+                                      config.raColumn, config.decColumn,
+                                      ixyColumn=config.ixyColumn, 
+                                      ixyPsfColumn=config.ixyPsfColumn,
+                                      shearConvention=config.shearConvention, 
+                                      **treecorrKwargs
     )
-    xy = rhoStatistics(catalog[selection])[config.rhoStat]
+    xy = rhoStatisticsFunc(catalog[selection])[config.rhoStat]
 
     radius = np.exp(xy.meanlogr) * u.arcmin
     if config.rhoStat == 0:
