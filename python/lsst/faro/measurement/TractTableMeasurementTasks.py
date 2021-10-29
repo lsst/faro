@@ -53,16 +53,16 @@ class TExTableConfig(Config):
     )
     raColumn = Field(doc="RA column", dtype=str, default="coord_ra")
     decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
-    ixxColumn = Field(doc="Ixx column", dtype=str, default="Ixx")
-    ixyColumn = Field(doc="Ixy column", dtype=str, default="Ixy")
-    iyyColumn = Field(doc="Iyy column", dtype=str, default="Iyy")
-    ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="IxxPsf")
-    ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="IxyPsf")
-    iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="IyyPsf")
+    ixxColumn = Field(doc="Ixx column", dtype=str, default="ixx")
+    ixyColumn = Field(doc="Ixy column", dtype=str, default="ixy")
+    iyyColumn = Field(doc="Iyy column", dtype=str, default="iyy")
+    ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="ixxPSF")
+    ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="ixyPSF")
+    iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="iyyPSF")
     extendednessColumn = Field(doc="Extendedness column", dtype=str, default="extendedness")
-    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="PsfFlux")
-    psfFluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="PsfFluxErr")
-    deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="Deblend_nChild")
+    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="psfFlux")
+    psfFluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="psfFluxErr")
+    deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="deblend_nChild")
     # Eventually want to add option to use only PSF reserve stars
 
 
@@ -73,17 +73,10 @@ class TExTableTask(Task):
     def run(
         self, metricName, catalog
     ):
-        import pdb; pdb.set_trace()
-
-        bands = data.keys()
-        if len(bands) != 1:
-            raise RuntimeError(f'TEx task got bands: {bands} but expecting exactly one')
-        else:
-            data = data[list(bands)[0]]
 
         self.log.info("Measuring %s", metricName)
 
-        result = calculateTEx(data, self.config)
+        result = calculateTEx(catalog, self.config)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))
 

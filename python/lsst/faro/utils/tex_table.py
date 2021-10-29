@@ -50,7 +50,7 @@ class TraceSize(object):
 
     def __call__(self, catalog):
         srcSize = np.sqrt(
-            0.5 * (catalog[ixxColumn] + catalog[iyyColumn])
+            0.5 * (catalog[self.ixxColumn] + catalog[self.iyyColumn])
         )
         return np.array(srcSize)
 
@@ -66,8 +66,8 @@ class PsfTraceSizeDiff(object):
         self.ixxPsfColumn = ixxPsfColumn
         self.iyyPsfColumn = iyyPsfColumn
         
-        self.traceSizeFunc = TraceSize(self.ixxColumn,self.iyyColumn)
-        self.psfTraceSizeFunc = TraceSize(self.ixxPsfColumn,self.iyyPsfColumn)
+        self.traceSizeFunc = TraceSize(self.ixxColumn, self.iyyColumn)
+        self.psfTraceSizeFunc = TraceSize(self.ixxPsfColumn, self.iyyPsfColumn)
         
     def __call__(self, catalog):
         srcSize = traceSizeFunc(catalog)
@@ -106,10 +106,10 @@ class E1(object):
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        xx = catalog[ixxColumn]
-        yy = catalog[iyyColumn]
+        xx = catalog[self.ixxColumn]
+        yy = catalog[self.iyyColumn]
         if self.shearConvention:
-            xy = catalog[ixyColumn]
+            xy = catalog[self.ixyColumn]
             e1 = (xx - yy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
             e1 = (xx - yy) / (xx + yy)
@@ -146,9 +146,9 @@ class E2(object):
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        xx = catalog[ixxColumn]
-        yy = catalog[iyyColumn]
-        xy = catalog[ixyColumn]
+        xx = catalog[self.ixxColumn]
+        yy = catalog[self.iyyColumn]
+        xy = catalog[self.ixyColumn]
         if self.shearConvention:
             e2 = (2.0 * xy) / (xx + yy + 2.0 * np.sqrt(xx * yy - xy ** 2))
         else:
@@ -492,8 +492,7 @@ def calculateTEx(catalog, config):
     yaml specifications  https://github.com/lsst/obs_lsst/blob/073901ab35efe5253ca64aeb14a290692ae400bd/policy/imsim/Source.yaml#L208-L226
     """
 
-    # Filtering should be pulled out into a separate function for standard quality selections
-    # TO-DO: update column names following https://github.com/yalsayyad/dm_notebooks/blob/master/object-table/ci_imsim_check_for_DRP_Table_and_Column.ipynb
+    # TO-DO: Filtering should be pulled out into a separate function for standard quality selections
     snrMin = 50
     selection = (
         (catalog[config.extendednessColumn] < 0.5)

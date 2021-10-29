@@ -41,7 +41,8 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTableTask
         config.measure.retarget(TExTableTask)
-        config.columns = ["coord_ra","coord_dec","Ixx","Iyy","Ixy","IxxPsf","IyyPsf","extendedness", "Deblend_nChild"]
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 0.25
         config.measure.maxSep = 5.0
   TE4:
@@ -52,7 +53,8 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTableTask
         config.measure.retarget(TExTableTask)
-        config.columns = ["coord_ra","coord_dec","Ixx","Iyy","Ixy","IxxPsf","IyyPsf","extendedness", "Deblend_nChild"]
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
         
