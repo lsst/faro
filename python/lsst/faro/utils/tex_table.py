@@ -507,6 +507,8 @@ def calculateTEx(catalog, config):
     if np.sum(selection) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
 
+    import pdb; pdb.set_trace()
+
     treecorrKwargs = dict(
         nbins=config.nbins,
         min_sep=config.minSep,
