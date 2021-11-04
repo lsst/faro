@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import lsst.afw.table as afwTable
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 import lsst.geom as geom
@@ -180,18 +181,22 @@ class MatchedBaseTask(pipeBase.PipelineTask):
     ):
         self.log.info("Running catalog matching")
         radius = geom.Angle(self.radius, geom.arcseconds)
-        srcvis, matched = matchCatalogs(
-            sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
-        )
-        # Trim the output to the patch bounding box
-        out_matched = type(matched)(matched.schema)
-        self.log.info("%s sources in matched catalog.", len(matched))
-        for record in matched:
-            if box.contains(wcs.skyToPixel(record.getCoord())):
-                out_matched.append(record)
-        self.log.info(
-            "%s sources when trimmed to %s boundaries.", len(out_matched), self.level
-        )
+        if len(sourceCatalogs) < 2:
+            self.log.warning("%s valid input catalogs: ", len(sourceCatalogs))
+            out_matched = afwTable.SimpleCatalog()
+        else:
+            srcvis, matched = matchCatalogs(
+                sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
+            )
+            # Trim the output to the patch bounding box
+            out_matched = type(matched)(matched.schema)
+            self.log.info("%s sources in matched catalog.", len(matched))
+            for record in matched:
+                if box.contains(wcs.skyToPixel(record.getCoord())):
+                    out_matched.append(record)
+            self.log.info(
+                "%s sources when trimmed to %s boundaries.", len(out_matched), self.level
+            )
         return pipeBase.Struct(outputCatalog=out_matched)
 
     def get_box_wcs(self, skymap, oid):
@@ -244,6 +249,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             visitSkyWcsList = np.array([calib["visit"] for calib in flatSkyWcsList])
             detectorSkyWcsList = np.array([calib["id"] for calib in flatSkyWcsList])
 
+        remove_indices = []
+
         if self.config.doApplyExternalPhotoCalib:
             for i in range(len(inputs["dataIds"])):
                 dataId = inputs["dataIds"][i]
@@ -252,9 +259,16 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 calib_find = (visitPhotoCalibList == visit) & (
                     detectorPhotoCalibList == detector
                 )
-                row = flatPhotoCalibList[calib_find]
-                externalPhotoCalib = row[0].getPhotoCalib()
-                inputs["photoCalibs"][i] = externalPhotoCalib
+                if np.sum(calib_find) < 1:
+                    self.log.warning("Detector id %s not found in externalPhotoCalibCatalog "
+                                     "for visit %s and will not be used.",
+                                     detector, visit)
+                    inputs["photoCalibs"][i] = None
+                    remove_indices.append(i)
+                else:
+                    row = flatPhotoCalibList[calib_find]
+                    externalPhotoCalib = row[0].getPhotoCalib()
+                    inputs["photoCalibs"][i] = externalPhotoCalib
 
         if self.config.doApplyExternalSkyWcs:
             for i in range(len(inputs["dataIds"])):
@@ -264,9 +278,25 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 calib_find = (visitSkyWcsList == visit) & (
                     detectorSkyWcsList == detector
                 )
-                row = flatSkyWcsList[calib_find]
-                externalSkyWcs = row[0].getWcs()
-                inputs["astromCalibs"][i] = externalSkyWcs
+                if np.sum(calib_find) < 1:
+                    self.log.warning("Detector id %s not found in externalSkyWcsCatalog "
+                                     "for visit %s and will not be used.",
+                                     detector, visit)
+                    inputs["astromCalibs"][i] = None
+                    remove_indices.append(i)
+                else:
+                    row = flatSkyWcsList[calib_find]
+                    externalSkyWcs = row[0].getWcs()
+                    inputs["astromCalibs"][i] = externalSkyWcs
+
+        # Remove datasets that didn't have matching external calibs
+        remove_indices = np.unique(np.array(remove_indices))
+        if len(remove_indices) > 0:
+            for ind in sorted(remove_indices, reverse=True):
+                del inputs['sourceCatalogs'][ind]
+                del inputs['dataIds'][ind]
+                del inputs['photoCalibs'][ind]
+                del inputs['astromCalibs'][ind]
 
         outputs = self.run(**inputs)
         butlerQC.put(outputs, outputRefs)
