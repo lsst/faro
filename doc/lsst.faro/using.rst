@@ -7,50 +7,72 @@
 Getting started
 ===============
 
-``lsst.faro`` is part of the `LSST Science Pipelines <https://pipelines.lsst.io/>`_. If you are new to the LSST Science Pipelines, it may be helpful to begin with the `Getting started tutorial <https://pipelines.lsst.io/#getting-started>`_ and `installation instructions <https://pipelines.lsst.io/#installation>`_. 
+``lsst.faro`` is part of the `LSST Science Pipelines <https://pipelines.lsst.io/>`_.
+This user guide will run you through the steps needed to start working with ``lsst.faro``.
 
-If developing on Rubin computing facilities, a `shared version of the software stack <https://developer.lsst.io/services/software.html#shared-software-stack>`_ should be available for use.
+``lsst.faro`` is run using the `pipetask <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html>`_
+command line script. In this guide we will will cover:
+    - Running and building ``lsst.faro`` locally.
+    - Running faro on an reprocessed Gen3 repository at NCSA
 
-.. _lsst.faro.running:
+To get help and share ideas, join us on the `LSST Community forum <https://community.lsst.org>`_
 
-Running faro
+.. _lsst.faro.install:
+
+Installation
 ============
 
-- Running and building ``lsst.faro`` locally.
-- Running faro on an reprocessed Gen3 repository at NCSA
+If you haven't done so already, the first step is to install the LSST Science Pipelines following the
+`installation instructions <https://pipelines.lsst.io/#installation>`_.
 
-``lsst.faro`` is can be run using `pipetask <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html>`_.
+Choose any of the installation methods listed in the installation instructions.
+If developing on Rubin computing facilities, a
+`shared version of the software stack <https://developer.lsst.io/services/software.html#shared-software-stack>`_
+should be available for use.
 
-.. _lsst.faro.shared:
+If you are new the LSST Science Pipelines, it may also be helpful to run through the
+`Getting started tutorial <https://pipelines.lsst.io/#getting-started>`_
 
-Shared Gen3 Data Repositories
------------------------------
+.. _lsst.faro.run.local:
 
-Information on shared Gen3 data repositories for data managed at NCSA can be found in `/repo/README.md`. See `DMTN-167 <https://dmtn-167.lsst.io/>`_ for more information on the organization of Gen3 data repositories.
+Running faro locally
+====================
 
-.. warning:: When developing metrics in ``faro``, particular care should be taken when creating a new dataset type name associated with a metric. As noted in `DMTN-167 <https://dmtn-167.lsst.io/#naming-conventions-for-dataset-types>`_, the dataset type names are *global* with no implicit name spacing. This may change in the future; see `DM-29817 <https://jira.lsstcorp.org/browse/DM-29817>`_. When developing metrics, it is recommended to run on a local data repository rather than a shared Gen3 data repository in case metrics need to renamed or the `dimensions <https://pipelines.lsst.io/modules/lsst.daf.butler/dimensions.html>`_ associated with metric calculation need to be changed.
-
-Example: rc2_subset
+Dataset: rc2_subset
 -------------------
 
-Running ``faro`` on a small local dataset. The `rc2_subset <git@github.com:lsst-dm/rc2_subset.git>`_ is the smallest CI dataset for which all ``faro`` metrics can be run without error and produce meaingful results.
+Running ``faro`` on a small local dataset. The `rc2_subset <https://github.com/lsst-dm/rc2_subset>`_
+is the smallest CI dataset for which all ``faro`` metrics can be run without error and produce meaningful results.
 
 1. Set up ``rc2_subset`` following the instructions `here <https://pipelines.lsst.io/v/daily/getting-started/data-setup.html#downloading-the-sample-hsc-data>`_.
 
 2. Set up ``faro`` package; see :ref:`setting up <lsst.faro.setting_up>`.
-   
+
 3. An example command (update the command)::
-     
+
      pipetask run -b $RC2_SUBSET_DIR/SMALL_HSC/butler.yaml -p $FARO_DIR/pipelines/metrics_pipeline_matched.yaml -i u/$USER/single_frame -o u/$USER/faro_matched_visits_r --register-dataset-types -d "instrument='HSC' AND detector=42 AND band='r'"
 
 Documentation for using the ``pipetask run`` command and various options can be found `here <https://pipelines.lsst.io/modules/lsst.ctrl.mpexec/pipetask.html#pipetask-run>`_. Briefly, the example command above uses the ``-b`` option to specify the Butler repository, ``-p`` to specify the pipeline, ``-i`` to specify the input collection, ``-o`` to specify the output collection (this should almost always be a user collection prefixed with ``u/username/`` unless you are running in production), and ``-d`` to provide a query to select a subset of data on which to compute metrics.
 
 .. warning:: The ``--register-dataset-types`` option should be used with caution as this will allow the registration of new dataset types that are global across the repository.
 
-Example: HSC RC2 dataset
+.. _lsst.faro.run.ncsa:
+Running faro at NCSA
+====================
+
+
+.. _lsst.faro.shared:
+Shared Gen3 Data Repositories
+-----------------------------
+
+Information on shared Gen3 data repositories for data managed at NCSA can be found in `/repo/README.md`.
+See `DMTN-167 <https://dmtn-167.lsst.io/>`_ for more information on the organization of Gen3 data repositories.
+
+
+Dataset: HSC RC2 dataset
 ------------------------
 
-Running ``faro`` on a Gen3 repository at NCSA. The HSC RC2 data that is reprocessed monthly with the latest version of the Science Pipelines is a good example, see `DMTN-091<https://dmtn-091.lsst.io>`_. Information on the current status of HSC RC2 re-processing and latest runs can be found `here <https://jira.lsstcorp.org/browse/DM-26911>`_.
+Running ``faro`` on a Gen3 repository at NCSA. The HSC RC2 data that is reprocessed monthly with the latest version of the Science Pipelines is a good example, see `DMTN-091 <https://dmtn-091.lsst.io>`_. Information on the current status of HSC RC2 re-processing and latest runs can be found `here <https://jira.lsstcorp.org/browse/DM-26911>`_.
 
 1. Set up ``lsst.faro`` package; see :ref:`setting_up <lsst.faro.setting_up>`.
 
@@ -59,11 +81,12 @@ Running ``faro`` on a Gen3 repository at NCSA. The HSC RC2 data that is reproces
      pipetask --long-log run -b /repo/main/butler.yaml --register-dataset-types -p $FARO_DIR/pipelines/measurement/measurement_detector_table.yaml -d "visit=35892 AND skymap='hsc_rings_v1' AND instrument='HSC'" --output u/$USER/faro_test -i HSC/runs/RC2/w_2021_18/DM-29973 --timeout 999999
 
 Use your username.
-     
-Example: DRP processing
------------------------
 
-``lsst.faro`` can be run together with other processing steps in a pipeline, e.g., as part of DRP processing.
+.. _lsst.faro.run.drp:
+Running as part of Data Release Processing
+==========================================
+
+``lsst.faro`` can be run together with other processing steps in a pipeline, e.g., as part of DRP.
 
   Examples of this functionality can be found in the `rc2_subset <https://github.com/lsst-dm/rc2_subset/blob/master/pipelines/DRP.yaml>`_ and `obs_lsst <https://github.com/lsst/obs_lsst/blob/master/pipelines/imsim/DRP.yaml>`_ packages. For instance, one could follow the steps `in this tutorial <https://pipelines.lsst.io/v/daily/getting-started/singleframe.html#running-single-frame-processing>`_ but substitute ``$RC2_SUBSET_DIR/pipelines/DRP.yaml#faro_singleFrame`` for ``$RC2_SUBSET_DIR/pipelines/DRP.yaml#singleFrame``.
     
@@ -71,6 +94,15 @@ Example: DRP processing
 
 Adding a metric to faro
 =======================
+
+.. warning:: When developing metrics in ``faro``, particular care should be taken when creating a new dataset type name
+associated with a metric.
+As noted in `DMTN-167 <https://dmtn-167.lsst.io/#naming-conventions-for-dataset-types>`_,
+the dataset type names are *global* with no implicit name spacing.
+This may change in the future; see `DM-29817 <https://jira.lsstcorp.org/browse/DM-29817>`_.
+When developing metrics, it is recommended to run on a local data repository rather than a shared Gen3 data repository
+in case metrics need to renamed or the `dimensions <https://pipelines.lsst.io/modules/lsst.daf.butler/dimensions.html>`_
+associated with metric calculation need to be changed.
 
 Before making contributions to faro, we recommend to consult the `LSST DM Developers Guide <https://developer.lsst.io/index.html>`_ as a general reference for software development in Rubin DM, and in particular, the best practices covered in the  `DM development workflow <https://developer.lsst.io/work/flow.html>`_.
 
