@@ -71,12 +71,6 @@ class ForcedSourceTableMeasurementConfig(
         default=["coord_ra", "coord_dec", "band", "detect_isPrimary", "psfFlux", "psfFluxErr"],
     )
 
-    instrument = pexConfig.Field(
-        doc="Instrument.",
-        dtype=str,
-        default='hsc',
-    )
-
 
 class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for per-band science performance metrics measured on multi-visit forced source catalogs."""
