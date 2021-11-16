@@ -514,8 +514,6 @@ def calculateTEx(catalog, config):
         sep_units="arcmin",
     )
     
-    # TO-DO: should shearConvention be passed to rhoStatisticsFunc as a keyword arguement? It 
-    # is not in the current implementation of tex.py
     rhoStatisticsFunc = RhoStatistics(config.ixxColumn, config.iyyColumn, 
                                       config.ixxPsfColumn, config.iyyPsfColumn,
                                       config.raColumn, config.decColumn,
