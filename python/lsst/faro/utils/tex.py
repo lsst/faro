@@ -458,9 +458,7 @@ def calculateTEx(data: List[CalibratedCatalog], config):
     nMinSources = 50
     if np.sum(selection) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
-    
-    import pdb; pdb.set_trace()
-    
+        
     treecorrKwargs = dict(
         nbins=config.nbins,
         min_sep=config.minSep,
@@ -468,7 +466,7 @@ def calculateTEx(data: List[CalibratedCatalog], config):
         sep_units="arcmin",
     )
     rhoStatistics = RhoStatistics(
-        config.column, config.columnPsf, config.shearConvention, **treecorrKwargs
+        config.column, config.columnPsf, shearConvention=config.shearConvention, **treecorrKwargs
     )
     xy = rhoStatistics(catalog[selection])[config.rhoStat]
 
