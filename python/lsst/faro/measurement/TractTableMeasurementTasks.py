@@ -38,6 +38,20 @@ __all__ = ("TExTableConfig", "TExTableTask")
 
 
 class TExTableConfig(Config):
+    """Class to organize the yaml configuration parameters to be passed to 
+    TExTableTask when using a parquet table input. All values needed to perform 
+    TExTableTask have default values set below. 
+    
+    Optional Input (yaml file)
+    ----------
+    Column names specified as str in yaml configuration for TeX task. These are 
+    the desired column names to be passed to the calcuation. If you wish to use
+    values other than the default values specified below, add the following e.g. 
+    line to the yaml file: 
+    
+    config.measure.raColumn = "coord_ra_new"
+    """
+    
     minSep = Field(
         doc="Inner radius of the annulus in arcmin", dtype=float, default=0.25
     )
@@ -49,7 +63,7 @@ class TExTableConfig(Config):
     shearConvention = Field(
         doc="Use shear ellipticity convention rather than distortion",
         dtype=bool,
-        default=False,
+        default=True,
     )
     raColumn = Field(doc="RA column", dtype=str, default="coord_ra")
     decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
@@ -67,6 +81,18 @@ class TExTableConfig(Config):
 
 
 class TExTableTask(Task):
+    """Class to perform the tex_table calculation on a parquet table data 
+    object. 
+    
+    Parameters
+    ----------
+    None    
+    
+    Output:
+    ----------
+    TEx metric with defined configuration.
+    """
+
     ConfigClass = TExTableConfig
     _DefaultName = "TExTableTask"
 
