@@ -489,7 +489,7 @@ def corrSpin2(
 
 def calculateTEx(catalog, config):
     """Compute ellipticity residual correlation metrics using parquet table as input. New column names based on these
-    yaml specifications  https://github.com/lsst/obs_lsst/blob/073901ab35efe5253ca64aeb14a290692ae400bd/policy/imsim/Source.yaml#L208-L226
+    yaml specifications  https://github.com/lsst/obs_lsst/blob/073901ab35efe5253ca64aeb14a290692ae400bd/policy/imsim/Source.yaml#L208-L226.
     """
 
     # TO-DO: Filtering should be pulled out into a separate function for standard quality selections
@@ -506,8 +506,6 @@ def calculateTEx(catalog, config):
     nMinSources = 50
     if np.sum(selection) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
-
-    import pdb; pdb.set_trace()
 
     treecorrKwargs = dict(
         nbins=config.nbins,
