@@ -17,4 +17,3 @@ from .TractTableMeasurement import *
 from .TractTableMeasurementTasks import *
 from .PatchTableMeasurement import *
 from .ForcedSourceTableMeasurement import *
-from .TractTableMeasurementTasks import *
