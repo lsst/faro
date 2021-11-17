@@ -18,6 +18,10 @@ tasks:
         config.measure.retarget(TExTask)
         config.measure.minSep = 0.25
         config.measure.maxSep = 5.0
+        config.measure.columnPsf = "slot_PsfShape"
+        config.measure.column = "slot_Shape"
+#        config.measure.columnPsf = "ext_shapeHSM_HsmPsfMoments"
+#        config.measure.column = "ext_shapeHSM_HsmSourceMoments"
   TE4:
     class: lsst.faro.measurement.VisitMeasurementTask
     config:
@@ -28,4 +32,7 @@ tasks:
         config.measure.retarget(TExTask)
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
-
+        config.measure.columnPsf = "slot_PsfShape"
+        config.measure.column = "slot_Shape"
+#        config.measure.columnPsf = "ext_shapeHSM_HsmPsfMoments"
+#        config.measure.column = "ext_shapeHSM_HsmSourceMoments"

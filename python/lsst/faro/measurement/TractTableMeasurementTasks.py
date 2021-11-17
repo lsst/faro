@@ -19,39 +19,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from lsst.afw.table import SourceCatalog
 from lsst.pex.config import Config, Field
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
-from lsst.faro.utils.stellar_locus import stellarLocusResid, calcQuartileClippedStats
-from lsst.faro.utils.matcher import makeMatchedPhotom
-from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.utils.tex_table import calculateTEx
-from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 
 import astropy.units as u
 import numpy as np
-from typing import Dict, List
 
 __all__ = ("TExTableConfig", "TExTableTask")
 
 
 class TExTableConfig(Config):
-    """Class to organize the yaml configuration parameters to be passed to 
-    TExTableTask when using a parquet table input. All values needed to perform 
-    TExTableTask have default values set below. 
-    
+    """Class to organize the yaml configuration parameters to be passed to
+    TExTableTask when using a parquet table input. All values needed to perform
+    TExTableTask have default values set below.
+
     Optional Input (yaml file)
     ----------
-    Column names specified as str in yaml configuration for TeX task. These are 
+    Column names specified as str in yaml configuration for TeX task. These are
     the desired column names to be passed to the calcuation. If you wish to use
-    values other than the default values specified below, add the following e.g. 
-    line to the yaml file: 
-    
+    values other than the default values specified below, add the following e.g.
+    line to the yaml file:
+
     config.measure.raColumn = "coord_ra_new"
     """
-    
+
     minSep = Field(
         doc="Inner radius of the annulus in arcmin", dtype=float, default=0.25
     )
@@ -81,13 +75,13 @@ class TExTableConfig(Config):
 
 
 class TExTableTask(Task):
-    """Class to perform the tex_table calculation on a parquet table data 
-    object. 
-    
+    """Class to perform the tex_table calculation on a parquet table data
+    object.
+
     Parameters
     ----------
-    None    
-    
+    None
+
     Output:
     ----------
     TEx metric with defined configuration.
@@ -97,12 +91,19 @@ class TExTableTask(Task):
     _DefaultName = "TExTableTask"
 
     def run(
-        self, metricName, catalog
+        self, metricName, catalog, band=None
     ):
 
         self.log.info("Measuring %s", metricName)
 
-        result = calculateTEx(catalog, self.config)
+        # If accessing objectTable_tract, we need to append the band name at
+        #   the beginning of the column name.
+        if band is not None:
+            prependString = band
+        else:
+            prependString = None
+
+        result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))
 

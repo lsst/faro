@@ -45,6 +45,7 @@ tasks:
         "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 0.25
         config.measure.maxSep = 5.0
+        config.measure.shearConvention = False
   TE4:
     class: lsst.faro.measurement.VisitTableMeasurementTask
     config:
@@ -57,4 +58,4 @@ tasks:
         "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
-        
+        config.measure.shearConvention = False

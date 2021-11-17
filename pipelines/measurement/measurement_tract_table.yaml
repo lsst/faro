@@ -1,10 +1,10 @@
 description: Compute metrics from objectTable_tract catalogs
 tasks:
-  nsrcMeasTractTable:
-    class: lsst.faro.measurement.TractTableMeasurementTask
-    config:
-      connections.package: info
-      connections.metric: nsrcMeasTractTable
+  # nsrcMeasTractTable:
+    # class: lsst.faro.measurement.TractTableMeasurementTask
+    # config:
+      # connections.package: info
+      # connections.metric: nsrcMeasTractTable
       # Reference dataset must be consistently specified 
       # in connections and reference object loader.
       # Reference datasets include:
@@ -13,9 +13,9 @@ tasks:
       # Examples to specify the reference dataset:
       # connections.refDataset: 'gaia_dr2_20200414'
       # connections.refDataset: 'ps1_pv3_3pi_20170110'
-      python: |
-        from lsst.faro.base import NumSourcesTask
-        config.measure.retarget(NumSourcesTask)
+      # python: |
+        # from lsst.faro.base import NumSourcesTask
+        # config.measure.retarget(NumSourcesTask)
         # Example configuration to apply proper motions for Gaia
         # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
@@ -34,3 +34,37 @@ tasks:
         #                                                            'config',
         #                                                            'colorterms.py'))
         # config.instrument: 'hsc'
+  TE1:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE1_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        config.measure.retarget(TExTableTask)
+        # config.measure.raColumn = "ra"
+        # config.measure.decColumn = "decl"
+        # config.columns = ["coord_ra", "coord_dec", "deblend_nChild"]
+        # config.columnsBand = ["ixx", "iyy", "ixy", "ixxPSF",
+        #                       "iyyPSF", "ixyPSF", "extendedness", "psfFlux",
+        #                       "psfFluxErr"]
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 1.0
+        config.measure.shearConvention = False
+  TE2:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE2_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        config.measure.retarget(TExTableTask)
+        # config.measure.raColumn = "ra"
+        # config.measure.decColumn = "decl"
+        # config.columns = ["coord_ra", "coord_dec", "deblend_nChild"]
+        # config.columnsBand = ["ixx", "iyy", "ixy", "ixxPSF",
+        #                       "iyyPSF", "ixyPSF", "extendedness", "psfFlux",
+        #                       "psfFluxErr"]
+        config.measure.minSep = 5.0
+        config.measure.maxSep = 20.0
+        config.measure.shearConvention = False

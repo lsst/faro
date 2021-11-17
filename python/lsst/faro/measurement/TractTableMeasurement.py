@@ -69,13 +69,14 @@ class TractTableMeasurementConfig(
     columns = pexConfig.ListField(
         doc="Band-independent columns from objectTable_tract to load.",
         dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary"],
+        default=["coord_ra", "coord_dec", "detect_isPrimary", "deblend_nChild"],
     )
 
     columnsBand = pexConfig.ListField(
         doc="Band-specific columns from objectTable_tract to load.",
         dtype=str,
-        default=["PsFlux", "PsFluxErr"],
+        default=["psfFlux", "psfFluxErr", "extendedness", "ixx", "iyy", "ixy",
+                 "ixxPSF", "iyyPSF", "ixyPSF"],
     )
 
     instrument = pexConfig.Field(
@@ -97,7 +98,7 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
         columns = self.config.columns.list()
         for column in self.config.columnsBand:
-            columns.append(kwargs["band"] + column)
+            columns.append(kwargs["band"] + "_" + column)
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
 
         if self.config.connections.refDataset != "":
@@ -178,7 +179,7 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
         columns = self.config.columns.list()
         for band in self.config.bands:
             for column in self.config.columnsBand:
-                columns.append(band + column)
+                columns.append(band + "_" + column)
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
 
         if self.config.connections.refDataset != "":
