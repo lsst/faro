@@ -12,6 +12,7 @@ tasks:
         config.measure.maxSep = 1.0
         config.measure.column = "slot_Shape"
         config.measure.columnPsf = "slot_PsfShape"
+        config.measure.shearConvention = False
   TE2:
     class: lsst.faro.measurement.TractMeasurementTask
     config:
@@ -24,3 +25,4 @@ tasks:
         config.measure.maxSep = 20.0
         config.measure.column = "slot_Shape"
         config.measure.columnPsf = "slot_PsfShape"
+        config.measure.shearConvention = False
