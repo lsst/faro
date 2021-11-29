@@ -33,14 +33,21 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
-  # starContamVisitTable:
-  #   class: lsst.faro.measurement.VisitTableMeasurementTask
-  #   config:
-  #     connections.package: info
-  #     connections.metric: starContamVisitTable
-  #     python: |
-  #       from lsst.faro.base import starContamVisitTable
-  #       config.measure.retarget(starContamVisitTable)
-  #       config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'cosmos'
-  #       config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = ''
-  #       config.referenceCatalogLoader.doApplyColorTerms = False
+  starDepth:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: starDepth 
+      connections.refDataset: 'gaia_dr2_20200414'
+      connections.refCat: 'gaia_dr2_20200414'
+      #'cosmos'
+      python: |
+        from lsst.faro.measurement import starGalTableTask
+        config.measure.retarget(starGalTableTask)
+        config.measure.metricColumn="starDepth"
+        config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
+        #'cosmos'
+        config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = 'yHSC_MAG_AUTO'
+        config.referenceCatalogLoader.doApplyColorTerms = False
+        config.referenceCatalogLoader.refObjLoader.requireProperMotion = False
+
