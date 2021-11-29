@@ -5,7 +5,7 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasTractTable
-      # Reference dataset must be consistently specified 
+      # Reference dataset must be consistently specified
       # in connections and reference object loader.
       # Reference datasets include:
       # - Gaia (gaia_dr2_20200414)
@@ -56,3 +56,29 @@ tasks:
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
         config.measure.shearConvention = False
+  SkyObjectMean:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      measure.statistic: MEAN
+      connections.package: pipe_analysis
+      connections.metric: SkyObjectMean_ap09Flux
+      python: |
+        from lsst.faro.measurement import FluxStatisticTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(FluxStatisticTask)
+        config.measure.columnsBand = {"flux": "ap09Flux"}
+        config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+        config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]
+  SkyObjectStd:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      measure.statistic: STDEV
+      connections.package: pipe_analysis
+      connections.metric: SkyObjectStd_ap09Flux
+      python: |
+        from lsst.faro.measurement import FluxStatisticTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(FluxStatisticTask)
+        config.measure.columnsBand = {"flux": "ap09Flux"}
+        config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+        config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]

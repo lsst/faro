@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import lsst.afw.math as afwMath
 from lsst.pex.config import Field, DictField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
@@ -30,7 +31,7 @@ from lsst.faro.utils.tex_table import calculateTEx
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask")
+__all__ = ("TExTableConfig", "TExTableTask", "FluxStatisticConfig", "FluxStatisticTask")
 
 
 class TExTableConfig(MeasurementTaskConfig):
@@ -134,7 +135,7 @@ class TExTableTask(Task):
             )
             extras["corrErr"] = Datum(
                 result["corrErr"],
-                label="Correlation Uncertianty",
+                label="Correlation Uncertainty",
                 description="Correlation Uncertainty.",
             )
         else:
@@ -142,5 +143,68 @@ class TExTableTask(Task):
         return Struct(
             measurement=Measurement(
                 metricName, np.mean(np.abs(result["corr"])), extras=extras
+            )
+        )
+
+
+class FluxStatisticConfig(MeasurementTaskConfig):
+    """Class to configure the flux statistic measurement task.
+    """
+
+    statistic = Field(
+        doc="Statistic name to use to generate the metric (from `~lsst.afw.math.Property`).",
+        dtype=str,
+        default="MEAN",
+    )
+    numSigmaClip = Field(
+        doc="Rejection threshold (sigma) for statistics clipping.",
+        dtype=float,
+        default=5.0,
+    )
+    clipMaxIter = Field(
+        doc="Maximum number of clipping iterations to apply.",
+        dtype=int,
+        default=3,
+    )
+
+
+class FluxStatisticTask(Task):
+    """Class to perform flux statistic calculations on parquet table data.
+
+    Output
+    ------
+    Flux metric with defined configuration.
+    """
+
+    ConfigClass = FluxStatisticConfig
+    _DefaultName = "FluxStatisticTask"
+
+    def run(
+        self, metricName, catalog, currentBands, **kwargs
+    ):
+
+        self.log.info("Measuring %s", metricName)
+
+        # filter catalog using selectors
+        catalog = selectors.applySelectors(catalog,
+                                           self.config.selectorActions,
+                                           currentBands=currentBands)
+
+        # extract flux value column
+        all_columns = [x for x in self.config.columns.values()]
+        for col in self.config.columnsBand.values():
+            all_columns.append(f"{currentBands}_{col}")
+        fluxes = catalog[all_columns].iloc[:, 0].to_numpy()
+
+        # calculate statistic
+        statisticToRun = afwMath.stringToStatisticsProperty(self.config.statistic)
+        statControl = afwMath.StatisticsControl(self.config.numSigmaClip,
+                                                self.config.clipMaxIter,)
+        result = afwMath.makeStatistics(fluxes, statisticToRun, statControl).getValue()
+
+        # return result
+        return Struct(
+            measurement=Measurement(
+                metricName, result*u.nanojansky, extras=None
             )
         )
