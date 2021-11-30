@@ -117,10 +117,10 @@ class TExConfig(Config):
     columnPsf = Field(
         doc="Column to use for PSF model shape moments",
         dtype=str,
-        default="base_SdssShape_psf",
+        default="slot_PsfShape",
     )
     column = Field(
-        doc="Column to use for shape moments", dtype=str, default="base_SdssShape"
+        doc="Column to use for shape moments", dtype=str, default="slot_Shape"
     )
     # Eventually want to add option to use only PSF reserve stars
 

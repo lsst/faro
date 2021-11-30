@@ -82,8 +82,8 @@ class E1(object):
     ----------
     column : `str`
         The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments") or
-        ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments") for corresponding
+        ("slot_Shape", "ext_shapeHSM_HsmSourceMoments") or
+        ("slot_PsfShape", "ext_shapeHSM_HsmPsfMoments") for corresponding
         PSF ellipticities.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
@@ -118,8 +118,8 @@ class E2(object):
     ----------
     column : `str`
         The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments") or
-        ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments") for corresponding
+        ("slot_Shape", "ext_shapeHSM_HsmSourceMoments") or
+        ("slot_PsfShape", "ext_shapeHSM_HsmPsfMoments") for corresponding
         PSF ellipticities.
     unitScale : `float`, optional
         A numerical scaling factor to multiply the ellipticity.
@@ -155,10 +155,10 @@ class E1Resids(object):
     ----------
     column : `str`
         The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments").
+        ("slot_Shape", "ext_shapeHSM_HsmSourceMoments").
     psfColumn : `str`
         The name used for PSF shape measurements from the same algorithm.
-        It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
+        It must be one of ("slot_PsfShape", "ext_shapeHSM_HsmPsfMoments")
         and correspond to the algorithm name specified for ``column``.
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
@@ -196,10 +196,10 @@ class E2Resids(object):
     ----------
     column : `str`
         The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments").
+        ("slot_Shape", "ext_shapeHSM_HsmSourceMoments").
     psfColumn : `str`
         The name used for PSF shape measurements from the same algorithm.
-        It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
+        It must be one of ("slot_PsfShape", "ext_shapeHSM_HsmPsfMoments")
         and correspond to the algorithm name specified for ``column``.
     unitScale : `float`, optional
         A numerical scaling factor to multiply both the object and PSF
@@ -238,10 +238,10 @@ class RhoStatistics(object):
     ----------
     column : `str`
         The name of the shape measurement algorithm. It should be one of
-        ("base_SdssShape", "ext_shapeHSM_HsmSourceMoments").
+        ("slot_Shape", "ext_shapeHSM_HsmSourceMoments").
     psfColumn : `str`
         The name used for PSF shape measurements from the same algorithm.
-        It must be one of ("base_SdssShape_psf", "ext_shapeHSM_HsmPsfMoments")
+        It must be one of ("slot_PsfShape", "ext_shapeHSM_HsmPsfMoments")
         and correspond to the algorithm name specified for ``column``.
     shearConvention: `bool`, optional
         Option to use shear convention. When set to False, the distortion
