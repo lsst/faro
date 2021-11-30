@@ -22,7 +22,6 @@
 import astropy.units as u
 import numpy as np
 import treecorr
-from typing import List
 
 
 __all__ = (
@@ -49,9 +48,7 @@ class TraceSize(object):
         self.iyyColumn = iyyColumn
 
     def __call__(self, catalog):
-        srcSize = np.sqrt(
-            0.5 * (catalog[self.ixxColumn] + catalog[self.iyyColumn])
-        )
+        srcSize = np.sqrt(0.5 * (catalog[self.ixxColumn] + catalog[self.iyyColumn]))
         return np.array(srcSize)
 
 
@@ -97,8 +94,9 @@ class E1(object):
         A numpy array of e1 ellipticity values.
     """
 
-    def __init__(self, ixxColumn, iyyColumn,
-                 ixyColumn, unitScale=1.0, shearConvention=False):
+    def __init__(
+        self, ixxColumn, iyyColumn, ixyColumn, unitScale=1.0, shearConvention=False
+    ):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -137,8 +135,9 @@ class E2(object):
         A numpy array of e2 ellipticity values.
     """
 
-    def __init__(self, ixxColumn,
-                 iyyColumn, ixyColumn, unitScale=1.0, shearConvention=False):
+    def __init__(
+        self, ixxColumn, iyyColumn, ixyColumn, unitScale=1.0, shearConvention=False
+    ):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -185,9 +184,17 @@ class E1Resids(object):
         A numpy array of e1 residual ellipticity values.
     """
 
-    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn,
-                 ixyColumn, ixyPsfColumn, unitScale=1.0,
-                 shearConvention=False):
+    def __init__(
+        self,
+        ixxColumn,
+        iyyColumn,
+        ixxPsfColumn,
+        iyyPsfColumn,
+        ixyColumn,
+        ixyPsfColumn,
+        unitScale=1.0,
+        shearConvention=False,
+    ):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -199,10 +206,20 @@ class E1Resids(object):
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE1func = E1(self.ixxColumn, self.iyyColumn, self.ixyColumn,
-                       self.unitScale, self.shearConvention)
-        psfE1func = E1(self.ixxPsfColumn, self.iyyPsfColumn, self.ixyPsfColumn,
-                       self.unitScale, self.shearConvention)
+        srcE1func = E1(
+            self.ixxColumn,
+            self.iyyColumn,
+            self.ixyColumn,
+            self.unitScale,
+            self.shearConvention,
+        )
+        psfE1func = E1(
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyPsfColumn,
+            self.unitScale,
+            self.shearConvention,
+        )
 
         srcE1 = srcE1func(catalog)
         psfE1 = psfE1func(catalog)
@@ -240,9 +257,17 @@ class E2Resids(object):
         A numpy array of e2 residual ellipticity values.
     """
 
-    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn,
-                 ixyColumn, ixyPsfColumn, unitScale=1.0,
-                 shearConvention=False):
+    def __init__(
+        self,
+        ixxColumn,
+        iyyColumn,
+        ixxPsfColumn,
+        iyyPsfColumn,
+        ixyColumn,
+        ixyPsfColumn,
+        unitScale=1.0,
+        shearConvention=False,
+    ):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -253,10 +278,20 @@ class E2Resids(object):
         self.shearConvention = shearConvention
 
     def __call__(self, catalog):
-        srcE2func = E2(self.ixxColumn, self.iyyColumn, self.ixyColumn,
-                       self.unitScale, self.shearConvention)
-        psfE2func = E2(self.ixxPsfColumn, self.iyyPsfColumn, self.ixyPsfColumn,
-                       self.unitScale, self.shearConvention)
+        srcE2func = E2(
+            self.ixxColumn,
+            self.iyyColumn,
+            self.ixyColumn,
+            self.unitScale,
+            self.shearConvention,
+        )
+        psfE2func = E2(
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyPsfColumn,
+            self.unitScale,
+            self.shearConvention,
+        )
 
         srcE2 = srcE2func(catalog)
         psfE2 = psfE2func(catalog)
@@ -294,9 +329,19 @@ class RhoStatistics(object):
         of PSF size residuals.
     """
 
-    def __init__(self, ixxColumn, iyyColumn, ixxPsfColumn, iyyPsfColumn,
-                 raColumn, decColumn, ixyColumn,
-                 ixyPsfColumn, shearConvention=False, **kwargs):
+    def __init__(
+        self,
+        ixxColumn,
+        iyyColumn,
+        ixxPsfColumn,
+        iyyPsfColumn,
+        raColumn,
+        decColumn,
+        ixyColumn,
+        ixyPsfColumn,
+        shearConvention=False,
+        **kwargs
+    ):
         self.ixxColumn = ixxColumn
         self.iyyColumn = iyyColumn
         self.ixyColumn = ixyColumn
@@ -306,22 +351,36 @@ class RhoStatistics(object):
         self.shearConvention = shearConvention
         self.raColumn = raColumn
         self.decColumn = decColumn
-        self.e1Func = E1(self.ixxPsfColumn, self.iyyPsfColumn,
-                         self.ixyPsfColumn,
-                         shearConvention=self.shearConvention)
-        self.e2Func = E2(self.ixxPsfColumn, self.iyyPsfColumn,
-                         self.ixyPsfColumn,
-                         shearConvention=self.shearConvention)
-        self.e1ResidsFunc = E1Resids(self.ixxColumn, self.iyyColumn,
-                                     self.ixxPsfColumn, self.iyyPsfColumn,
-                                     self.ixyColumn,
-                                     self.ixyPsfColumn,
-                                     shearConvention=self.shearConvention)
-        self.e2ResidsFunc = E2Resids(self.ixxColumn, self.iyyColumn,
-                                     self.ixxPsfColumn, self.iyyPsfColumn,
-                                     self.ixyColumn,
-                                     self.ixyPsfColumn,
-                                     shearConvention=self.shearConvention)
+        self.e1Func = E1(
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyPsfColumn,
+            shearConvention=self.shearConvention,
+        )
+        self.e2Func = E2(
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyPsfColumn,
+            shearConvention=self.shearConvention,
+        )
+        self.e1ResidsFunc = E1Resids(
+            self.ixxColumn,
+            self.iyyColumn,
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyColumn,
+            self.ixyPsfColumn,
+            shearConvention=self.shearConvention,
+        )
+        self.e2ResidsFunc = E2Resids(
+            self.ixxColumn,
+            self.iyyColumn,
+            self.ixxPsfColumn,
+            self.iyyPsfColumn,
+            self.ixyColumn,
+            self.ixyPsfColumn,
+            shearConvention=self.shearConvention,
+        )
         self.traceSizeFunc = TraceSize(self.ixxColumn, self.iyyColumn)
         self.psfTraceSizeFunc = TraceSize(self.ixxPsfColumn, self.iyyPsfColumn)
         self.kwargs = kwargs
@@ -516,10 +575,7 @@ def calculateTEx(catalog, config, prependString):
     snrMin = 50
     selection = (
         (catalog[extendednessColumn] < 0.5)
-        & (
-            (catalog[psfFluxColumn] / catalog[psfFluxErrColumn])
-            > snrMin
-        )
+        & ((catalog[psfFluxColumn] / catalog[psfFluxErrColumn]) > snrMin)
         & (catalog[config.deblend_nChildColumn] == 0)
     )
 
@@ -534,13 +590,17 @@ def calculateTEx(catalog, config, prependString):
         sep_units="arcmin",
     )
 
-    rhoStatisticsFunc = RhoStatistics(ixxColumn, iyyColumn,
-                                      ixxPsfColumn, iyyPsfColumn,
-                                      config.raColumn, config.decColumn,
-                                      ixyColumn,
-                                      ixyPsfColumn,
-                                      shearConvention=config.shearConvention,
-                                      **treecorrKwargs
+    rhoStatisticsFunc = RhoStatistics(
+        ixxColumn,
+        iyyColumn,
+        ixxPsfColumn,
+        iyyPsfColumn,
+        config.raColumn,
+        config.decColumn,
+        ixyColumn,
+        ixyPsfColumn,
+        shearConvention=config.shearConvention,
+        **treecorrKwargs
     )
     xy = rhoStatisticsFunc(catalog[selection])[config.rhoStat]
 

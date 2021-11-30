@@ -43,8 +43,7 @@ __all__ = (
 
 
 class TraceSize(object):
-    """Functor to calculate trace radius size for sources.
-    """
+    """Functor to calculate trace radius size for sources."""
 
     def __init__(self, column):
         self.column = column
@@ -435,8 +434,7 @@ def corrSpin2(
 
 
 def calculateTEx(data: List[CalibratedCatalog], config):
-    """Compute ellipticity residual correlation metrics.
-    """
+    """Compute ellipticity residual correlation metrics."""
 
     catalog = mergeCatalogs(
         [x.catalog for x in data],
@@ -458,7 +456,7 @@ def calculateTEx(data: List[CalibratedCatalog], config):
     nMinSources = 50
     if np.sum(selection) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
-        
+
     treecorrKwargs = dict(
         nbins=config.nbins,
         min_sep=config.minSep,
@@ -466,7 +464,10 @@ def calculateTEx(data: List[CalibratedCatalog], config):
         sep_units="arcmin",
     )
     rhoStatistics = RhoStatistics(
-        config.column, config.columnPsf, shearConvention=config.shearConvention, **treecorrKwargs
+        config.column,
+        config.columnPsf,
+        shearConvention=config.shearConvention,
+        **treecorrKwargs
     )
     xy = rhoStatistics(catalog[selection])[config.rhoStat]
 
