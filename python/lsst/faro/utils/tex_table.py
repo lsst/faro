@@ -545,9 +545,20 @@ def corrSpin2(
 
 
 def calculateTEx(catalog, config, prependString):
-    """Compute ellipticity residual correlation metrics using parquet table as
-    input. New column names based on these yaml specifications:
-    https://github.com/lsst/obs_lsst/blob/073901ab35efe5253ca64aeb14a290692ae400bd/policy/imsim/Source.yaml#L208-L226.
+    """Compute ellipticity residual correlation metrics using parquet table as input.
+    Parameters
+    ----------
+    catalog : `pandas datafram`
+        The catalog on which TE values will be calculated.
+    config : `pex config`
+        Task configuration.
+    prependString : `str`
+        The string to prepend to the band-specific columns. Typically a single letter
+        filter e.g. 'g'.
+    Returns
+    -------
+    result : `dict`
+        A dictionary with entries for radius, corr, and corrErr.
     """
 
     if prependString is not None:
