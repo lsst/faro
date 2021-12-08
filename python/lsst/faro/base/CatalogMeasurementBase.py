@@ -25,8 +25,9 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
+from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 import lsst.geom
-
+import lsst.faro.utils.selectors as selectors
 from .BaseSubTasks import NumSourcesTask
 
 __all__ = (
@@ -69,6 +70,16 @@ class CatalogMeasurementBaseConfig(
         doc="Measure task",
     )
 
+    sourceSelectorActions = ConfigurableActionStructField(
+        doc="What types of sources to use.",
+        default={"sourceSelector": selectors.StarIdentifier},
+    )
+
+    selectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use to narrow down the data for QA plotting.",
+        default={"SNRSelector": selectors.SnSelector},
+    )
+
     referenceCatalogLoader = pexConfig.ConfigurableField(
         target=LoadReferenceCatalogTask, doc="Reference catalog loader",
     )
@@ -101,6 +112,20 @@ class CatalogMeasurementBaseTask(MetricTask):
 
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
+
+    def _getTableColumns(self, columns):
+        columnNames = set(columns)
+        for actionStruct in [self.config.selectorActions, self.config.sourceSelectorActions]:
+            for action in actionStruct:
+                for col in action.columns:
+                    columnNames.add(col)
+
+        return columnNames
+
+        # inputs = butlerQC.get(inputRefs)
+        # catalogDataFrame = inputs["catalog"].get(parameters={"columns": columnNames})
+ 
+        # return catalogDataFrame
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
         """Load reference catalog in sky region of interest and optionally applies proper

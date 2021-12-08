@@ -98,8 +98,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
         columns = self.config.columns.list()
         for column in self.config.columnsBand:
-            columns.append(kwargs["band"] + "_" + column)
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+            columns.append(kwargs["band"] + column)
+        columnsWithSelectors = self._getTableColumns(columns)
+        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
