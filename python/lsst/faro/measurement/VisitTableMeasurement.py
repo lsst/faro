@@ -21,6 +21,7 @@
 
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
+import numpy as np
 
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
@@ -71,10 +72,29 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
 
         kwargs = {}
-        kwargs['catalog'] = catalog
+        columns = self.config.columns.list()
+        columnsWithSelectors = self._getTableColumns(columns)
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
+        print(len(catalog))
+        # print(kwargs['catalog'].columns)
+        import pdb; pdb.set_trace()
+
+        # Apply the selectors to narrow down the sources to use
+        mask = np.ones(len(catalog), dtype=bool)
+        for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
+            for selector in selectorStruct:
+                mask &= selector(catalog)
+        kwargs["catalog"] = catalog[mask]
+        print(len(kwargs['catalog']))
+        pdb.set_trace()
+
+        # catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
+
+        # kwargs['catalog'] = catalog
+
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]

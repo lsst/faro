@@ -82,6 +82,10 @@ class CatalogMeasurementBaseConfig(
         # default={"SNRSelector": selectors.SNRSelector},
     )
 
+    isObjectTable = pexConfig.Field(
+        doc="Is the input an objectTable?", dtype=bool, default=False
+    )
+
     selectorBands = pexConfig.ListField(
         doc="Bands to apply selectors in.",
         dtype=str,
@@ -95,7 +99,10 @@ class CatalogMeasurementBaseConfig(
     # def __init__(self, config=None):
         # super().__init__(config=config)
         # if self.selectorBands != []:
+        # if not isObjectTable:
+            # self.selectorBands = []
             # import pdb; pdb.set_trace()
+
             # for action in self.selectorActions:
                 # # for action in actionStruct:
                 # action.bands = self.selectorBands

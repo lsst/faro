@@ -27,7 +27,10 @@ class SNRSelector(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
+            if len(band) > 0:
+                cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
+            else:
+                cols += [band+self.fluxType, band+self.fluxType+'Err']
 
         return cols
 
@@ -46,8 +49,12 @@ class SNRSelector(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.snrMin)
-            mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) < self.snrMax)
+            if len(band) > 0:
+                mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.snrMin)
+                mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) < self.snrMax)
+            else:
+                mask &= ((df[band+self.fluxType] / df[band+self.fluxType+"Err"]) > self.snrMin)
+                mask &= ((df[band+self.fluxType] / df[band+self.fluxType+"Err"]) < self.snrMax)
 
         return mask
 
@@ -81,11 +88,16 @@ class PerBandFlagSelector(DataFrameAction):
 
     @property
     def columns(self):
-        # flagCols = ["PsfFlux_flag", "PixelFlags_saturatedCenter", "Extendedness_flag"]
         filterColumnsTrue = []
-        filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
         filterColumnsFalse = []
-        filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+        for band in self.bands:
+            if len(band) > 0:
+                filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
+                filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+            else:
+                filterColumnsTrue += [band+flag for flag in self.selectWhenTrue for band in self.bands]
+                filterColumnsFalse += [band+flag for flag in self.selectWhenFalse for band in self.bands]
+
         allCols = list(filterColumnsFalse) + list(filterColumnsTrue)
         yield from allCols
 
@@ -104,9 +116,14 @@ class PerBandFlagSelector(DataFrameAction):
         """
 
         filterColumnsTrue = []
-        filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
         filterColumnsFalse = []
-        filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+        for band in self.bands:
+            if len(band) > 0:
+                filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
+                filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+            else:
+                filterColumnsTrue += [band+flag for flag in self.selectWhenTrue for band in self.bands]
+                filterColumnsFalse += [band+flag for flag in self.selectWhenFalse for band in self.bands]
 
         result = None
         for flag in filterColumnsFalse:
@@ -135,7 +152,10 @@ class StarIdentifier(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            cols += [band+'_'+'extendedness']
+            if len(band) > 0:
+                cols += [band+'_'+'extendedness']
+            else:
+                cols += [band+'extendedness']
 
         return cols
 
@@ -152,7 +172,10 @@ class StarIdentifier(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= (df[band+'_'+'extendedness'] == 0.0)
+            if len(band) > 0:
+                mask &= (df[band+'_'+'extendedness'] == 0.0)
+            else:
+                mask &= (df[band+'extendedness'] == 0.0)
 
         return mask
 
@@ -168,7 +191,10 @@ class GalaxyIdentifier(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            cols += [band+'_'+'extendedness']
+            if len(band) > 0:
+                cols += [band+'_'+'extendedness']
+            else:
+                cols += [band+'extendedness']
 
         return cols
 
@@ -185,7 +211,10 @@ class GalaxyIdentifier(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= (df[band+'_'+'extendedness'] == 1.0)
+            if len(band) > 0:
+                mask &= (df[band+'_'+'extendedness'] == 1.0)
+            else:
+                mask &= (df[band+'extendedness'] == 1.0)
 
         return mask
 
@@ -201,7 +230,10 @@ class UnknownIdentifier(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            cols += [band+'_'+'extendedness']
+            if len(bands) > 0:
+                cols += [band+'_'+'extendedness']
+            else:
+                cols += [band+'extendedness']
 
         return cols
 
@@ -218,7 +250,10 @@ class UnknownIdentifier(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= (df[band+'_'+'extendedness'] == 9.0)
+            if len(bands) > 0:
+                mask &= (df[band+'_'+'extendedness'] == 9.0)
+            else:
+                mask &= (df[band+'extendedness'] == 9.0)
 
         return mask
 
