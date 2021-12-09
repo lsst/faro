@@ -1,0 +1,46 @@
+description: Compute metrics from tract catalogs
+tasks:
+  nsrcMeasTract:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasTract
+      python: |
+        from lsst.faro.base import NumSourcesMergeTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesMergeTask)
+        config.perBandSelectorActions.SNRSelector = selectors.SNRSelector
+        config.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
+        config.perBandSelectorActions.SNRSelector.snrMin = 50
+        config.perBandSelectorActions.StarSelector = selectors.StarIdentifier
+        config.selectorActions.FlagSelector = selectors.FlagSelector
+        config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
+        config.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
+        config.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
+        config.selectorBands = ['r', 'i']
+        for action in config.perBandSelectorActions:
+            action.bands = config.selectorBands
+        # config.selectorActions.SNRSelector.bands = ['r', 'z']
+#  TE2:
+#    class: lsst.faro.measurement.TractTableMeasurementTask
+#    config:
+#      connections.package: validate_drp
+#      connections.metric: TE2
+#      python: |
+#        from lsst.faro.measurement import TExTask
+#        config.measure.retarget(TExTask)
+#        config.measure.minSep = 5.0
+#        config.measure.maxSep = 20.0
+#        import lsst.faro.utils.selectors as selectors
+#        config.measure.retarget(NumSourcesMergeTask)
+#        config.perBandSelectorActions.SNRSelector = selectors.SNRSelector
+#        config.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
+#        config.perBandSelectorActions.SNRSelector.snrMin = 50
+#        config.perBandSelectorActions.StarSelector = selectors.StarIdentifier
+#        config.selectorActions.FlagSelector = selectors.FlagSelector
+#        config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
+#        config.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
+#        config.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
+#        config.selectorBands = ['r']
+#        for action in config.perBandSelectorActions:
+#            action.bands = config.selectorBands
