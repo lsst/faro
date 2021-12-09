@@ -70,19 +70,34 @@ class CatalogMeasurementBaseConfig(
         doc="Measure task",
     )
 
-    sourceSelectorActions = ConfigurableActionStructField(
-        doc="What types of sources to use.",
-        default={"sourceSelector": selectors.StarIdentifier},
-    )
+    # sourceSelectorActions = ConfigurableActionStructField(
+    #     doc="What types of sources to use.",
+    #     default={"sourceSelector": selectors.StarIdentifier},
+    # )
 
     selectorActions = ConfigurableActionStructField(
         doc="Which selectors to use to narrow down the data for QA plotting.",
-        default={"SNRSelector": selectors.SnSelector},
+        default={},
+        # default={"SNRSelector": selectors.SnSelector},
+    )
+
+    selectorBands = pexConfig.ListField(
+        doc="Bands to apply selectors in.",
+        dtype=str,
+        default=["r", "i", "z"],
     )
 
     referenceCatalogLoader = pexConfig.ConfigurableField(
         target=LoadReferenceCatalogTask, doc="Reference catalog loader",
     )
+
+    # def __init__(self, config=None):
+        # super().__init__(config=config)
+        # if self.selectorBands != []:
+            # import pdb; pdb.set_trace()
+            # for action in self.selectorActions:
+                # # for action in actionStruct:
+                # action.bands = self.selectorBands
 
     def setDefaults(self):
         self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ""
@@ -115,8 +130,12 @@ class CatalogMeasurementBaseTask(MetricTask):
 
     def _getTableColumns(self, columns):
         columnNames = set(columns)
-        for actionStruct in [self.config.selectorActions, self.config.sourceSelectorActions]:
+        # for actionStruct in [self.config.selectorActions, self.config.sourceSelectorActions]:
+
+        for actionStruct in [self.config.selectorActions]:
             for action in actionStruct:
+                # if self.config.selectorBands != []:
+                #    action.bands = self.config.selectorBands
                 for col in action.columns:
                     columnNames.add(col)
 

@@ -2,7 +2,7 @@
 # Note: analysis_drp is not yet part of the pipelines, so you need to clone it,
 #   run scons, and setup -j -r $ANALYSIS_DRP_LOC
 # setup -j -r /project/jcarlin/repos/analysis_drp/.
-import lsst.analysis.drp.dataSelectors as dataSelectors
+# import lsst.analysis.drp.dataSelectors as dataSelectors
 
 from lsst.pex.config import ListField, Field
 from lsst.pipe.tasks.dataFrameActions import DataFrameAction
@@ -148,7 +148,7 @@ class SnSelector(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            cols += [band + self.fluxType, band + self.fluxType + "Err"]
+            cols += [band + '_' + self.fluxType, band + '_' + self.fluxType + "Err"]
 
         return cols
 
@@ -167,7 +167,7 @@ class SnSelector(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= ((df[band + self.fluxType] / df[band + self.fluxType + "Err"]) > self.threshold)
+            mask &= ((df[band + '_' + self.fluxType] / df[band + '_' + self.fluxType + "Err"]) > self.threshold)
 
         return mask
 

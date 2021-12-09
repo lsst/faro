@@ -22,6 +22,7 @@
 
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
+import numpy as np
 
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
@@ -98,9 +99,21 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
         columns = self.config.columns.list()
         for column in self.config.columnsBand:
-            columns.append(kwargs["band"] + column)
+            columns.append(kwargs["band"] + '_' + column)
         columnsWithSelectors = self._getTableColumns(columns)
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
+        # print(kwargs['catalog'].columns)
+        import pdb; pdb.set_trace()
+
+        # Apply the selectors to narrow down the sources to use
+        mask = np.ones(len(catalog), dtype=bool)
+        for selector in self.config.selectorActions:
+            mask &= selector(catalog)
+        kwargs["catalog"] = catalog[mask]
+        pdb.set_trace()
+
+        # Include an if statement to check whether any selectors have been requested
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
