@@ -24,8 +24,8 @@ from typing import Dict, List
 from lsst.pex.config import Config, Field, ChoiceField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
-from lsst.faro.utils.abs_astrom_table import matchCatsKDTree
-from lsst.faro.utils.morphology import calculateStarGal
+from lsst.faro.utils.astrometry import matchCatsKDTree
+from lsst.faro.utils.purity_completeness import calculateStarGal
 
 
 __all__ = ("starGalTableConfig", "starGalTableTask")
@@ -68,9 +68,10 @@ class starGalTableConfig(Config):
     decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
     refRaColumn = Field(doc="refcat RA column", dtype=str, default="ra")
     refDecColumn = Field(doc="refcat DEC column", dtype=str, default="dec")
-    extendednessColumn = Field(doc="Extendedness column", dtype=str, default="extendedness")
-    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="psfFlux")
-    psfFluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="psfFluxErr")
+    typeColumn = Field(doc="Binary star/gal column", dtype=str, default="extendedness")
+    refTypeColumn = Field(doc="Binary star/gal column", dtype=str, default="TYPE")
+    fluxColumn = Field(doc="PsfFlux column", dtype=str, default="PsFlux")
+    fluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="PsFluxErr")
     deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="deblend_nChild")
     # Eventually want to add option to use only PSF reserve stars/calib_astrometry_used
 
@@ -91,17 +92,18 @@ class starGalTableTask(Task):
         super().__init__(*args, config=config, **kwargs)
 
     def run(
-        self, metricName, catalog, refCatCorrected, **kwargs #refcat is hooked in as part of TractTableMeasurement
+        self, metricName, catalog, refCatCorrected,refCat, **kwargs #refcat is hooked in as part of TractTableMeasurement
     ):
         #signal to noise cut on catalog
         #will want to replace with lsst.faro.utils.filtermatchestable.py when that becomes available
         
         #bright
-        snr = catalog[self.config.psfFluxColumn]/catalog[self.config.psfFluxErrColumn]
+        #import pdb; pdb.set_trace()
+        snr = catalog[self.config.fluxColumn]/catalog[self.config.fluxErrColumn]
         sel = ( snr > self.config.brightSnrMin) & (snr < self.config.brightSnrMax) # should these be <= or <
 
         #star
-        sel &= (catalog[self.config.extendednessColumn] < 0.9)
+        sel &= (catalog[self.config.typeColumn] == 0)
         
         #deblend?
         # do we want to filter on calib_astrometry_used? 
@@ -109,8 +111,8 @@ class starGalTableTask(Task):
         catalog = catalog[sel]
 
         catalog,refCatCorrected, sep = matchCatsKDTree(catalog,refCatCorrected,self.config)
-
-        lenCat = len(catalog[self.config.psfFluxColumn])
+        #import pdb; pdb.set_trace()
+        lenCat = len(catalog[self.config.fluxColumn])
 
         if lenCat < self.config.nMinAbsAstromMatches:
             self.log.info("too few matches: %s", lenCat)
@@ -120,9 +122,10 @@ class starGalTableTask(Task):
         
         self.log.info("Measuring {}".format( metricName))
         
-        AA1 = {"bot":lenCat}#calculateAA1(catalog, refCatCorrected, self.config)
+        starGalMetric = calculateStarGal(catalog, refCat, self.config, metricName) # refCatCorrected has a fewer number of coumns can I specify 
 
-        if "medianAbsDeviation" in AA1.keys():
+        print(starGalMetric)
+        if "medianAbsDeviation" in starGalMetric.keys():
             self.log.info("Median Absolute Deviation: %s",AA1['medianAbsDeviation'])
             if self.config.writeExtras:
                 extras = {
