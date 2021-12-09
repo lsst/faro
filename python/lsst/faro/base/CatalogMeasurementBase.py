@@ -70,15 +70,16 @@ class CatalogMeasurementBaseConfig(
         doc="Measure task",
     )
 
-    # sourceSelectorActions = ConfigurableActionStructField(
-    #     doc="What types of sources to use.",
-    #     default={"sourceSelector": selectors.StarIdentifier},
-    # )
-
     selectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use to narrow down the data for QA plotting.",
+        doc="Which selectors to use to narrow down the data (independent of band).",
         default={},
-        # default={"SNRSelector": selectors.SnSelector},
+        # default={"sourceSelector": selectors.StarIdentifier},
+    )
+
+    perBandSelectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use per band to narrow down the data.",
+        default={},
+        # default={"SNRSelector": selectors.SNRSelector},
     )
 
     selectorBands = pexConfig.ListField(
@@ -132,7 +133,7 @@ class CatalogMeasurementBaseTask(MetricTask):
         columnNames = set(columns)
         # for actionStruct in [self.config.selectorActions, self.config.sourceSelectorActions]:
 
-        for actionStruct in [self.config.selectorActions]:
+        for actionStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
             for action in actionStruct:
                 # if self.config.selectorBands != []:
                 #    action.bands = self.config.selectorBands
@@ -143,7 +144,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         # inputs = butlerQC.get(inputRefs)
         # catalogDataFrame = inputs["catalog"].get(parameters={"columns": columnNames})
- 
+
         # return catalogDataFrame
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):

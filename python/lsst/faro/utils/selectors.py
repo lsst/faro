@@ -8,15 +8,135 @@ from lsst.pex.config import ListField, Field
 from lsst.pipe.tasks.dataFrameActions import DataFrameAction
 import numpy as np
 
-
-# class Selector(dataSelectors):
-#  def __init__(self):
-#    super().__init__()
-
 # __all__ = ("FlagSelector", "PsfFlagSelector", "StarIdentifier", "GalaxyIdentifier", "UnknownIdentifier",
 #            "CoaddPlotFlagSelector", "BaseSNRSelector", "SnSelector")
 
-### Currently everything below is copied from analysis_drp dataSelectors.py ###
+__all__ = ("SNRSelector")
+
+
+class SNRSelector(DataFrameAction):
+    """Selects points that have S/N > threshold in the given flux type"""
+    fluxType = Field(doc="Flux type to calculate the S/N in.",
+                     dtype=str,
+                     default="psfFlux")
+    threshold = Field(doc="The S/N threshold to remove sources with.",
+                      dtype=float,
+                      default=50.0)
+    bands = ListField(doc="The bands to apply the signal to noise cut in.",
+                      dtype=str,
+                      default=["i"])
+
+    @property
+    def columns(self):
+        cols = []
+        for band in self.bands:
+            cols += [band + '_' + self.fluxType, band + '_' + self.fluxType + "Err"]
+
+        return cols
+
+    def __call__(self, df):
+        """Makes a mask of objects that have S/N greater than
+        self.threshold in self.fluxType
+        Parameters
+        ----------
+        df : `pandas.core.frame.DataFrame`
+        Returns
+        -------
+        result : `numpy.ndarray`
+            A mask of the objects that satisfy the given
+            S/N cut.
+        """
+
+        mask = np.ones(len(df), dtype=bool)
+        for band in self.bands:
+            mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.threshold)
+
+        return mask
+
+
+class PerBandFlagSelector(DataFrameAction):
+    """Flag selector for ObjectTable flags that are defined in each band
+    Parameters
+    ----------
+    df : `pandas.core.frame.DataFrame`
+    Returns
+    -------
+    result : `numpy.ndarray`
+        A mask of the objects that satisfy the given
+        flag cuts.
+    Notes
+    -----
+    These flags are taken from pipe_analysis and are considered to
+    be the standard flags for general QA plots. Some of the plots
+    will require a different set of flags, or additional ones on
+    top of the ones specified here. These should be specifed in
+    an additional selector rather than adding to this one.
+    """
+    selectWhenFalse = ListField(doc="Names of the flag columns to select on when False",
+                                dtype=str,
+                                optional=False,
+                                default=[])
+
+    selectWhenTrue = ListField(doc="Names of the flag columns to select on when True",
+                               dtype=str,
+                               optional=False,
+                               default=[])
+
+    bands = ListField(doc="The bands to apply the flags in",
+                      dtype=str,
+                      default=["g", "r", "i", "z", "y"])
+
+    @property
+    def columns(self):
+        # flagCols = ["PsfFlux_flag", "PixelFlags_saturatedCenter", "Extendedness_flag"]
+        filterColumnsTrue = []
+        filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
+        filterColumnsFalse = []
+        filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+        allCols = list(filterColumnsFalse) + list(filterColumnsTrue)
+        yield from allCols
+
+    def __call__(self, df, **kwargs):
+        """The flags to use for selecting sources for coadd QA
+        Parameters
+        ----------
+        df : `pandas.core.frame.DataFrame`
+        Returns
+        -------
+        result : `numpy.ndarray`
+            A mask of the objects that satisfy the given
+            flag cuts.
+        Notes
+        -----
+        These flags are taken from pipe_analysis and are considered to
+        be the standard flags for general QA plots. Some of the plots
+        will require a different set of flags, or additional ones on
+        top of the ones specified here. These should be specifed in
+        an additional selector rather than adding to this one.
+        """
+
+        filterColumnsTrue = []
+        filterColumnsTrue += [band+'_'+flag for flag in self.selectWhenTrue for band in self.bands]
+        filterColumnsFalse = []
+        filterColumnsFalse += [band+'_'+flag for flag in self.selectWhenFalse for band in self.bands]
+
+        result = None
+        for flag in filterColumnsFalse:
+            selected = (df[flag].values == 0)
+            if result is None:
+                result = selected
+            else:
+                result &= selected
+        for flag in filterColumnsTrue:
+            selected = (df[flag].values == 1)
+            if result is None:
+                result = selected
+            else:
+                result &= selected
+        return result
+
+
+# Currently everything below is copied from analysis_drp dataSelectors.py ###
 class FlagSelector(DataFrameAction):
     """The base flag selector to use to select valid sources for QA"""
 
@@ -167,7 +287,7 @@ class SnSelector(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            mask &= ((df[band + '_' + self.fluxType] / df[band + '_' + self.fluxType + "Err"]) > self.threshold)
+            mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.threshold)
 
         return mask
 
@@ -176,15 +296,19 @@ class StarIdentifier(DataFrameAction):
     """Identifies stars from the dataFrame and marks them as a 1
        in the added sourceType column"""
 
-    band = Field(doc="The band the object is to be classified as a star in.",
-                 default="i",
-                 dtype=str)
+    bands = ListField(doc="The bands the object is to be classified as a star in.",
+                      dtype=str,
+                      default=["i"])
 
     @property
     def columns(self):
-        return [self.band + "Extendedness"]
+        cols = []
+        for band in self.bands:
+            cols += [band+'_'+'extendedness']
 
-    def __call__(self, df, **kwargs):
+        return cols
+
+    def __call__(self, df):
         """Identifies sources classified as stars
         Parameters
         ----------
@@ -196,10 +320,16 @@ class StarIdentifier(DataFrameAction):
             stars marked with a 1.
         """
 
-        stars = (df[self.band + "Extendedness"] == 0.0)
-        sourceType = np.zeros(len(df))
-        sourceType[stars] = 1
-        return sourceType
+        mask = np.ones(len(df), dtype=bool)
+        for band in self.bands:
+            mask &= (df[band+'_'+'extendedness'] == 0.0)
+
+        return mask
+        # print(mask)
+        # stars = (df[self.band + "Extendedness"] == 0.0)
+        # sourceType = np.zeros(len(df))
+        # sourceType[mask] = 1
+        # return sourceType
 
 
 class GalaxyIdentifier(DataFrameAction):
