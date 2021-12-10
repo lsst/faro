@@ -5,7 +5,17 @@ from lsst.pipe.tasks.dataFrameActions import DataFrameAction
 import numpy as np
 
 __all__ = ("SNRSelector", "PerBandFlagSelector", "StarIdentifier", "GalaxyIdentifier",
-           "UnknownIdentifier", "FlagSelector")
+           "UnknownIdentifier", "FlagSelector", "applySelectors")
+
+
+def applySelectors(catalog, selectorList):
+    """Apply the selectors to narrow down the sources to use"""
+    mask = np.ones(len(catalog), dtype=bool)
+    for selectorStruct in selectorList:
+        for selector in selectorStruct:
+            mask &= selector(catalog)
+
+    return catalog[mask]
 
 
 class SNRSelector(DataFrameAction):
@@ -23,6 +33,45 @@ class SNRSelector(DataFrameAction):
                       dtype=str,
                       default=["i"])
 
+    # @property
+    # def columns(self):
+    #     if bands is not None:
+    #         bandsList = bands
+    #     else:
+    #         bandsList = self.bands
+    #     
+    #     cols = []
+    #     for band in bandsList:
+    #         if len(band) > 0:
+    #             cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
+    #         else:
+    #             cols += [band+self.fluxType, band+self.fluxType+'Err']
+
+    #    return cols
+
+    # @property
+    # def bandsList(self):
+    #     bandsList = self.bands
+    #     return(bandsList)
+
+    # @bandsList.setter
+    # def bandsList(self, bands):
+    #     self._bandsList = bands
+
+    # @property
+    # def columns(self):
+    #     #if bands is not None:
+    #     #    bandsList = bands
+    #     #else:
+    #     #    bandsList = self.bands
+
+    # @property
+    # def columns(self, bands=None):
+    #     if bands is not None:
+    #         bandsList = bands
+    #     else:
+    #         bandsList = self.bands
+
     @property
     def columns(self):
         cols = []
@@ -34,7 +83,7 @@ class SNRSelector(DataFrameAction):
 
         return cols
 
-    def __call__(self, df):
+    def __call__(self, df, bands=None):
         """Makes a mask of objects that have S/N between self.snrMin and
         self.snrMax in self.fluxType
         Parameters
@@ -47,8 +96,13 @@ class SNRSelector(DataFrameAction):
             S/N cut.
         """
 
+        if bands is not None:
+            bandsList = bands
+        else:
+            bandsList = self.bands
+
         mask = np.ones(len(df), dtype=bool)
-        for band in self.bands:
+        for band in bandsList:
             if len(band) > 0:
                 mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.snrMin)
                 mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) < self.snrMax)
@@ -230,7 +284,7 @@ class UnknownIdentifier(DataFrameAction):
     def columns(self):
         cols = []
         for band in self.bands:
-            if len(bands) > 0:
+            if len(band) > 0:
                 cols += [band+'_'+'extendedness']
             else:
                 cols += [band+'extendedness']
@@ -250,7 +304,7 @@ class UnknownIdentifier(DataFrameAction):
 
         mask = np.ones(len(df), dtype=bool)
         for band in self.bands:
-            if len(bands) > 0:
+            if len(band) > 0:
                 mask &= (df[band+'_'+'extendedness'] == 9.0)
             else:
                 mask &= (df[band+'extendedness'] == 9.0)

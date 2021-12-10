@@ -138,7 +138,6 @@ class CatalogMeasurementBaseTask(MetricTask):
 
     def _getTableColumns(self, columns):
         columnNames = set(columns)
-        # for actionStruct in [self.config.selectorActions, self.config.sourceSelectorActions]:
 
         for actionStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
             for action in actionStruct:
@@ -148,11 +147,6 @@ class CatalogMeasurementBaseTask(MetricTask):
                     columnNames.add(col)
 
         return columnNames
-
-        # inputs = butlerQC.get(inputRefs)
-        # catalogDataFrame = inputs["catalog"].get(parameters={"columns": columnNames})
-
-        # return catalogDataFrame
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
         """Load reference catalog in sky region of interest and optionally applies proper

@@ -75,6 +75,11 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
 
         kwargs = {}
         columns = self.config.columns.list()
+        # For sourceTable_visit, we don't want to prepend the band name at the beginning of each
+        # column name, so set band = '' for all selectors.
+        # for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
+        #     for selector in selectorStruct:
+        #         selector.bandsList = ['']
         columnsWithSelectors = self._getTableColumns(columns)
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
@@ -82,6 +87,7 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
         # print(kwargs['catalog'].columns)
         import pdb; pdb.set_trace()
 
+        # This part should be moved to a function that can be called by each run method:
         # Apply the selectors to narrow down the sources to use
         mask = np.ones(len(catalog), dtype=bool)
         for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
