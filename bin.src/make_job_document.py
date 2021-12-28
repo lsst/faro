@@ -37,9 +37,9 @@ if __name__ == "__main__":
                         help='Name of metrics package to load, defaults to validate_drp.')
     parser.add_argument('--spec', type=str, default="design",
                         help='Spec level to apply: minimum, design, or stretch')
-    parser.add_argument('--dataset_name', type=str, default="validation_data_hsc",
+    parser.add_argument('--dataset_name', type=str, default="rc2_subset",
                         help='Name of the dataset for which the report is being generated. '
-                             'Defaults to validation_data_hsc.')
+                             'Defaults to rc2_subset.')
 
     args = parser.parse_args()
     main(args.repository, args.collection, args.metrics_package, args.spec, args.dataset_name)
