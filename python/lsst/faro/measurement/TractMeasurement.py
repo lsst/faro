@@ -60,7 +60,7 @@ class TractMeasurementConnections(
         doc="Object catalog.",
         dimensions=("tract", "patch", "skymap", "band"),
         storageClass="SourceCatalog",
-        name="deepCoadd_forced_src",
+        name="deepCoadd_meas",
         multiple=True,
     )
 

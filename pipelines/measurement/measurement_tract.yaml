@@ -10,6 +10,7 @@ tasks:
         config.measure.retarget(TExTask)
         config.measure.minSep = 0.25
         config.measure.maxSep = 1.0
+        config.measure.shearConvention = False
   TE2:
     class: lsst.faro.measurement.TractMeasurementTask
     config:
@@ -20,3 +21,4 @@ tasks:
         config.measure.retarget(TExTask)
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
+        config.measure.shearConvention = False

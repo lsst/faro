@@ -47,7 +47,8 @@ __all__ = (
 
 
 class PatchMatchedMeasurementConnections(
-    CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+    CatalogMeasurementBaseConnections,
+    dimensions=("tract", "patch", "band", "instrument", "skymap"),
 ):
     matchedCatalog = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
@@ -104,7 +105,8 @@ class TractMatchedMeasurementTask(CatalogMeasurementBaseTask):
 
 
 class PatchMatchedMultiBandMeasurementConnections(
-    CatalogMeasurementBaseConnections, dimensions=("tract", "patch", "band", "instrument", "skymap")
+    CatalogMeasurementBaseConnections,
+    dimensions=("tract", "patch", "band", "instrument", "skymap"),
 ):
     matchedCatalogMulti = pipeBase.connectionTypes.Input(
         doc="Input matched catalog.",
@@ -132,7 +134,9 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "patchMatchedMultiBandMeasurementTask"
 
     def run(self, matchedCatalogMulti, in_id, out_id):
-        return self.measure.run(self.config.connections.metric, matchedCatalogMulti, in_id, out_id)
+        return self.measure.run(
+            self.config.connections.metric, matchedCatalogMulti, in_id, out_id
+        )
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         """Do Butler I/O to provide in-memory objects for run.

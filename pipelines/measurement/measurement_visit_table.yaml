@@ -33,3 +33,29 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
+  TE3:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE3_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        config.measure.retarget(TExTableTask)
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        "psfFlux","psfFluxErr","deblend_nChild"]
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 5.0
+        config.measure.shearConvention = False
+  TE4:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE4_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        config.measure.retarget(TExTableTask)
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        "psfFlux","psfFluxErr","deblend_nChild"]
+        config.measure.minSep = 5.0
+        config.measure.maxSep = 20.0
+        config.measure.shearConvention = False
