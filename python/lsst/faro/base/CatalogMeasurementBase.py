@@ -150,13 +150,13 @@ class CatalogMeasurementBaseTask(MetricTask):
             center, radius, loaderTask._referenceFilter, epoch=epoch
         )
         refCat = skyCircle.refCat
-        
-        refCatTable=Table()
-        refCatTable['ra']=refCatCorrected['ra']*u.deg
-        refCatTable['dec']=refCatCorrected['ra']*u.deg
-        for n,filterName in enumerate(filterList):
-            refCatTable['refMag-'+filterName]=refCatCorrected["refMag"][:,n]*u.ABmag
-            refCatTable['refMagErr-'+filterName]=refCatCorrected["refMagErr"][:,n]*u.ABmag
-        refCatFrame=hstack([refCatTable,refCat.asAstropy()]).to_pandas()
-        
+
+        refCatTable = Table()
+        refCatTable['ra'] = refCatCorrected['ra']*u.deg
+        refCatTable['dec'] = refCatCorrected['ra']*u.deg
+        for n, filterName in enumerate(filterList):
+            refCatTable['refMag-' + filterName] = refCatCorrected["refMag"][:, n]*u.ABmag
+            refCatTable['refMagErr-' + filterName] = refCatCorrected["refMagErr"][:, n]*u.ABmag
+        refCatFrame = hstack([refCatTable, refCat.asAstropy()]).to_pandas()
+
         return refCatFrame

@@ -189,15 +189,14 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
 
             # TODO: add capability to select the reference epoch
             epoch = None
-            refCat, refCatCorrected = self._getReferenceCatalog(
+            refCat, refCatFrame = self._getReferenceCatalog(
                 butlerQC,
                 [ref.datasetRef.dataId for ref in inputRefs.refCat],
                 refCats,
                 filterList,
                 epoch,
             )
-            kwargs["refCat"] = refCat
-            kwargs["refCatCorrected"] = refCatCorrected
+            kwargs["refCatFrame"] = refCatFrame
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
