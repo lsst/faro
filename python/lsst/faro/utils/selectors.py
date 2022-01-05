@@ -7,6 +7,23 @@ import numpy as np
 __all__ = ("SNRSelector", "PerBandFlagSelector", "StarIdentifier", "GalaxyIdentifier",
            "UnknownIdentifier", "FlagSelector", "applySelectors")
 
+def brightIsolatedSelectorSourceTable(config):
+    #will want to put more thought into this 
+    #setup SNRSelector
+    config.selectorActions.SNRSelector = SNRSelector
+    config.selectorActions.SNRSelector.fluxType = "psfFlux"
+    config.selectorActions.SNRSelector.snrMin = 50  
+    config.selectorActions.SNRSelector.bands=[""]
+    
+    #setup stellarSelector
+    config.selectorActions.StarIdentifier = StarIdentifier
+    config.selectorActions.StarIdentifier.bands=[""]
+    #setup flag slectors
+    config.selectorActions.FlagSelector = FlagSelector
+    config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
+    config.selectorActions.FlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge","deblend_nChild"]
+    return config
+    
 
 def applySelectors(catalog, selectorList):
     """Apply the selectors to narrow down the sources to use"""
@@ -16,6 +33,7 @@ def applySelectors(catalog, selectorList):
             mask &= selector(catalog)
 
     return catalog[mask]
+
 
 
 class SNRSelector(DataFrameAction):

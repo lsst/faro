@@ -102,7 +102,9 @@ class TExTableTask(Task):
             prependString = band
         else:
             prependString = None
-
+        
+        # filter catalog 
+        catalog = selectors.applySelectors(catalog,[self.config.selectorActions,self.config.perBandSelectorActions])
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))

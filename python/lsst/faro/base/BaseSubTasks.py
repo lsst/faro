@@ -21,6 +21,7 @@
 
 from lsst.afw.table import SourceCatalog
 from lsst.pipe.base import Struct, Task
+from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement
 
@@ -46,6 +47,14 @@ class NumSourcesConfig(Config):
         dtype=bool,
         default=False,
     )
+    selectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use to narrow down the data (independent of band).",
+        default={},
+    )
+    perBandSelectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use per band to narrow down the data.",
+        default={},
+        )
 
 
 class NumSourcesTask(Task):
