@@ -10,16 +10,18 @@ tasks:
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(NumSourcesTask)
         # import pdb; pdb.set_trace()
-        config.measure.perBandSelectorActions.SNRSelector = selectors.SNRSelector
-        #config.measure.perBandSelectorActions.SNRSelector.jointSelectionBands=["g","r","i","z"]
-        #config.measure=selectors.brightIsolatedStarObjectTable(config.measure, bands=["g","r","i","z"])
+        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
+        config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
+        # config.measure.perBandSelectorActions.SNRSelector.jointSelectionBands=["g","r","i","z"]
+        # config.measure=selectors.brightIsolatedStarObjectTable(config.measure, bands=["g","r","i","z"])
         # config.measure.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
         # config.measure.perBandSelectorActions.SNRSelector.snrMin = 50
         # config.measure.perBandSelectorActions.StarSelector = selectors.StarIdentifier
         # config.measure.selectorActions.FlagSelector = selectors.FlagSelector
         # config.measure.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
-        # config.measure.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
-        # config.measure.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"] 
+        #config.measure.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
+        #config.measure.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"] 
   # TE3:
   #   class: lsst.faro.measurement.TractTableMeasurementTask
   #   config:

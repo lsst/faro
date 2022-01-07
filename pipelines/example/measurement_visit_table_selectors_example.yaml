@@ -17,9 +17,11 @@ tasks:
         from lsst.faro.measurement import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
         import lsst.faro.utils.selectors as selectors
-        config.measure.perBandSelectorActions.SNRSelector = selectors.SNRSelector
-        config.measure.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
-        config.measure.perBandSelectorActions.SNRSelector.snrMin = 50
+        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.selectorActions.SNRSelector.fluxType = "psfFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 50
+        #config.measure.selectorActions.SNRSelector.selectorBandType="currentBands"
+
         # config.measure.perBandSelectorActions.StarSelector = selectors.StarIdentifier
         # config.measure.selectorActions.FlagSelector = selectors.FlagSelector
         # config.measure.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]

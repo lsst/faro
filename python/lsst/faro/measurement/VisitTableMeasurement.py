@@ -74,13 +74,14 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
         inputs = butlerQC.get(inputRefs)
 
         kwargs = {}
+        kwargs["currentBands"]=None
         columns = self.config.columns.list()
         # For sourceTable_visit, we don't want to prepend the band name at the beginning of each
         # column name, so set band = '' for all selectors.
         # for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
         #     for selector in selectorStruct:
         #         selector.bandsList = ['']
-        columnsWithSelectors = self._getTableColumns(columns)
+        columnsWithSelectors = self._getTableColumns(columns, currentBands=kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
         print(len(catalog))

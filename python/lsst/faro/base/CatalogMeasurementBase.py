@@ -103,14 +103,13 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
-    def _getTableColumns(self, columns,bands=None):
+    def _getTableColumns(self, columns,currentBands=None):
         columnNames = set(columns)
-
-        for actionStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
+        for actionStruct in [self.config.measure.selectorActions]:
             for action in actionStruct:
                 # if self.config.selectorBands != []:
                 #    action.bands = self.config.selectorBands
-                for col in action.columns(bands):
+                for col in action.columns(currentBands):
                     columnNames.add(col)
 
         return columnNames

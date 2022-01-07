@@ -95,12 +95,12 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        kwargs = {"band": butlerQC.quantum.dataId['band']}
+        kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
         columns = self.config.columns.list()
         for column in self.config.columnsBand: 
-            columns.append(kwargs["band"] + '_' + column)
-        columnsWithSelectors = self._getTableColumns(columns, kwargs["band"])
+            columns.append(kwargs["currentBands"] + '_' + column)
+        columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
        
        
@@ -179,12 +179,13 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
 
-        kwargs = {"bands": self.config.bands.list()}
+        kwargs = {"currentBands": self.config.bands.list()}
 
         columns = self.config.columns.list()
         for band in self.config.bands:
             for column in self.config.columnsBand:
                 columns.append(band + "_" + column)
+        columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
 
         if self.config.connections.refDataset != "":

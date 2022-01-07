@@ -43,13 +43,6 @@ class NumSourcesConfig(Config):
         #default={"sourceSelector": selectors.StarIdentifier},
     )
 
-    perBandSelectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use per band to narrow down the data.",
-        default={},
-        #default={"SNRSelector": selectors.SNRSelector},
-    )
-
-
 class NumSourcesTask(Task):
     r"""Simple default task to count the number of sources/objects in catalog."""
 
@@ -74,7 +67,7 @@ class NumSourcesTask(Task):
             The measured value of the metric.
         """
         self.log.info("Measuring %s", metricName)
-        catalog = selectors.applySelectors(catalog,[self.config.selectorActions,self.config.perBandSelectorActions],kwargs)
+        catalog = selectors.applySelectors(catalog,self.config.selectorActions,currentBands=kwargs["currentBands"])
         if self.config.doPrimary:
             nSources = np.sum(catalog["detect_isPrimary"] is True)
         else:
