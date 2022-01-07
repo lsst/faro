@@ -1,4 +1,3 @@
-
 # Note: analysis_drp is not yet part of the pipelines, so you need to clone it,
 from lsst.pex.config import ListField, Field
 from lsst.pipe.tasks.dataFrameActions import DataFrameAction
@@ -7,7 +6,7 @@ import numpy as np
 __all__ = ("SNRSelector", "PerBandFlagSelector", "StarIdentifier", "GalaxyIdentifier",
            "UnknownIdentifier", "FlagSelector", "applySelectors")
 
-def brightIsolatedSelectorSourceTable(config):
+def brightIsolatedStarSourceTable(config):
     #will want to put more thought into this 
     #setup SNRSelector
     config.selectorActions.SNRSelector = SNRSelector
@@ -23,17 +22,45 @@ def brightIsolatedSelectorSourceTable(config):
     config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
     config.selectorActions.FlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge","deblend_nChild"]
     return config
-    
 
-def applySelectors(catalog, selectorList):
+
+def brightIsolatedStarObjectTable(config, bands):
+    #will want to put more thought into this 
+    #setup SNRSelector
+    config.perBandSelectorActions.SNRSelector = SNRSelector
+    config.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
+    config.perBandSelectorActions.SNRSelector.snrMin = 50  
+    config.perBandSelectorActions.SNRSelector.bands=bands
+    config.perBandSelectorActions.SNRSelector.singleSelection=True
+    #setup stellarSelector
+    config.perBandSelectorActions.StarIdentifier = StarIdentifier
+    config.perBandSelectorActions.StarIdentifier.bands=bands
+    #setup non band flag slectors
+    config.selectorActions.FlagSelector = FlagSelector
+    config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
+    #setup per band flag selectors 
+    config.perBandSelectorActions.PerBandFlagSelector = PerBandFlagSelector
+    config.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
+    config.perBandSelectorActions.PerBandFlagSelector.bands=bands
+    return config
+
+
+def applySelectors(catalog, selectorList,kwargs, returnMask=False):
     """Apply the selectors to narrow down the sources to use"""
+    if "band" in kwargs:
+        bands=kwargs["band"]
+    elif "bands" in kwargs:
+        bands=kwargs["bands"]
+    else:
+        bands=None
     mask = np.ones(len(catalog), dtype=bool)
     for selectorStruct in selectorList:
         for selector in selectorStruct:
-            mask &= selector(catalog)
-
-    return catalog[mask]
-
+            mask &= selector(catalog,bands=bands)
+    if returnMask:
+        return catalog[mask], mask
+    else:
+        return catalog[mask]
 
 
 class SNRSelector(DataFrameAction):
@@ -47,60 +74,22 @@ class SNRSelector(DataFrameAction):
     snrMax = Field(doc="The maximum S/N threshold to remove sources with.",
                    dtype=float,
                    default=np.Inf)
-    bands = ListField(doc="The bands to apply the signal to noise cut in.",
-                      dtype=str,
-                      default=["i"])
+    jointSelectionBands = ListField(doc="The maximum S/N threshold to remove sources with.",
+                   dtype=str,
+                   default=[""])
 
-    # @property
-    # def columns(self):
-    #     if bands is not None:
-    #         bandsList = bands
-    #     else:
-    #         bandsList = self.bands
-    #     
-    #     cols = []
-    #     for band in bandsList:
-    #         if len(band) > 0:
-    #             cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
-    #         else:
-    #             cols += [band+self.fluxType, band+self.fluxType+'Err']
-
-    #    return cols
-
-    # @property
-    # def bandsList(self):
-    #     bandsList = self.bands
-    #     return(bandsList)
-
-    # @bandsList.setter
-    # def bandsList(self, bands):
-    #     self._bandsList = bands
-
-    # @property
-    # def columns(self):
-    #     #if bands is not None:
-    #     #    bandsList = bands
-    #     #else:
-    #     #    bandsList = self.bands
-
-    # @property
-    # def columns(self, bands=None):
-    #     if bands is not None:
-    #         bandsList = bands
-    #     else:
-    #         bandsList = self.bands
-
-    @property
-    def columns(self):
-        cols = []
-        for band in self.bands:
-            if len(band) > 0:
-                cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
-            else:
-                cols += [band+self.fluxType, band+self.fluxType+'Err']
-
+    def columns(self,bands=None):
+        cols=[]
+        if self.jointSelectionBands != [""]:
+            bands=self.jointSelectionBands
+        if bands is not None:
+            for band in bands:
+                    cols += [band+'_'+self.fluxType, band+'_'+self.fluxType+'Err']
+        else:
+            cols=[self.fluxType, self.fluxType+'Err']
+        print(cols)
         return cols
-
+    
     def __call__(self, df, bands=None):
         """Makes a mask of objects that have S/N between self.snrMin and
         self.snrMax in self.fluxType
@@ -113,21 +102,17 @@ class SNRSelector(DataFrameAction):
             A mask of the objects that satisfy the given
             S/N cut.
         """
-
-        if bands is not None:
-            bandsList = bands
-        else:
-            bandsList = self.bands
-
         mask = np.ones(len(df), dtype=bool)
-        for band in bandsList:
-            if len(band) > 0:
+        import pdb; pdb.set_trace()
+        if self.jointSelectionBands != [""]:
+            bands=self.jointSelectionBands
+        if bands is not None:
+            for band in bands:
                 mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) > self.snrMin)
                 mask &= ((df[band+'_'+self.fluxType] / df[band+'_'+self.fluxType+"Err"]) < self.snrMax)
-            else:
-                mask &= ((df[band+self.fluxType] / df[band+self.fluxType+"Err"]) > self.snrMin)
-                mask &= ((df[band+self.fluxType] / df[band+self.fluxType+"Err"]) < self.snrMax)
-
+        else:
+            mask &= ((df[self.fluxType] / df[self.fluxType+"Err"]) > self.snrMin)
+            mask &= ((df[self.fluxType] / df[self.fluxType+"Err"]) < self.snrMax)
         return mask
 
 

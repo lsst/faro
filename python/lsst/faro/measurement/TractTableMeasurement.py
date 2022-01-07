@@ -98,23 +98,12 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
         kwargs = {"band": butlerQC.quantum.dataId['band']}
 
         columns = self.config.columns.list()
-        for column in self.config.columnsBand:
+        for column in self.config.columnsBand: 
             columns.append(kwargs["band"] + '_' + column)
-        columnsWithSelectors = self._getTableColumns(columns)
-        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
-
-        print(len(catalog))
-        # print(kwargs['catalog'].columns)
-        import pdb; pdb.set_trace()
-
-        # Apply the selectors to narrow down the sources to use
-        mask = np.ones(len(catalog), dtype=bool)
-        for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
-            for selector in selectorStruct:
-                mask &= selector(catalog)
-        kwargs["catalog"] = catalog[mask]
-        print(len(kwargs['catalog']))
-        pdb.set_trace()
+        columnsWithSelectors = self._getTableColumns(columns, kwargs["band"])
+        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+       
+       
 
         # Include an if statement to check whether any selectors have been requested
 

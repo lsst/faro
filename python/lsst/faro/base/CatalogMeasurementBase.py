@@ -70,42 +70,9 @@ class CatalogMeasurementBaseConfig(
         doc="Measure task",
     )
 
-    selectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use to narrow down the data (independent of band).",
-        default={},
-        # default={"sourceSelector": selectors.StarIdentifier},
-    )
-
-    perBandSelectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use per band to narrow down the data.",
-        default={},
-        # default={"SNRSelector": selectors.SNRSelector},
-    )
-
-    isObjectTable = pexConfig.Field(
-        doc="Is the input an objectTable?", dtype=bool, default=False
-    )
-
-    selectorBands = pexConfig.ListField(
-        doc="Bands to apply selectors in.",
-        dtype=str,
-        default=["r", "i", "z"],
-    )
-
     referenceCatalogLoader = pexConfig.ConfigurableField(
         target=LoadReferenceCatalogTask, doc="Reference catalog loader",
     )
-
-    # def __init__(self, config=None):
-        # super().__init__(config=config)
-        # if self.selectorBands != []:
-        # if not isObjectTable:
-            # self.selectorBands = []
-            # import pdb; pdb.set_trace()
-
-            # for action in self.selectorActions:
-                # # for action in actionStruct:
-                # action.bands = self.selectorBands
 
     def setDefaults(self):
         self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ""
@@ -136,14 +103,14 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
-    def _getTableColumns(self, columns):
+    def _getTableColumns(self, columns,bands=None):
         columnNames = set(columns)
 
         for actionStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
             for action in actionStruct:
                 # if self.config.selectorBands != []:
                 #    action.bands = self.config.selectorBands
-                for col in action.columns:
+                for col in action.columns(bands):
                     columnNames.add(col)
 
         return columnNames

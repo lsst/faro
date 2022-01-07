@@ -14,18 +14,18 @@ tasks:
       # connections.refDataset: 'gaia_dr2_20200414'
       # connections.refDataset: 'ps1_pv3_3pi_20170110'
       python: |
-        from lsst.faro.base import NumSourcesTask
+        from lsst.faro.measurement import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
         import lsst.faro.utils.selectors as selectors
-        # config.measure.perBandSelectorActions.SNRSelector = selectors.SNRSelector
-        # config.measure.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
-        # config.measure.perBandSelectorActions.SNRSelector.snrMin = 50
+        config.measure.perBandSelectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
+        config.measure.perBandSelectorActions.SNRSelector.snrMin = 50
         # config.measure.perBandSelectorActions.StarSelector = selectors.StarIdentifier
         # config.measure.selectorActions.FlagSelector = selectors.FlagSelector
         # config.measure.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
         # config.measure.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
         # config.measure.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
-        # config.measure.selectorBands = ['']
+        #config.measure.selectorBands = ['']
 
 
         # Example configuration to apply proper motions for Gaia
@@ -45,20 +45,20 @@ tasks:
         # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
         #                                                            'config',
         #                                                            'colorterms.py'))
-  TE3:
-    class: lsst.faro.measurement.VisitTableMeasurementTask
-    config:
-      connections.package: validate_drp
-      connections.metric: TE3_table
-      python: |
-        from lsst.faro.measurement import TExTableTask
-        import lsst.faro.utils.selectors as selectors
-        config.measure.retarget(TExTableTask)
-        config.measure=selectors.brightIsolatedSelectorSourceTable(config.measure)
-        #uncomment to show that you can configure things set in selectors.brightIsolatedSelectorSourceTable
-        #config.measure.selectorActions.SNRSelector.bands=["z"]
-        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
-        "psfFlux","psfFluxErr","deblend_nChild"]
-        config.measure.minSep = 0.25
-        config.measure.maxSep = 5.0
-        config.measure.shearConvention = False
+  # TE3:
+  #   class: lsst.faro.measurement.VisitTableMeasurementTask
+  #   config:
+  #     connections.package: validate_drp
+  #     connections.metric: TE3_table
+  #     python: |
+  #       from lsst.faro.measurement import TExTableTask
+  #       import lsst.faro.utils.selectors as selectors
+  #       config.measure.retarget(TExTableTask)
+  #       config.measure=selectors.brightIsolatedSelectorSourceTable(config.measure)
+  #       #uncomment to show that you can configure things set in selectors.brightIsolatedSelectorSourceTable
+  #       #config.measure.selectorActions.SNRSelector.bands=["z"]
+  #       config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
+  #       "psfFlux","psfFluxErr","deblend_nChild"]
+  #       config.measure.minSep = 0.25
+  #       config.measure.maxSep = 5.0
+  #       config.measure.shearConvention = False

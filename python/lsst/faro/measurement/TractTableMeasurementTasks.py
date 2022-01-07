@@ -28,8 +28,60 @@ from lsst.faro.utils.tex_table import calculateTEx
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask")
+__all__ = ("TExTableConfig", "TExTableTask", "NumSourcesConfig", "NumSourcesTask")
 
+class NumSourcesConfig(Config):
+    doPrimary = Field(
+        doc="Only count sources where detect_isPrimary is True.",
+        dtype=bool,
+        default=False,
+    )
+
+    selectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use to narrow down the data (independent of band).",
+        default={},
+        #default={"sourceSelector": selectors.StarIdentifier},
+    )
+
+    perBandSelectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use per band to narrow down the data.",
+        default={},
+        #default={"SNRSelector": selectors.SNRSelector},
+    )
+
+
+class NumSourcesTask(Task):
+    r"""Simple default task to count the number of sources/objects in catalog."""
+
+    ConfigClass = NumSourcesConfig
+    _DefaultName = "numSourcesTask"
+
+    def run(self, metricName, catalog, **kwargs):
+        """Run NumSourcesTask
+
+        Parameters
+        ----------
+        metricName : `str`
+            The name of the metric to measure.
+        catalog : `dict`
+            `lsst.afw.table` Catalog type
+        kwargs
+            Extra keyword arguments used to construct the task.
+
+        Returns
+        -------
+        measurement : `Struct`
+            The measured value of the metric.
+        """
+        self.log.info("Measuring %s", metricName)
+        catalog = selectors.applySelectors(catalog,[self.config.selectorActions,self.config.perBandSelectorActions],kwargs)
+        if self.config.doPrimary:
+            nSources = np.sum(catalog["detect_isPrimary"] is True)
+        else:
+            nSources = len(catalog)
+        self.log.info("Number of sources (nSources) = %i" % nSources)
+        meas = Measurement("nsrcMeas", nSources * u.count)
+        return Struct(measurement=meas)
 
 class TExTableConfig(Config):
     """Class to organize the yaml configuration parameters to be passed to
