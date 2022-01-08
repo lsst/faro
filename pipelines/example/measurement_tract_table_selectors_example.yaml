@@ -9,19 +9,16 @@ tasks:
         from lsst.faro.measurement import NumSourcesTask
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(NumSourcesTask)
-        # import pdb; pdb.set_trace()
-        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure=selectors.brightIsolatedStarObjectTable(config.measure)
+        ####### above function implements "currentBands" option for all selectors could
+        ####### also use the following options to get static bands in all analysis contexts
         config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
+        config.measure.selectorActions.StarIdentifier.selectorBandType="staticBandSet"
+        config.measure.selectorActions.PerBandFlagSelector.selectorBandType="staticBandSet"
         config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
-        # config.measure.perBandSelectorActions.SNRSelector.jointSelectionBands=["g","r","i","z"]
-        # config.measure=selectors.brightIsolatedStarObjectTable(config.measure, bands=["g","r","i","z"])
-        # config.measure.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
-        # config.measure.perBandSelectorActions.SNRSelector.snrMin = 50
-        # config.measure.perBandSelectorActions.StarSelector = selectors.StarIdentifier
-        # config.measure.selectorActions.FlagSelector = selectors.FlagSelector
-        # config.measure.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
-        #config.measure.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
-        #config.measure.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"] 
+        config.measure.selectorActions.StarIdentifier.staticBandSet=["g","z"]
+        config.measure.selectorActions.PerBandFlagSelector.staticBandSet=["g","z"]
+        
   # TE3:
   #   class: lsst.faro.measurement.TractTableMeasurementTask
   #   config:
@@ -31,34 +28,4 @@ tasks:
   #       from lsst.faro.measurement import TExTableTask
   #       import lsst.faro.utils.selectors as selectors
   #       config.measure.retarget(TExTableTask)
-  #       config.measure=selectors.brightIsolatedStarObjectTable(config.measure, bands=["g","r","i","z"])
-  #       #uncomment to show that you can configure things set in selectors.brightIsolatedSelectorSourceTable
-  #       #config.measure.selectorActions.SNRSelector.bands=["z"]
-  #       config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
-  #       "psfFlux","psfFluxErr","deblend_nChild"]
-  #       config.measure.minSep = 0.25
-  #       config.measure.maxSep = 5.0
-  #       config.measure.shearConvention = False
-#  TE2:
-#    class: lsst.faro.measurement.TractTableMeasurementTask
-#    config:
-#      connections.package: validate_drp
-#      connections.metric: TE2
-#      python: |
-#        from lsst.faro.measurement import TExTask
-#        config.measure.retarget(TExTask)
-#        config.measure.minSep = 5.0
-#        config.measure.maxSep = 20.0
-#        import lsst.faro.utils.selectors as selectors
-#        config.measure.retarget(NumSourcesMergeTask)
-#        config.perBandSelectorActions.SNRSelector = selectors.SNRSelector
-#        config.perBandSelectorActions.SNRSelector.fluxType = "psfFlux"
-#        config.perBandSelectorActions.SNRSelector.snrMin = 50
-#        config.perBandSelectorActions.StarSelector = selectors.StarIdentifier
-#        config.selectorActions.FlagSelector = selectors.FlagSelector
-#        config.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
-#        config.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
-#        config.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
-#        config.selectorBands = ['r']
-#        for action in config.perBandSelectorActions:
-#            action.bands = config.selectorBands
+  #       config.measure=selectors.brightIsolatedStarObjectTable(config.measure)

@@ -17,19 +17,8 @@ tasks:
         from lsst.faro.measurement import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
         import lsst.faro.utils.selectors as selectors
-        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
-        config.measure.selectorActions.SNRSelector.fluxType = "psfFlux"
-        config.measure.selectorActions.SNRSelector.snrMin = 50
-        #config.measure.selectorActions.SNRSelector.selectorBandType="currentBands"
-
-        # config.measure.perBandSelectorActions.StarSelector = selectors.StarIdentifier
-        # config.measure.selectorActions.FlagSelector = selectors.FlagSelector
-        # config.measure.selectorActions.FlagSelector.selectWhenTrue = ["detect_isPrimary"]
-        # config.measure.perBandSelectorActions.PerBandFlagSelector = selectors.PerBandFlagSelector
-        # config.measure.perBandSelectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr", "pixelFlags_bad", "pixelFlags_edge"]
-        #config.measure.selectorBands = ['']
-
-
+        config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
+        
         # Example configuration to apply proper motions for Gaia
         # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
