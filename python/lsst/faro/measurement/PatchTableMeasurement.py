@@ -97,7 +97,7 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
 
         columns = self.config.columns.list()
         for column in self.config.columnsBand:
-            columns.append(kwargs["currentBands"] + '_' +column)
+            columns.append(kwargs["currentBands"] + '_' + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 

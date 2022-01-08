@@ -25,7 +25,6 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
-from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 import lsst.geom
 import lsst.faro.utils.selectors as selectors
 from .BaseSubTasks import NumSourcesTask
@@ -103,7 +102,7 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
-    def _getTableColumns(self, columns,currentBands=None):
+    def _getTableColumns(self, columns, currentBands=None):
         columnNames = set(columns)
         for actionStruct in [self.config.measure.selectorActions]:
             for action in actionStruct:

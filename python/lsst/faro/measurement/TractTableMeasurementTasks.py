@@ -30,6 +30,7 @@ import numpy as np
 
 __all__ = ("TExTableConfig", "TExTableTask", "NumSourcesConfig", "NumSourcesTask")
 
+
 class NumSourcesConfig(Config):
     doPrimary = Field(
         doc="Only count sources where detect_isPrimary is True.",
@@ -40,8 +41,9 @@ class NumSourcesConfig(Config):
     selectorActions = ConfigurableActionStructField(
         doc="Which selectors to use to narrow down the data (independent of band).",
         default={},
-        #default={"sourceSelector": selectors.StarIdentifier},
+        # default={"sourceSelector": selectors.StarIdentifier},
     )
+
 
 class NumSourcesTask(Task):
     r"""Simple default task to count the number of sources/objects in catalog."""
@@ -67,7 +69,9 @@ class NumSourcesTask(Task):
             The measured value of the metric.
         """
         self.log.info("Measuring %s", metricName)
-        catalog = selectors.applySelectors(catalog,self.config.selectorActions,currentBands=kwargs["currentBands"])
+        catalog = selectors.applySelectors(catalog,
+                                           self.config.selectorActions,
+                                           currentBands=kwargs["currentBands"])
         if self.config.doPrimary:
             nSources = np.sum(catalog["detect_isPrimary"] is True)
         else:
@@ -75,6 +79,7 @@ class NumSourcesTask(Task):
         self.log.info("Number of sources (nSources) = %i" % nSources)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
+
 
 class TExTableConfig(Config):
     """Class to organize the yaml configuration parameters to be passed to
@@ -104,6 +109,13 @@ class TExTableConfig(Config):
         dtype=bool,
         default=True,
     )
+
+    selectorActions = ConfigurableActionStructField(
+        doc="Which selectors to use to narrow down the data (independent of band).",
+        default={"SNRSelector": selectors.SNRSelector},
+        # default={"sourceSelector": selectors.StarIdentifier},
+    )
+
     raColumn = Field(doc="RA column", dtype=str, default="coord_ra")
     decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
     ixxColumn = Field(doc="Ixx column", dtype=str, default="ixx")
@@ -136,20 +148,22 @@ class TExTableTask(Task):
     _DefaultName = "TExTableTask"
 
     def run(
-        self, metricName, catalog, band=None
+        self, metricName, catalog, currentBand, **kwargs
     ):
 
         self.log.info("Measuring %s", metricName)
 
         # If accessing objectTable_tract, we need to append the band name at
         #   the beginning of the column name.
-        if band is not None:
-            prependString = band
+        if currentBand is not None:
+            prependString = currentBand
         else:
             prependString = None
-        
-        # filter catalog 
-        catalog = selectors.applySelectors(catalog,[self.config.selectorActions,self.config.perBandSelectorActions])
+
+        # filter catalog
+        catalog = selectors.applySelectors(catalog,
+                                           [self.config.selectorActions],
+                                           currentBands=kwargs["currentBands"])
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))

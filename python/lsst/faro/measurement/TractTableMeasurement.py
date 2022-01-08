@@ -22,7 +22,6 @@
 
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
-import numpy as np
 
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
@@ -98,14 +97,12 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
         kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
         columns = self.config.columns.list()
-        for column in self.config.columnsBand: 
+        for column in self.config.columnsBand:
             columns.append(kwargs["currentBands"] + '_' + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
-       
-       
 
-        # Include an if statement to check whether any selectors have been requested
+        # maybe include an if statement to check whether any selectors have been requested
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
@@ -186,7 +183,7 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
             for column in self.config.columnsBand:
                 columns.append(band + "_" + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
-        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columns})
+        kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")

@@ -5,7 +5,7 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasVisitTable
-      # Reference dataset must be consistently specified 
+      # Reference dataset must be consistently specified
       # in connections and reference object loader.
       # Reference datasets include:
       # - Gaia (gaia_dr2_20200414)
@@ -18,7 +18,6 @@ tasks:
         config.measure.retarget(NumSourcesTask)
         import lsst.faro.utils.selectors as selectors
         config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
-        
         # Example configuration to apply proper motions for Gaia
         # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True

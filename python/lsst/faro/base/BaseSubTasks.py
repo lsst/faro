@@ -21,13 +21,11 @@
 
 from lsst.afw.table import SourceCatalog
 from lsst.pipe.base import Struct, Task
-from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 from lsst.pex.config import Config, Field
 from lsst.verify import Measurement
 
 from lsst.faro.utils.matcher import mergeCatalogs
 from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
-import lsst.faro.utils.selectors as selectors
 import astropy.units as u
 import numpy as np
 from typing import Dict, List
@@ -46,18 +44,6 @@ class NumSourcesConfig(Config):
         doc="Only count sources where detect_isPrimary is True.",
         dtype=bool,
         default=False,
-    )
-
-    selectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use to narrow down the data (independent of band).",
-        default={},
-        #default={"sourceSelector": selectors.StarIdentifier},
-    )
-
-    perBandSelectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use per band to narrow down the data.",
-        default={},
-        #default={"SNRSelector": selectors.SNRSelector},
     )
 
 
