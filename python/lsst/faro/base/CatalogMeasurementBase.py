@@ -103,7 +103,17 @@ class CatalogMeasurementBaseTask(MetricTask):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
-        """Load reference catalog in sky region of interest.
+        """Load reference catalog in sky region of interest and optionally applies proper
+        motion correction and color terms.
+
+        Loads the `lsst.afw.table.SimpleCatalog` reference catalog, computes ra and dec
+        (optionally) applying a proper motion correction. Also, color terms
+        are (optionally) applied to the reference magnitudes in order to transform
+        them to the data's photometric system.
+
+        returns a refCat with both the original loaded reference catalog and
+        the coorected coordinates (ra,dec) and transformed reference magnitudes
+        (refMag-/refMagErr-)
 
         Parameters
         ----------
@@ -123,13 +133,9 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         Returns
         -------
-        refCat : `lsst.afw.table.SimpleCatalog`
-            Catalog of reference objects from region.
-        refCatCorrected : `numpy.ndarray`
-            Catalog of reference objects with proper motions and color terms
-            (optionally) applied.
-        refCatFrame: pandas.dataframe
-            merge of refCat and refCatCorrected converted to dataframe
+        refCat: pandas.dataframe
+            a reference catalog with original columns and corrected
+            coordinates (ra,dec) and reference magnitudes (refMag-/refMagErr-)
         """
         center = lsst.geom.SpherePoint(
             butlerQC.quantum.dataId.region.getBoundingCircle().getCenter()

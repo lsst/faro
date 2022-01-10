@@ -80,14 +80,14 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
             # Time at the start of the visit
             epoch = butlerQC.quantum.dataId.records["visit"].timespan.begin
-            refCatFrame = self._getReferenceCatalog(
+            refCat = self._getReferenceCatalog(
                 butlerQC,
                 [ref.datasetRef.dataId for ref in inputRefs.refCat],
                 refCats,
                 filterList,
                 epoch,
             )
-            kwargs["refCatFrame"] = refCatFrame
+            kwargs["refCat"] = refCat
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
