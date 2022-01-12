@@ -93,7 +93,7 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
             # Time at the start of the visit
             epoch = butlerQC.quantum.dataId.records["visit"].timespan.begin
-            refCat, refCatCorrected = self._getReferenceCatalog(
+            refCat = self._getReferenceCatalog(
                 butlerQC,
                 [ref.datasetRef.dataId for ref in inputRefs.refCat],
                 refCats,
@@ -101,7 +101,6 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
                 epoch,
             )
             kwargs["refCat"] = refCat
-            kwargs["refCatCorrected"] = refCatCorrected
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:

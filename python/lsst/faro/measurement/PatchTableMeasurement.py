@@ -110,7 +110,7 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
 
             # TODO: add capability to select the reference epoch
             epoch = None
-            refCat, refCatCorrected = self._getReferenceCatalog(
+            refCat = self._getReferenceCatalog(
                 butlerQC,
                 [ref.datasetRef.dataId for ref in inputRefs.refCat],
                 refCats,
@@ -118,7 +118,6 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
                 epoch,
             )
             kwargs["refCat"] = refCat
-            kwargs["refCatCorrected"] = refCatCorrected
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
@@ -193,7 +192,7 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
             # TODO: add capability to select the reference epoch
             epoch = None
-            refCat, refCatCorrected = self._getReferenceCatalog(
+            refCat = self._getReferenceCatalog(
                 butlerQC,
                 [ref.datasetRef.dataId for ref in inputRefs.refCat],
                 refCats,
@@ -201,7 +200,6 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
                 epoch,
             )
             kwargs["refCat"] = refCat
-            kwargs["refCatCorrected"] = refCatCorrected
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:

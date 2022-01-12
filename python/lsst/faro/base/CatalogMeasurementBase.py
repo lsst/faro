@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from astropy.table import Table, hstack
+import astropy.units as u
 
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
@@ -101,7 +103,17 @@ class CatalogMeasurementBaseTask(MetricTask):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
-        """Load reference catalog in sky region of interest.
+        """Load reference catalog in sky region of interest and optionally applies proper
+        motion correction and color terms.
+
+        Loads the `lsst.afw.table.SimpleCatalog` reference catalog, computes ra and dec
+        (optionally) applying a proper motion correction. Also, color terms
+        are (optionally) applied to the reference magnitudes in order to transform
+        them to the data's photometric system.
+
+        returns a refCat with both the original loaded reference catalog and
+        the coorected coordinates (ra,dec) and transformed reference magnitudes
+        (refMag-/refMagErr-)
 
         Parameters
         ----------
@@ -121,11 +133,9 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         Returns
         -------
-        refCat : `lsst.afw.table.SimpleCatalog`
-            Catalog of reference objects from region.
-        refCatCorrected : `numpy.ndarray`
-            Catalog of reference objects with proper motions and color terms
-            (optionally) applied.
+        refCat: pandas.dataframe
+            a reference catalog with original columns and corrected
+            coordinates (ra,dec) and reference magnitudes (refMag-/refMagErr-)
         """
         center = lsst.geom.SpherePoint(
             butlerQC.quantum.dataId.region.getBoundingCircle().getCenter()
@@ -147,4 +157,12 @@ class CatalogMeasurementBaseTask(MetricTask):
         )
         refCat = skyCircle.refCat
 
-        return refCat, refCatCorrected
+        refCatTable = Table()
+        refCatTable['ra'] = refCatCorrected['ra']*u.deg
+        refCatTable['dec'] = refCatCorrected['ra']*u.deg
+        for n, filterName in enumerate(filterList):
+            refCatTable['refMag-' + filterName] = refCatCorrected["refMag"][:, n]*u.ABmag
+            refCatTable['refMagErr-' + filterName] = refCatCorrected["refMagErr"][:, n]*u.ABmag
+        refCatFrame = hstack([refCatTable, refCat.asAstropy()]).to_pandas()
+
+        return refCatFrame
