@@ -124,9 +124,6 @@ class TExTableConfig(Config):
     ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="ixxPSF")
     ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="ixyPSF")
     iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="iyyPSF")
-    extendednessColumn = Field(doc="Extendedness column", dtype=str, default="extendedness")
-    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="psfFlux")
-    psfFluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="psfFluxErr")
     deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="deblend_nChild")
     # Eventually want to add option to use only PSF reserve stars
 
@@ -164,7 +161,7 @@ class TExTableTask(Task):
         catalog = selectors.applySelectors(catalog,
                                            [self.config.selectorActions],
                                            currentBands=kwargs["currentBands"])
-        
+
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))

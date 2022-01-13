@@ -414,7 +414,7 @@ def applySelectors(catalog, selectorList, currentBands=None, returnMask=False):
             if returnMask==False a dataframe with only sources that pass the selector
             actions is returned.
             otherwise the original dataframe and a boolean mask indicating the sources
-            that pass the selector actions is returned. 
+            that pass the selector actions is returned.
     """
     mask = np.ones(len(catalog), dtype=bool)
     for selector in selectorList:
@@ -427,14 +427,14 @@ def applySelectors(catalog, selectorList, currentBands=None, returnMask=False):
 
 def brightIsolatedStarSourceTable(config):
     """
-    To be called in a measurement yaml sets up a 
+    To be called in a measurement yaml sets up a
     standard set of selectorActions for a SourceTable metric
 
     Parameters
         ----------
         measurement config dict
         -------
-        result : 
+        result :
             A mask of objects that are unclassified.
     """
     # will want to put more thought into this
@@ -458,14 +458,14 @@ def brightIsolatedStarSourceTable(config):
 
 def brightIsolatedStarObjectTable(config):
     """
-    To be called in a measurement yaml sets up a 
+    To be called in a measurement yaml sets up a
     standard set of selectorActions for a SourceTable metric
 
     Parameters
         ----------
         measurement config dict
         -------
-        result : 
+        result :
             A mask of objects that are unclassified.
     """
     # will want to put more thought into this

@@ -170,7 +170,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         refCatTable = Table()
         refCatTable['ra'] = refCatCorrected['ra']*u.deg
-        refCatTable['dec'] = refCatCorrected['ra']*u.deg
+        refCatTable['dec'] = refCatCorrected['dec']*u.deg
         for n, filterName in enumerate(filterList):
             refCatTable['refMag-' + filterName] = refCatCorrected["refMag"][:, n]*u.ABmag
             refCatTable['refMagErr-' + filterName] = refCatCorrected["refMagErr"][:, n]*u.ABmag

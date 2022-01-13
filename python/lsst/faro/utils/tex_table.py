@@ -568,9 +568,6 @@ def calculateTEx(catalog, config, prependString):
         ixxPsfColumn = prependString + "_" + config.ixxPsfColumn
         iyyPsfColumn = prependString + "_" + config.iyyPsfColumn
         ixyPsfColumn = prependString + "_" + config.ixyPsfColumn
-        extendednessColumn = prependString + "_" + config.extendednessColumn
-        psfFluxColumn = prependString + "_" + config.psfFluxColumn
-        psfFluxErrColumn = prependString + "_" + config.psfFluxErrColumn
     else:
         ixxColumn = config.ixxColumn
         iyyColumn = config.iyyColumn
@@ -578,13 +575,9 @@ def calculateTEx(catalog, config, prependString):
         ixxPsfColumn = config.ixxPsfColumn
         iyyPsfColumn = config.iyyPsfColumn
         ixyPsfColumn = config.ixyPsfColumn
-        extendednessColumn = config.extendednessColumn
-        psfFluxColumn = config.psfFluxColumn
-        psfFluxErrColumn = config.psfFluxErrColumn
-
 
     nMinSources = 50
-    if np.sum(selection) < nMinSources:
+    if len(catalog) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
 
     treecorrKwargs = dict(
@@ -606,7 +599,7 @@ def calculateTEx(catalog, config, prependString):
         shearConvention=config.shearConvention,
         **treecorrKwargs
     )
-    xy = rhoStatisticsFunc(catalog[selection])[config.rhoStat]
+    xy = rhoStatisticsFunc(catalog)[config.rhoStat]
 
     radius = np.exp(xy.meanlogr) * u.arcmin
     if config.rhoStat == 0:
