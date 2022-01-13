@@ -400,17 +400,43 @@ class UnknownIdentifier(DataFrameAction):
 
 
 def applySelectors(catalog, selectorList, currentBands=None, returnMask=False):
-    """Apply the selectors to narrow down the sources to use"""
+    """ Apply the selectors to narrow down the sources to use
+        Parameters
+        ----------
+        catalog : `pandas.core.frame.DataFrame`
+        selectorList: list of selector DataFrameActions
+        currentBands: the bands associated with the current measurement quanta
+        returnMask: boolean to return the mask without applying it to the catalog
+
+        Returns
+        -------
+        result : `numpy.ndarray`
+            if returnMask==False a dataframe with only sources that pass the selector
+            actions is returned.
+            otherwise the original dataframe and a boolean mask indicating the sources
+            that pass the selector actions is returned. 
+    """
     mask = np.ones(len(catalog), dtype=bool)
     for selector in selectorList:
         mask &= selector(catalog, currentBands=currentBands)
     if returnMask:
-        return catalog[mask], mask
+        return catalog, mask
     else:
         return catalog[mask]
 
 
 def brightIsolatedStarSourceTable(config):
+    """
+    To be called in a measurement yaml sets up a 
+    standard set of selectorActions for a SourceTable metric
+
+    Parameters
+        ----------
+        measurement config dict
+        -------
+        result : 
+            A mask of objects that are unclassified.
+    """
     # will want to put more thought into this
     # setup SNRSelector
     config.selectorActions.SNRSelector = SNRSelector
@@ -431,6 +457,17 @@ def brightIsolatedStarSourceTable(config):
 
 
 def brightIsolatedStarObjectTable(config):
+    """
+    To be called in a measurement yaml sets up a 
+    standard set of selectorActions for a SourceTable metric
+
+    Parameters
+        ----------
+        measurement config dict
+        -------
+        result : 
+            A mask of objects that are unclassified.
+    """
     # will want to put more thought into this
     # setup SNRSelector
     config.selectorActions.SNRSelector = SNRSelector

@@ -164,6 +164,7 @@ class TExTableTask(Task):
         catalog = selectors.applySelectors(catalog,
                                            [self.config.selectorActions],
                                            currentBands=kwargs["currentBands"])
+        
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():
             return Struct(measurement=Measurement(metricName, np.nan * u.Unit("")))

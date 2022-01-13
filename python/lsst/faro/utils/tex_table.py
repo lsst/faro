@@ -582,13 +582,6 @@ def calculateTEx(catalog, config, prependString):
         psfFluxColumn = config.psfFluxColumn
         psfFluxErrColumn = config.psfFluxErrColumn
 
-    # TO-DO: Filtering should be pulled out into a separate function for standard quality selections
-    snrMin = 50
-    selection = (
-        (catalog[extendednessColumn] < 0.5)
-        & ((catalog[psfFluxColumn] / catalog[psfFluxErrColumn]) > snrMin)
-        & (catalog[config.deblend_nChildColumn] == 0)
-    )
 
     nMinSources = 50
     if np.sum(selection) < nMinSources:
