@@ -56,11 +56,11 @@ class VisitTableMeasurementConfig(
 ):
     """Configuration for VisitTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Columns from sourceTable_visit to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec"],
-    )
+    # columns = pexConfig.ListField(
+    #     doc="Columns from sourceTable_visit to load.",
+    #     dtype=str,
+    #     default=["coord_ra", "coord_dec"],
+    # )
 
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
@@ -74,12 +74,8 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
 
         kwargs = {}
         kwargs["currentBands"] = None
-        columns = self.config.columns.list()
-        # For sourceTable_visit, we don't want to prepend the band name at the beginning of each
-        # column name, so set band = '' for all selectors.
-        # for selectorStruct in [self.config.selectorActions, self.config.perBandSelectorActions]:
-        #     for selector in selectorStruct:
-        #         selector.bandsList = ['']
+         
+        columns = self.config.measure.columns() + self.config.measure.columnsBand()
         columnsWithSelectors = self._getTableColumns(columns, currentBands=kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
         kwargs["catalog"] = catalog

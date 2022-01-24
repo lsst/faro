@@ -23,32 +23,24 @@ from lsst.pex.config import Config, Field
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
+from lsst.faro.base.ConfigBase import MeasurementTaskConfig, ColumnField, ColumnBandField
+import lsst.faro.utils.selectors as selectors
 from lsst.faro.utils.tex_table import calculateTEx
 
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask", "NumSourcesConfig", "NumSourcesTask")
+__all__ = ("TExTableConfig", "TExTableTask", "NumSourcesTask") #, "NumSourcesConfig"
 
 
-class NumSourcesConfig(Config):
-    doPrimary = Field(
-        doc="Only count sources where detect_isPrimary is True.",
-        dtype=bool,
-        default=False,
-    )
-
-    selectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use to narrow down the data (independent of band).",
-        default={},
-        # default={"sourceSelector": selectors.StarIdentifier},
-    )
+#class NumSourcesConfig(MeasurementTaskConfig):
+#    "nothing needed here"
 
 
 class NumSourcesTask(Task):
-    r"""Simple default task to count the number of sources/objects in catalog."""
+    """Simple default task to count the number of sources/objects in catalog."""
 
-    ConfigClass = NumSourcesConfig
+    ConfigClass = MeasurementTaskConfig
     _DefaultName = "numSourcesTask"
 
     def run(self, metricName, catalog, **kwargs):
@@ -72,16 +64,13 @@ class NumSourcesTask(Task):
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=kwargs["currentBands"])
-        if self.config.doPrimary:
-            nSources = np.sum(catalog["detect_isPrimary"] is True)
-        else:
-            nSources = len(catalog)
+        nSources = len(catalog)
         self.log.info("Number of sources (nSources) = %i" % nSources)
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 
 
-class TExTableConfig(Config):
+class TExTableConfig(MeasurementTaskConfig):
     """Class to organize the yaml configuration parameters to be passed to
     TExTableTask when using a parquet table input. All values needed to perform
     TExTableTask have default values set below.
@@ -116,15 +105,15 @@ class TExTableConfig(Config):
         # default={"sourceSelector": selectors.StarIdentifier},
     )
 
-    raColumn = Field(doc="RA column", dtype=str, default="coord_ra")
-    decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
-    ixxColumn = Field(doc="Ixx column", dtype=str, default="ixx")
-    ixyColumn = Field(doc="Ixy column", dtype=str, default="ixy")
-    iyyColumn = Field(doc="Iyy column", dtype=str, default="iyy")
-    ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="ixxPSF")
-    ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="ixyPSF")
-    iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="iyyPSF")
-    deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="deblend_nChild")
+    raColumn = ColumnField(doc="RA column", default="coord_ra")
+    decColumn = ColumnField(doc="Dec column", default="coord_dec")
+    ixxColumn = ColumnBandField(doc="Ixx column", default="ixx")
+    ixyColumn = ColumnBandField(doc="Ixy column", default="ixy")
+    iyyColumn = ColumnBandField(doc="Iyy column", default="iyy")
+    ixxPsfColumn = ColumnBandField(doc="Ixx PSF column", default="ixxPSF")
+    ixyPsfColumn = ColumnBandField(doc="Ixy PSF column", default="ixyPSF")
+    iyyPsfColumn = ColumnBandField(doc="Iyy PSF column", default="iyyPSF")
+    deblend_nChildColumn = ColumnField(doc="nChild column", default="deblend_nChild")
     # Eventually want to add option to use only PSF reserve stars
 
 
@@ -145,22 +134,22 @@ class TExTableTask(Task):
     _DefaultName = "TExTableTask"
 
     def run(
-        self, metricName, catalog, currentBand, **kwargs
+        self, metricName, catalog, currentBands, **kwargs
     ):
 
         self.log.info("Measuring %s", metricName)
 
         # If accessing objectTable_tract, we need to append the band name at
         #   the beginning of the column name.
-        if currentBand is not None:
-            prependString = currentBand
+        if currentBands is not None:
+           prependString = currentBands
         else:
-            prependString = None
+           prependString = None
 
         # filter catalog
         catalog = selectors.applySelectors(catalog,
-                                           [self.config.selectorActions],
-                                           currentBands=kwargs["currentBands"])
+                                           self.config.selectorActions,
+                                           currentBands=currentBands)
 
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():

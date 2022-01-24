@@ -66,17 +66,6 @@ class PatchTableMeasurementConfig(
 ):
     """Configuration for PatchTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Band-independent columns from objectTable_tract to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary", "patch"],
-    )
-
-    columnsBand = pexConfig.ListField(
-        doc="Band-specific columns from objectTable_tract to load.",
-        dtype=str,
-        default=["psfFlux", "psfFluxErr"],
-    )
 
     instrument = pexConfig.Field(
         doc="Instrument.",
@@ -95,9 +84,9 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
         inputs = butlerQC.get(inputRefs)
         kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
-        columns = self.config.columns.list()
-        for column in self.config.columnsBand:
-            columns.append(kwargs["currentBands"] + '_' + column)
+        columns = self.config.measure.columns()
+        for column in self.config.measure.columnsBand():
+            columns.append(kwargs["currentBands"] + "_" + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
@@ -108,7 +97,7 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
             refCats = inputs.pop("refCat")
             filter_map = FilterMap()
             filterList = filter_map.getFilters(self.config.instrument,
-                                               [kwargs["band"]])
+                                               [kwargs["currentBands"]])
 
             # TODO: add capability to select the reference epoch
             epoch = None
@@ -178,10 +167,10 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
         kwargs = {"currentBands": self.config.bands.list()}
 
-        columns = self.config.columns.list()
+        columns = self.config.measure.columns()
         for band in self.config.bands:
-            for column in self.config.columnsBand:
-                columns.append(band + column)
+            for column in self.config.measure.columnsBand():
+                columns.append(band + "_" + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 

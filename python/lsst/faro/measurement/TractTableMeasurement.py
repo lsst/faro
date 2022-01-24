@@ -66,19 +66,6 @@ class TractTableMeasurementConfig(
 ):
     """Configuration for TractTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Band-independent columns from objectTable_tract to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary", "deblend_nChild"],
-    )
-
-    columnsBand = pexConfig.ListField(
-        doc="Band-specific columns from objectTable_tract to load.",
-        dtype=str,
-        default=["psfFlux", "psfFluxErr", "extendedness", "ixx", "iyy", "ixy",
-                 "ixxPSF", "iyyPSF", "ixyPSF"],
-    )
-
     instrument = pexConfig.Field(
         doc="Instrument.",
         dtype=str,
@@ -95,9 +82,9 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
-
-        columns = self.config.columns.list()
-        for column in self.config.columnsBand:
+        
+        columns = self.config.measure.columns()
+        for column in self.config.measure.columnsBand():
             columns.append(kwargs["currentBands"] + '_' + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
@@ -108,7 +95,7 @@ class TractTableMeasurementTask(CatalogMeasurementBaseTask):
             refCats = inputs.pop("refCat")
             filter_map = FilterMap()
             filterList = filter_map.getFilters(self.config.instrument,
-                                               [kwargs["band"]])
+                                               [kwargs["currentBands"]])
 
             # TODO: add capability to select the reference epoch
             epoch = None
@@ -178,9 +165,9 @@ class TractMultiBandTableMeasurementTask(TractTableMeasurementTask):
 
         kwargs = {"currentBands": self.config.bands.list()}
 
-        columns = self.config.columns.list()
+        columns = self.config.measure.columns()
         for band in self.config.bands:
-            for column in self.config.columnsBand:
+            for column in self.config.measure.columnsBand():
                 columns.append(band + "_" + column)
         columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
         kwargs["catalog"] = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})

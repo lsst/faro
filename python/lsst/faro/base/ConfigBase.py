@@ -83,7 +83,7 @@ class MeasurementTaskConfig(Config):
     def columnsBand(self):
         """Return list of by-band column names that are set in configuration.
         """
-
+        
         columns = []
         for name, value in self.items():
             if isinstance(self._fields[name], ColumnBandField):

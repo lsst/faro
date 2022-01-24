@@ -59,11 +59,6 @@ class DetectorTableMeasurementConfig(
 ):
     """Configuration for DetectorTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Columns from sourceTable_visit to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "detector"],
-    )
 
     def validate(self):
         super().validate()
@@ -82,12 +77,17 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
+        kwargs = {}
+        kwargs["currentBands"] = None
+         
+        columns = self.config.measure.columns() + self.config.measure.columnsBand()
+        columnsWithSelectors = self._getTableColumns(columns, currentBands=kwargs["currentBands"])
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+        
         selection = catalog["detector"] == butlerQC.quantum.dataId["detector"]
         catalog = catalog[selection]
-
-        kwargs = {}
-        kwargs['catalog'] = catalog
+        kwargs["catalog"] = catalog
+        
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]
