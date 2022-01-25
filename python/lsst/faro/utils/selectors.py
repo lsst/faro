@@ -9,7 +9,7 @@ __all__ = ("FlagSelector", "GalaxyIdentifier", "PerBandFlagSelector", "SNRSelect
 
 
 class FlagSelector(DataFrameAction):
-    """The base flag selector to use to select valid sources shoud not have an associated band"""
+    """The base flag selector to use to select valid sources should not have an associated band"""
 
     selectWhenFalse = ListField(doc="Names of the flag columns to select on when False",
                                 dtype=str,

@@ -26,12 +26,14 @@ from lsst.verify import Measurement
 
 from lsst.faro.utils.matcher import mergeCatalogs
 from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
+from lsst.faro.base.ConfigBase import MeasurementTaskConfig
 import astropy.units as u
 import numpy as np
 from typing import Dict, List
 
 __all__ = (
     "NumSourcesTask",
+    "NumSourcesConfig",
     "NumSourcesMatchedTask",
     "NumSourcesMergeTask",
     "NumpySummaryConfig",
@@ -39,7 +41,7 @@ __all__ = (
 )
 
 
-class NumSourcesConfig(Config):
+class NumSourcesConfig(MeasurementTaskConfig):
     doPrimary = Field(
         doc="Only count sources where detect_isPrimary is True.",
         dtype=bool,
@@ -55,7 +57,6 @@ class NumSourcesTask(Task):
 
     def run(self, metricName, catalog, **kwargs):
         """Run NumSourcesTask
-
         Parameters
         ----------
         metricName : `str`
@@ -64,7 +65,6 @@ class NumSourcesTask(Task):
             `lsst.afw.table` Catalog type
         kwargs
             Extra keyword arguments used to construct the task.
-
         Returns
         -------
         measurement : `Struct`
@@ -79,7 +79,6 @@ class NumSourcesTask(Task):
         meas = Measurement("nsrcMeas", nSources * u.count)
         return Struct(measurement=meas)
 
-
 class NumSourcesMatchedTask(NumSourcesTask):
     r"""Extension of NumSourcesTask to count sources in a matched catalog"""
 
@@ -91,7 +90,7 @@ class NumSourcesMatchedTask(NumSourcesTask):
 
 class NumSourcesMergeTask(Task):
 
-    ConfigClass = Config
+    ConfigClass = MeasurementTaskConfig
     _DefaultName = "numSourcesMergeTask"
 
     def run(self, metricName: str, data: Dict[str, List[CalibratedCatalog]]):
@@ -111,7 +110,7 @@ class NumSourcesMergeTask(Task):
         return Struct(measurement=meas)
 
 
-class NumpySummaryConfig(Config):
+class NumpySummaryConfig(MeasurementTaskConfig):
     summary = Field(
         dtype=str, default="median", doc="Aggregation to use for summary metrics"
     )

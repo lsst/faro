@@ -5,7 +5,6 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasVisitTable
-      measure.selectorActions.FlagSelector.selectWhenTrue: ["detect_isPrimary"]
       # Reference dataset must be consistently specified
       # in connections and reference object loader.
       # Reference datasets include:
@@ -15,19 +14,9 @@ tasks:
       # connections.refDataset: 'gaia_dr2_20200414'
       # connections.refDataset: 'ps1_pv3_3pi_20170110'
       python: |
-        from lsst.faro.measurement import NumSourcesTask
+        from lsst.faro.base import NumSourcesTask
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(NumSourcesTask)
-        config.measure.selectorActions.FlagSelector = selectors.FlagSelector
-        # config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
-        ####### above function implements "currentBands" option for all selectors could
-        ####### also use the following options to get static bands in all analysis contexts
-        # config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.StarIdentifier.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.PerBandFlagSelector.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
-        # config.measure.selectorActions.StarIdentifier.staticBandSet=["g","z"]
-        # config.measure.selectorActions.PerBandFlagSelector.staticBandSet=["g","z"]
         # Example configuration to apply proper motions for Gaia
         # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
@@ -55,10 +44,11 @@ tasks:
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(TExTableTask)
         config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
-        #uncomment to show that you can configure things set in selectors.brightIsolatedSelectorSourceTable
-        #config.measure.selectorActions.SNRSelector.bands=["z"]
-        #config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
-        #"psfFlux","psfFluxErr","deblend_nChild"]
-        config.measure.minSep = 0.25
-        config.measure.maxSep = 5.0
-        config.measure.shearConvention = False
+        ####### above function implements "currentBands" option for all selectors could
+        ####### also use the following options to get static bands in all analysis contexts
+        # config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.StarIdentifier.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.PerBandFlagSelector.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
+        # config.measure.selectorActions.StarIdentifier.staticBandSet=["g","z"]
+        # config.measure.selectorActions.PerBandFlagSelector.staticBandSet=["g","z"]

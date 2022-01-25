@@ -30,44 +30,7 @@ from lsst.faro.utils.tex_table import calculateTEx
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask", "NumSourcesTask") #, "NumSourcesConfig"
-
-
-#class NumSourcesConfig(MeasurementTaskConfig):
-#    "nothing needed here"
-
-
-class NumSourcesTask(Task):
-    """Simple default task to count the number of sources/objects in catalog."""
-
-    ConfigClass = MeasurementTaskConfig
-    _DefaultName = "numSourcesTask"
-
-    def run(self, metricName, catalog, **kwargs):
-        """Run NumSourcesTask
-
-        Parameters
-        ----------
-        metricName : `str`
-            The name of the metric to measure.
-        catalog : `dict`
-            `lsst.afw.table` Catalog type
-        kwargs
-            Extra keyword arguments used to construct the task.
-
-        Returns
-        -------
-        measurement : `Struct`
-            The measured value of the metric.
-        """
-        self.log.info("Measuring %s", metricName)
-        catalog = selectors.applySelectors(catalog,
-                                           self.config.selectorActions,
-                                           currentBands=kwargs["currentBands"])
-        nSources = len(catalog)
-        self.log.info("Number of sources (nSources) = %i" % nSources)
-        meas = Measurement("nsrcMeas", nSources * u.count)
-        return Struct(measurement=meas)
+__all__ = ("TExTableConfig", "TExTableTask")
 
 
 class TExTableConfig(MeasurementTaskConfig):
@@ -97,12 +60,6 @@ class TExTableConfig(MeasurementTaskConfig):
         doc="Use shear ellipticity convention rather than distortion",
         dtype=bool,
         default=True,
-    )
-
-    selectorActions = ConfigurableActionStructField(
-        doc="Which selectors to use to narrow down the data (independent of band).",
-        default={"SNRSelector": selectors.SNRSelector},
-        # default={"sourceSelector": selectors.StarIdentifier},
     )
 
     raColumn = ColumnField(doc="RA column", default="coord_ra")

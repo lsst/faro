@@ -56,12 +56,6 @@ class VisitTableMeasurementConfig(
 ):
     """Configuration for VisitTableMeasurementTask."""
 
-    # columns = pexConfig.ListField(
-    #     doc="Columns from sourceTable_visit to load.",
-    #     dtype=str,
-    #     default=["coord_ra", "coord_dec"],
-    # )
-
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for science performance metrics measured on single-visit source catalogs."""
@@ -70,6 +64,8 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "visitTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        """currentBands is set to None in sourceTable contexts, because currentBands is used to 
+        provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
 
         kwargs = {}

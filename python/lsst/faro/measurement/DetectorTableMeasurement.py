@@ -76,6 +76,8 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "detectorTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        """currentBands is set to None in sourceTable contexts, because currentBands is used to 
+        provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
         kwargs = {}
         kwargs["currentBands"] = None
