@@ -31,19 +31,24 @@ class MeasurementTaskConfig(Config):
         default={},
     )
 
-    def _getColumnName(self,keyName,band=None):
-        """Return column name corresponding to keyName if keyName is in columns or columnsBand"""
-        #check no duplicate keys 
-        columnsKeysList=list(self.columns.keys())
-        columnsBandKeysList=list(self.columnsBand.keys())
-        allKeys=columnsKeysList + columnsBandKeysList
-        
-        assert (len(allKeys) == len(set(allKeys))), "duplicate key exists" #no duplicate keys
-        assert (keyName in allKeys), "Key is not defined" #key exists in one of the dicts
-        
-        if keyName in columnsKeysList:
-            columnName = self.columns[keyName]
-        elif keyName in columnsBandKeysList:
-            columnName = band + '_' + self.columnsBand[keyName]    
+    def columns(self):
+        """Return list of band-independent column names that are set in
+        configuration."""
 
-        return columnName
+        columns = []
+        for name, value in self.items():
+            if isinstance(self._fields[name], ColumnField):
+                columns.append(value)
+
+        return columns
+
+    def columnsBand(self):
+        """Return list of by-band column names that are set in configuration.
+        """
+
+        columns = []
+        for name, value in self.items():
+            if isinstance(self._fields[name], ColumnBandField):
+                columns.append(value)
+
+        return columns
