@@ -30,6 +30,7 @@ from lsst.afw.table import (
     updateSourceCoords,
 )
 from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
+from lsst.faro.utils.prefilter import preFilter
 
 import numpy as np
 from astropy.table import join, Table
@@ -50,6 +51,7 @@ def matchCatalogs(
         astromCalibs: List[SkyWcs],
         dataIds,
         matchRadius: float,
+        config,
         logger=None,
 ):
     schema = inputs[0].schema
@@ -154,8 +156,14 @@ def matchCatalogs(
         tmpCat["psf_e1"][:] = psf_e1
         tmpCat["psf_e2"][:] = psf_e2
 
+        tmpCat = preFilter(tmpCat, snrMin=config.snrMin, snrMax=config.snrMax,
+                           brightMagCut=config.brightMagCut, faintMagCut=config.faintMagCut,
+                           extended=config.selectExtended)
+
         srcVis.extend(tmpCat, False)
         mmatch.add(catalog=tmpCat, dataId=dataId)
+
+    # import pdb; pdb.set_trace()
 
     # Complete the match, returning a catalog that includes
     # all matched sources with object IDs that can be used to group them.

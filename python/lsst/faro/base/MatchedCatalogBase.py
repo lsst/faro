@@ -142,6 +142,23 @@ class MatchedBaseConfig(
     match_radius = pexConfig.Field(
         doc="Match radius in arcseconds.", dtype=float, default=1
     )
+    snrMin = pexConfig.Field(
+        doc="Minimum median SNR for a source to be included.",
+        dtype=float, default=200
+    )
+    snrMax = pexConfig.Field(
+        doc="Maximum median SNR for a source to be included.",
+        dtype=float, default=np.Inf
+    )
+    brightMagCut = pexConfig.Field(
+        doc="Bright limit of catalog entries to include.", dtype=float, default=10.0
+    )
+    faintMagCut = pexConfig.Field(
+        doc="Faint limit of catalog entries to include.", dtype=float, default=30.0
+    )
+    selectExtended = pexConfig.Field(
+        doc="Whether to select extended sources", dtype=bool, default=False
+    )
     doApplyExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False
     )
@@ -186,7 +203,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             out_matched = afwTable.SimpleCatalog()
         else:
             srcvis, matched = matchCatalogs(
-                sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
+                sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius,
+                self.config, logger=self.log
             )
             # Trim the output to the patch bounding box
             out_matched = type(matched)(matched.schema)
