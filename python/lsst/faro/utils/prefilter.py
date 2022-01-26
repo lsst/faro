@@ -76,7 +76,7 @@ def preFilter(
         return is_primary
 
     allfilt = filtSNR(sourceCatalog) & filtExtended(sourceCatalog) &\
-              filtFlags(sourceCatalog) & filtPrimary(sourceCatalog) &\
-              filtMag(sourceCatalog)
+        filtFlags(sourceCatalog) & filtPrimary(sourceCatalog) &\
+        filtMag(sourceCatalog)
 
     return sourceCatalog[allfilt].copy(deep=True)
