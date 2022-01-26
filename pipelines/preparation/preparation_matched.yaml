@@ -4,3 +4,33 @@ tasks:
     class: lsst.faro.preparation.PatchMatchedPreparationTask
   matchCatalogsTract:
     class: lsst.faro.preparation.TractMatchedPreparationTask
+  matchCatalogsTractMag17to21p5:
+    # Used by astrometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 10
+      snrMax: 50000
+      brightMagCut: 17.0
+      faintMagCut: 21.5
+      selectExtended: False
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractMag17to21p5'
+  matchCatalogsTractStarsSNR5to80:
+    # Used by "photRepStar" stellar photometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 5
+      snrMax: 80
+      selectExtended: False
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractStarsSNR5to80'
+  matchCatalogsTractGxsSNR5to80:
+    # Used by "photRepGal" galaxy photometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 5
+      snrMax: 80
+      selectExtended: True
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractGxsSNR5to80'
+
