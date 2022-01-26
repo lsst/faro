@@ -163,8 +163,6 @@ def matchCatalogs(
         srcVis.extend(tmpCat, False)
         mmatch.add(catalog=tmpCat, dataId=dataId)
 
-    # import pdb; pdb.set_trace()
-
     # Complete the match, returning a catalog that includes
     # all matched sources with object IDs that can be used to group them.
     matchCat = mmatch.finish()
