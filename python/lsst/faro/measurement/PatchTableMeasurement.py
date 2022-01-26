@@ -66,7 +66,6 @@ class PatchTableMeasurementConfig(
 ):
     """Configuration for PatchTableMeasurementTask."""
 
-
     instrument = pexConfig.Field(
         doc="Instrument.",
         dtype=str,
@@ -169,9 +168,9 @@ class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
         kwargs = {"currentBands": self.config.bands.list()}
 
-        columns=list(self.config.measure.columns.values())
+        columns = list(self.config.measure.columns.values())
         columns.append("patch")
-        
+
         for band in self.config.bands:
             for column in self.config.measure.columnsBand.values():
                 columns.append(band + "_" + column)

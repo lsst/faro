@@ -20,7 +20,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
@@ -64,13 +63,13 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "visitTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
-        """currentBands is set to None in sourceTable contexts, because currentBands is used to 
+        """currentBands is set to None in sourceTable contexts, because currentBands is used to
         provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
 
         kwargs = {}
         kwargs["currentBands"] = None
-         
+
         columns = list(self.config.measure.columns.values())
         columnsWithSelectors = self._getTableColumnsSelectors(columns, currentBands=kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})

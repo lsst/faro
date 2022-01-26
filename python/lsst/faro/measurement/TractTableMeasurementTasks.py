@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from lsst.pex.config import Config, Field, DictField
+from lsst.pex.config import Field, DictField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
@@ -61,28 +61,29 @@ class TExTableConfig(MeasurementTaskConfig):
         dtype=bool,
         default=True,
     )
-    columns=DictField(doc="""Columns required for metric calculation. Should be all columns in SourceTable
-                            contexts, and columns that do not change name with band in ObjectTable 
-                            contexts""", 
-                            keytype=str, 
-                            itemtype=str, 
-                            default={"ra":"coord_ra",
-                                     "dec":"coord_dec",
-                                     "ixx":"ixx",
-                                     "ixy":"ixx",
-                                     "iyy":"ixx",
-                                     "ixxPsf":"ixx",
-                                     "ixyPsf":"ixx",
-                                     "iyyPsf":"iyy",
-                                     "deblend_nChild":"deblend_nChild"
-                                     }
+    columns = DictField(
+        doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
+        and columns that do not change name with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={"ra": "coord_ra",
+                 "dec": "coord_dec",
+                 "ixx": "ixx",
+                 "ixy": "ixx",
+                 "iyy": "ixx",
+                 "ixxPsf": "ixx",
+                 "ixyPsf": "ixx",
+                 "iyyPsf": "iyy",
+                 "deblend_nChild": "deblend_nChild"
+                 }
     )
-    columnsBand=DictField(doc="""Columns required for metric calculation that change with band in ObjectTable
-                                 contexts""", 
-                            keytype=str, 
-                            itemtype=str,
-                            default={}
-    ) 
+    columnsBand = DictField(
+        doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={}
+    )
+
 
 class TExTableTask(Task):
     """Class to perform the tex_table calculation on a parquet table data
@@ -109,10 +110,10 @@ class TExTableTask(Task):
         # If accessing objectTable_tract, we need to append the band name at
         #   the beginning of the column name.
         if currentBands is not None:
-           prependString = currentBands
+            prependString = currentBands
         else:
-           prependString = None
-        
+            prependString = None
+
         # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,

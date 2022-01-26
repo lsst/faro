@@ -561,13 +561,13 @@ def calculateTEx(catalog, config, currentBand):
         A dictionary with entries for radius, corr, and corrErr.
     """
 
-    ixxColumn=config._getColumnName("ixx",currentBand)
-    iyyColumn=config._getColumnName("iyy",currentBand)
-    ixyColumn=config._getColumnName("ixy",currentBand)
-    ixxPsfColumn=config._getColumnName("ixxPsf",currentBand)
-    iyyPsfColumn=config._getColumnName("ixxPsf",currentBand)
-    ixyPsfColumn=config._getColumnName("ixxPsf",currentBand)
-    
+    ixxColumn = config._getColumnName("ixx", currentBand)
+    iyyColumn = config._getColumnName("iyy", currentBand)
+    ixyColumn = config._getColumnName("ixy", currentBand)
+    ixxPsfColumn = config._getColumnName("ixxPsf", currentBand)
+    iyyPsfColumn = config._getColumnName("ixxPsf", currentBand)
+    ixyPsfColumn = config._getColumnName("ixxPsf", currentBand)
+
     nMinSources = 50
     if len(catalog) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}

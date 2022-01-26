@@ -104,19 +104,19 @@ class CatalogMeasurementBaseTask(MetricTask):
 
     def _getTableColumnsSelectors(self, columns, currentBands=None):
         """given a list of selectors return columns required to apply these
-        selectors. 
+        selectors.
         Parameters
         ----------
-        columns:  `list` [`str`] 
-        a list of columns required to calculate a metric. This list 
-        is appended with any addditional columns required for the selectorActions. 
+        columns:  `list` [`str`]
+        a list of columns required to calculate a metric. This list
+        is appended with any addditional columns required for the selectorActions.
 
         currentBands:  `list` [`str`]
-        The filter band(s) associated with the observations.  
+        The filter band(s) associated with the observations.
 
         Returns
         -------
-        columnNames: `list` [`str`] the set of columns required to compute a 
+        columnNames: `list` [`str`] the set of columns required to compute a
         metric with any addditional columns required for the selectorActions
         appended to the set.
 
