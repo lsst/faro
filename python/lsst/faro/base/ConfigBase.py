@@ -20,45 +20,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from lsst.pex.config import Config, Field
-from lsst.pex.config.callStack import getStackFrame
+from lsst.pex.config import Config
 from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
-
-
-class ColumnField(Field):
-    """A configuration field (`lsst.pex.config.Field` subclass) that indicates
-    a band-independent column name."""
-
-    def __init__(self, doc, default=None, check=None, optional=False, deprecated=None):
-
-        source = getStackFrame()
-        self._setup(
-            doc=doc,
-            dtype=str,
-            default=default,
-            check=check,
-            optional=optional,
-            source=source,
-            deprecated=deprecated,
-        )
-
-
-class ColumnBandField(Field):
-    """A configuration field (`lsst.pex.config.Field` subclass) that indicates
-    a by-band column name."""
-
-    def __init__(self, doc, default=None, check=None, optional=False, deprecated=None):
-
-        source = getStackFrame()
-        self._setup(
-            doc=doc,
-            dtype=str,
-            default=default,
-            check=check,
-            optional=optional,
-            source=source,
-            deprecated=deprecated,
-        )
 
 
 class MeasurementTaskConfig(Config):
@@ -68,26 +31,19 @@ class MeasurementTaskConfig(Config):
         default={},
     )
 
-    def columns(self):
-        """Return list of band-independent column names that are set in 
-        configuration."""
-
-        columns = []
-        for name, value in self.items():
-            if isinstance(self._fields[name], ColumnField):
-                self
-                columns.append(value)
-
-        return columns
-
-    def columnsBand(self):
-        """Return list of by-band column names that are set in configuration.
-        """
+    def _getColumnName(self,keyName,band=None):
+        """Return column name corresponding to keyName if keyName is in columns or columnsBand"""
+        #check no duplicate keys 
+        columnsKeysList=list(self.columns.keys())
+        columnsBandKeysList=list(self.columnsBand.keys())
+        allKeys=columnsKeysList + columnsBandKeysList
         
-        columns = []
-        for name, value in self.items():
-            if isinstance(self._fields[name], ColumnBandField):
-                self
-                columns.append(value)
+        assert (len(allKeys) == len(set(allKeys))), "duplicate key exists" #no duplicate keys
+        assert (keyName in allKeys), "Key is not defined" #key exists in one of the dicts
+        
+        if keyName in columnsKeysList:
+            columnName = self.columns[keyName]
+        elif keyName in columnsBandKeysList:
+            columnName = band + '_' + self.columnsBand[keyName]    
 
-        return columns
+        return columnName

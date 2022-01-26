@@ -76,11 +76,11 @@ class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
         inputs = butlerQC.get(inputRefs)
         kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
-        columns = self.config.measure.columns()
-        for column in self.config.measure.columnsBand():
+        columns=list(self.config.measure.columns.values())
+        for column in self.config.measure.columnsBand.values():
             columns.append(kwargs["currentBands"] + "_" + column)
         
-        columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
 
         tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
@@ -143,12 +143,12 @@ class ForcedSourceMultiBandTableMeasurementTask(CatalogMeasurementBaseTask):
         inputs = butlerQC.get(inputRefs)
         kwargs = {"currentBands": self.config.bands.list()}
 
-        columns = self.config.measure.columns()
+        columns=list(self.config.measure.columns.values())
         for band in kwargs["currentBands"]:
-            for column in self.config.measure.columnsBand():
+            for column in self.config.measure.columnsBand.values():
                 columns.append(band + "_" + column)
 
-        columnsWithSelectors = self._getTableColumns(columns, kwargs["currentBands"])
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
         tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
         # Extract only the entries from the band of interest:

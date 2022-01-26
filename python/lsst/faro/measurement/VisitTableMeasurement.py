@@ -71,8 +71,8 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
         kwargs = {}
         kwargs["currentBands"] = None
          
-        columns = self.config.measure.columns() + self.config.measure.columnsBand()
-        columnsWithSelectors = self._getTableColumns(columns, currentBands=kwargs["currentBands"])
+        columns = list(self.config.measure.columns.values())
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, currentBands=kwargs["currentBands"])
         catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
         kwargs["catalog"] = catalog
 

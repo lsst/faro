@@ -19,11 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from lsst.pex.config import Config, Field
+from lsst.pex.config import Config, Field, DictField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
-from lsst.faro.base.ConfigBase import MeasurementTaskConfig, ColumnField, ColumnBandField
+from lsst.faro.base.ConfigBase import MeasurementTaskConfig
 import lsst.faro.utils.selectors as selectors
 from lsst.faro.utils.tex_table import calculateTEx
 
@@ -61,18 +61,28 @@ class TExTableConfig(MeasurementTaskConfig):
         dtype=bool,
         default=True,
     )
-
-    raColumn = ColumnField(doc="RA column", default="coord_ra")
-    decColumn = ColumnField(doc="Dec column", default="coord_dec")
-    ixxColumn = ColumnBandField(doc="Ixx column", default="ixx")
-    ixyColumn = ColumnBandField(doc="Ixy column", default="ixy")
-    iyyColumn = ColumnBandField(doc="Iyy column", default="iyy")
-    ixxPsfColumn = ColumnBandField(doc="Ixx PSF column", default="ixxPSF")
-    ixyPsfColumn = ColumnBandField(doc="Ixy PSF column", default="ixyPSF")
-    iyyPsfColumn = ColumnBandField(doc="Iyy PSF column", default="iyyPSF")
-    deblend_nChildColumn = ColumnField(doc="nChild column", default="deblend_nChild")
-    # Eventually want to add option to use only PSF reserve stars
-
+    columns=DictField(doc="""Columns required for metric calculation. Should be all columns in SourceTable
+                            contexts, and columns that do not change name with band in ObjectTable 
+                            contexts""", 
+                            keytype=str, 
+                            itemtype=str, 
+                            default={"ra":"coord_ra",
+                                     "dec":"coord_dec",
+                                     "ixx":"ixx",
+                                     "ixy":"ixx",
+                                     "iyy":"ixx",
+                                     "ixxPsf":"ixx",
+                                     "ixyPsf":"ixx",
+                                     "iyyPsf":"iyy",
+                                     "deblend_nChild":"deblend_nChild"
+                                     }
+    )
+    columnsBand=DictField(doc="""Columns required for metric calculation that change with band in ObjectTable
+                                 contexts""", 
+                            keytype=str, 
+                            itemtype=str,
+                            default={}
+    ) 
 
 class TExTableTask(Task):
     """Class to perform the tex_table calculation on a parquet table data
@@ -102,7 +112,7 @@ class TExTableTask(Task):
            prependString = currentBands
         else:
            prependString = None
-
+        
         # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,

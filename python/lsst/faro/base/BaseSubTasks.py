@@ -21,7 +21,7 @@
 
 from lsst.afw.table import SourceCatalog
 from lsst.pipe.base import Struct, Task
-from lsst.pex.config import Config, Field
+from lsst.pex.config import Config, Field, DictField
 from lsst.verify import Measurement
 
 from lsst.faro.utils.matcher import mergeCatalogs
@@ -46,6 +46,18 @@ class NumSourcesConfig(MeasurementTaskConfig):
         doc="Only count sources where detect_isPrimary is True.",
         dtype=bool,
         default=False,
+    )
+    columns=DictField(doc="""Columns required for metric calculation. Should be all columns in SourceTable
+                            contexts, and columns that do not change name with band in ObjectTable contexts""", 
+                            keytype=str, 
+                            itemtype=str, 
+                            default={"detect_isPrimary":"detect_isPrimary"}
+    )
+    columnsBand=DictField(doc="""Columns required for metric calculation that change with band in ObjectTable
+                                 contexts""", 
+                            keytype=str, 
+                            itemtype=str,
+                            default={}
     )
 
 
@@ -72,7 +84,7 @@ class NumSourcesTask(Task):
         """
         self.log.info("Measuring %s", metricName)
         if self.config.doPrimary:
-            nSources = np.sum(catalog["detect_isPrimary"] is True)
+            nSources = np.sum(catalog[self.config._getColumnName("detect_isPrimary")] is True)
         else:
             nSources = len(catalog)
         self.log.info("Number of sources (nSources) = %i" % nSources)

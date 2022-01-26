@@ -102,7 +102,7 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
-    def _getTableColumns(self, columns, currentBands=None):
+    def _getTableColumnsSelectors(self, columns, currentBands=None):
         """given a list of selectors return columns required to apply these
         selectors. 
         Parameters
