@@ -79,4 +79,4 @@ def preFilter(
         filtFlags(sourceCatalog) & filtPrimary(sourceCatalog) &\
         filtMag(sourceCatalog)
 
-    return sourceCatalog[allfilt].copy(deep=True)
+    return sourceCatalog[allfilt]

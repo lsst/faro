@@ -143,11 +143,11 @@ class MatchedBaseConfig(
         doc="Match radius in arcseconds.", dtype=float, default=1
     )
     snrMin = pexConfig.Field(
-        doc="Minimum median SNR for a source to be included.",
+        doc="Minimum SNR for a source to be included.",
         dtype=float, default=200
     )
     snrMax = pexConfig.Field(
-        doc="Maximum median SNR for a source to be included.",
+        doc="Maximum SNR for a source to be included.",
         dtype=float, default=np.Inf
     )
     brightMagCut = pexConfig.Field(
