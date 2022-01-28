@@ -26,11 +26,13 @@ from lsst.verify import Measurement, Datum
 from lsst.faro.base.ConfigBase import MeasurementTaskConfig
 import lsst.faro.utils.selectors as selectors
 from lsst.faro.utils.tex_table import calculateTEx
+from lsst.faro.utils.extinction_corr import extinction_corr
 
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask")
+__all__ = ("TExTableConfig", "TExTableTask",
+           "wPerpTableConfig", "wPerpTableTask")
 
 
 class TExTableConfig(MeasurementTaskConfig):
@@ -144,3 +146,93 @@ class TExTableTask(Task):
                 metricName, np.mean(np.abs(result["corr"])), extras=extras
             )
         )
+
+
+class wPerpTableConfig(Config):
+    """Class to organize the yaml configuration parameters to be passed to
+    TExTableTask when using a parquet table input. All values needed to perform
+    TExTableTask have default values set below.
+
+    Optional Input (yaml file)
+    ----------
+    Column names specified as str in yaml configuration for TeX task. These are
+    the desired column names to be passed to the calcuation. If you wish to use
+    values other than the default values specified below, add the following e.g.
+    line to the yaml file:
+
+    config.measure.raColumn = "coord_ra_new"
+    """
+
+    bright_rmag_cut  = Field(
+        doc="Bright magnitude limit to select", dtype=float, default=17.0
+    )
+    faint_rmag_cut = Field(
+        doc="Faint magnitude limit to select", dtype=float, default=23.0
+    )
+    columns = DictField(
+        doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
+        and columns that do not change name with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={"ra": "coord_ra",
+                 "dec": "coord_dec",
+                }
+    )
+    columnsBand = DictField(
+        doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={"psfMag": "psfFlux"
+                }
+    )
+    stellarLocusFitDict = pexConfig.DictField(
+        doc="The parameters to use for the stellar locus fit. The default parameters are examples and are "
+            "not useful for any of the fits. The dict needs to contain xMin/xMax/yMin/yMax which are the "
+            "limits of the initial box for fitting the stellar locus, mHW and bHW are the initial "
+            "intercept and gradient for the fitting.",
+        keytype=str,
+        itemtype=float,
+        default={"xMin": 0.1, "xMax": 0.2, "yMin": 0.1, "yMax": 0.2, "mHW": 0.5, "bHW": 0.0}
+    )
+
+
+class wPerpTableTask(Task):
+    """Class to perform the wPerp calculation on a parquet table data
+    object.
+
+    Parameters
+    ----------
+    None
+
+    Output:
+    ----------
+    TEx metric with defined configuration.
+    """
+
+    ConfigClass = wPerpTableConfig
+    _DefaultName = "wPerpTableTask"
+
+    def run(
+        self, metricName, catalog, currentBands, **kwargs
+    ):
+
+        self.log.info("Measuring %s", metricName)
+
+        # If accessing objectTable_tract, we need to append the band name at
+        #   the beginning of the column name.
+        if currentBands is not None:
+            prependString = currentBands
+        else:
+            prependString = None
+
+        # filter catalog
+        catalog = selectors.applySelectors(catalog,
+                                           self.config.selectorActions,
+                                           currentBands=currentBands)
+
+        extVals = extinction_corr(catalog, currentBands)
+
+        # Next, figure out how to call Sophie's fit function(s).
+        # The main issue is figuring out how to give the bands in the order we need?
+        fitParams = stellarLocusFit(xs, ys, self.config.stellarLocusFitDict)
+
