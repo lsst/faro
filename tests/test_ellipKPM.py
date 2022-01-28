@@ -67,6 +67,7 @@ class Te1Test(unittest.TestCase):
         # This is what makes it TE1
         config.minSep = 0.25
         config.maxSep = 1.0
+        config.brute = True
         task = TExTask(config=config)
         for band in ('i',):
             catalog, expected = self.load_data(('TE1', band))
