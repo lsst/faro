@@ -10,7 +10,6 @@ tasks:
       faintMagCut: 21.5
       selectExtended: False
       python: |
-        config.connections.outputCatalog = 'matchedCatalogPatchMultiBand'
         config.doApplyExternalPhotoCalib = True
         config.useGlobalExternalPhotoCalib = True
         config.doApplyExternalSkyWcs = True
