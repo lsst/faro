@@ -462,6 +462,7 @@ def calculateTEx(data: List[CalibratedCatalog], config):
         min_sep=config.minSep,
         max_sep=config.maxSep,
         sep_units="arcmin",
+        brute=config.brute
     )
     rhoStatistics = RhoStatistics(
         config.column,

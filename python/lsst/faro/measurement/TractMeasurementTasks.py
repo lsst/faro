@@ -122,6 +122,11 @@ class TExConfig(Config):
     column = Field(
         doc="Column to use for shape moments", dtype=str, default="slot_Shape"
     )
+    brute = Field(
+        doc="Run treecorr in brute-force mode for improved reproducibility in tests",
+        dtype=bool,
+        default=False
+    )
     # Eventually want to add option to use only PSF reserve stars
 
 

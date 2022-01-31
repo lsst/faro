@@ -67,13 +67,14 @@ class Te1Test(unittest.TestCase):
         # This is what makes it TE1
         config.minSep = 0.25
         config.maxSep = 1.0
+        config.brute = True
         task = TExTask(config=config)
         for band in ('i',):
             catalog, expected = self.load_data(('TE1', band))
             result = task.run('TE1', {'i': [CalibratedCatalog(catalog), ]})
             log.debug('result: ', result)
             log.debug('expected: ', expected)
-            self.assertEqual(result.measurement, expected)
+            self.assertAlmostEqual(result.measurement, expected, places=10)
 
 
 if __name__ == "__main__":
