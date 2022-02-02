@@ -163,7 +163,7 @@ class wPerpTableConfig(Config):
     config.measure.raColumn = "coord_ra_new"
     """
 
-    bright_rmag_cut  = Field(
+    bright_rmag_cut = Field(
         doc="Bright magnitude limit to select", dtype=float, default=17.0
     )
     faint_rmag_cut = Field(
