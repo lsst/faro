@@ -20,7 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from lsst.pex.config import Config
+from lsst.pex.config import Config, DictField
 from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 
 
@@ -30,19 +30,32 @@ class MeasurementTaskConfig(Config):
         doc="Which selectors to use to narrow down the data (independent of band).",
         default={},
     )
+    columns = DictField(
+        doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
+        and columns that do not change name with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={}
+    )
+    columnsBand = DictField(
+        doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={}
+    )
 
     def _getColumnName(self, keyName, band=None):
         """Return column name corresponding to keyName if keyName is in columns or columnsBand"""
-        columnsKeysList = list(self.columns.keys())
-        columnsBandKeysList = list(self.columnsBand.keys())
-        allKeys = columnsKeysList + columnsBandKeysList
+        columnsKeysSet = set(self.columns.keys())
+        columnsBandKeysSet = set(self.columnsBand.keys())
+        allKeys = set.union(columnsKeysSet, columnsBandKeysSet)
 
-        assert (len(allKeys) == len(set(allKeys))), "duplicate key exists"  # no duplicate keys
-        assert (keyName in allKeys), "Key is not defined"  # key exists in one of the dicts
+        assert (columnsKeysSet.isdisjoint(columnsBandKeysSet)), "duplicate key exists"
+        assert (keyName in allKeys), "Key is not defined in columns"
 
-        if keyName in columnsKeysList:
+        if keyName in columnsKeysSet:
             columnName = self.columns[keyName]
-        elif keyName in columnsBandKeysList:
+        elif keyName in columnsBandKeysSet:
             columnName = band + '_' + self.columnsBand[keyName]
 
         columns = []

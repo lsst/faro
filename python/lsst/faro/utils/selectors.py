@@ -9,29 +9,37 @@ __all__ = ("FlagSelector", "GalaxyIdentifier", "PerBandFlagSelector", "SNRSelect
 
 
 class FlagSelector(DataFrameAction):
-    """The base flag selector to use to select valid sources should not have an associated band"""
+    """The base flag selector to use to select valid sources should not have an
+    associated band"""
 
-    selectWhenFalse = ListField(doc="Names of the flag columns to select on when False",
-                                dtype=str,
-                                optional=False,
-                                default=[])
+    selectWhenFalse = ListField(
+        doc="Names of the flag columns to select on when False",
+        dtype=str,
+        optional=False,
+        default=[]
+    )
 
-    selectWhenTrue = ListField(doc="Names of the flag columns to select on when True",
-                               dtype=str,
-                               optional=False,
-                               default=[])
+    selectWhenTrue = ListField(
+        doc="Names of the flag columns to select on when True",
+        dtype=str,
+        optional=False,
+        default=[]
+    )
 
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
 
     def columns(self, currentBands=None):
         allCols = list(self.selectWhenFalse) + list(self.selectWhenTrue)
@@ -49,9 +57,8 @@ class FlagSelector(DataFrameAction):
             flag cuts.
         Notes
         -----
-        Uses the columns in selectWhenFalse and
-        selectWhenTrue to decide which columns to
-        select on in each circumstance.
+        Uses the columns in selectWhenFalse and selectWhenTrue to decide which
+        columns to select on in each circumstance.
         """
         mask = np.ones(len(df), dtype=bool)
 
@@ -67,17 +74,20 @@ class FlagSelector(DataFrameAction):
 class GalaxyIdentifier(DataFrameAction):
     """Identifies galaxies from the dataFrame"""
 
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
 
     def columns(self, currentBands=None):
         allCols = []
@@ -133,27 +143,34 @@ class PerBandFlagSelector(DataFrameAction):
     Notes
     -----
     """
-    selectWhenFalse = ListField(doc="Names of the flag columns to select on when False",
-                                dtype=str,
-                                optional=False,
-                                default=[])
+    selectWhenFalse = ListField(
+        doc="Names of the flag columns to select on when False",
+        dtype=str,
+        optional=False,
+        default=[]
+    )
 
-    selectWhenTrue = ListField(doc="Names of the flag columns to select on when True",
-                               dtype=str,
-                               optional=False,
-                               default=[])
+    selectWhenTrue = ListField(
+        doc="Names of the flag columns to select on when True",
+        dtype=str,
+        optional=False,
+        default=[]
+    )
 
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
 
     def columns(self, currentBands=None):
         filterColumnsTrue = []
@@ -224,26 +241,35 @@ class SNRSelector(DataFrameAction):
     Notes
     -----
      """
-    fluxType = Field(doc="Flux type to calculate the S/N in.",
-                     dtype=str,
-                     default="psfFlux")
-    snrMin = Field(doc="The minimum S/N threshold to remove sources with.",
-                   dtype=float,
-                   default=50.0)
-    snrMax = Field(doc="The maximum S/N threshold to remove sources with.",
-                   dtype=float,
-                   default=np.Inf)
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    fluxType = Field(
+        doc="Flux type to calculate the S/N in.",
+        dtype=str,
+        default="psfFlux"
+    )
+    snrMin = Field(
+        doc="The minimum S/N threshold to remove sources with.",
+        dtype=float,
+        default=50.0
+    )
+    snrMax = Field(
+        doc="The maximum S/N threshold to remove sources with.",
+        dtype=float,
+        default=np.Inf
+    )
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
     # want to set an error if staticBandSet, and self.staticBandSet=[""]
 
     def columns(self, currentBands=None):
@@ -290,17 +316,20 @@ class SNRSelector(DataFrameAction):
 class StarIdentifier(DataFrameAction):
     """Identifies stars from the dataFrame"""
 
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
 
     def columns(self, currentBands=None):
         allCols = []
@@ -346,17 +375,20 @@ class StarIdentifier(DataFrameAction):
 class UnknownIdentifier(DataFrameAction):
     """Identifies unclassified objects from the dataFrame"""
 
-    selectorBandType = ChoiceField(doc="Type of selection to do options are current band or static selection",
-                                   dtype=str,
-                                   allowed={"currentBands": "use the currentBand for selection",
-                                            "staticBandSet": "use the bands listed in self.staticBandSet"
-                                            },
-                                   default="currentBands",)
-    staticBandSet = ListField(doc="""set of bands that selection should be
-                              applied over. If changed from the default this overrides
-                              the band argument in the columns/call method.""",
-                              dtype=str,
-                              default=[""])
+    selectorBandType = ChoiceField(
+        doc="Type of selection to do options are current band or static selection",
+        dtype=str,
+        allowed={"currentBands": "use the currentBand for selection",
+                 "staticBandSet": "use the bands listed in self.staticBandSet"
+                 },
+        default="currentBands",
+    )
+    staticBandSet = ListField(
+        doc="""List of bands that selection should be applied over. If changed from
+        the default this overrides the band argument in the columns/call method.""",
+        dtype=str,
+        default=[""]
+    )
 
     def columns(self, currentBands=None):
         allCols = []
@@ -431,11 +463,14 @@ def brightIsolatedStarSourceTable(config):
     standard set of selectorActions for a SourceTable metric
 
     Parameters
-        ----------
-        measurement config dict
-        -------
-        result :
-            A mask of objects that are unclassified.
+    ----------
+    measurement config dict
+
+    Returns
+    -------
+    result :
+        mesurement config dict confugured to create a mask used to select
+        bright isolated stars from a SourceTable catalog
     """
     # will want to put more thought into this
     # setup SNRSelector
@@ -459,14 +494,17 @@ def brightIsolatedStarSourceTable(config):
 def brightIsolatedStarObjectTable(config):
     """
     To be called in a measurement yaml sets up a
-    standard set of selectorActions for a SourceTable metric
+    standard set of selectorActions for a ObjectTable metric
 
     Parameters
-        ----------
-        measurement config dict
-        -------
-        result :
-            A mask of objects that are unclassified.
+    ----------
+    measurement config dict
+
+    Returns
+    -------
+    result :
+        mesurement config dict confugured to create a mask used to select
+        bright isolated stars from an ObjectTable catalog
     """
     # will want to put more thought into this
     # setup SNRSelector

@@ -63,7 +63,7 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "visitTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
-        """currentBands is set to None in sourceTable contexts, because currentBands is used to
+        """currentBands is set to None in SourceTable contexts, because currentBands is used to
         provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
 
