@@ -1,9 +1,16 @@
 description: Produce multiband matched catalogs
 tasks:
   matchCatalogsPatchMultiBand:
+    # Used by astrometric repeatability metrics
     class: lsst.faro.preparation.PatchMatchedMultiBandPreparationTask
     config:
+      snrMin: 10
+      snrMax: 50000
+      brightMagCut: 17.0
+      faintMagCut: 21.5
+      selectExtended: False
       python: |
         config.doApplyExternalPhotoCalib = True
         config.useGlobalExternalPhotoCalib = True
         config.doApplyExternalSkyWcs = True
+        config.useGlobalExternalSkyWcs = False

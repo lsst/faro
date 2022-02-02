@@ -8,6 +8,47 @@ tasks:
         config.useGlobalExternalPhotoCalib = True
         config.doApplyExternalSkyWcs = True
         config.useGlobalExternalSkyWcs = False
+  matchCatalogsTractMag17to21p5:
+    # Used by astrometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 10
+      snrMax: 50000
+      brightMagCut: 17.0
+      faintMagCut: 21.5
+      selectExtended: False
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractMag17to21p5'
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+        config.doApplyExternalSkyWcs = True
+        config.useGlobalExternalSkyWcs = False
+  matchCatalogsTractStarsSNR5to80:
+    # Used by "photRepStar" stellar photometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 5
+      snrMax: 80
+      selectExtended: False
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractStarsSNR5to80'
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+        config.doApplyExternalSkyWcs = True
+        config.useGlobalExternalSkyWcs = False
+  matchCatalogsTractGxsSNR5to80:
+    # Used by "photRepGal" galaxy photometric repeatability metrics
+    class: lsst.faro.preparation.TractMatchedPreparationTask
+    config:
+      snrMin: 5
+      snrMax: 80
+      selectExtended: True
+      python: |
+        config.connections.outputCatalog = 'matchedCatalogTractGxsSNR5to80'
+        config.doApplyExternalPhotoCalib = True
+        config.useGlobalExternalPhotoCalib = True
+        config.doApplyExternalSkyWcs = True
+        config.useGlobalExternalSkyWcs = False
   matchCatalogsPatch:
     class: lsst.faro.preparation.PatchMatchedPreparationTask
     config:

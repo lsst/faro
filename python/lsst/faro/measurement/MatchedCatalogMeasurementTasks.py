@@ -130,6 +130,7 @@ class PA1Task(Task):
             nMinPhotRepeat=self.config.nMinPhotRepeat,
             snrMax=self.config.brightSnrMax,
             snrMin=self.config.brightSnrMin,
+            doFlags=False, isPrimary=False,
         )
 
         if "magMean" in pa1.keys():
@@ -224,6 +225,7 @@ class PF1Task(Task):
             nMinPhotRepeat=self.config.nMinPhotRepeat,
             snrMax=self.config.brightSnrMax,
             snrMin=self.config.brightSnrMin,
+            doFlags=False, isPrimary=False,
         )
 
         if "magResid" in pf1.keys():
@@ -527,6 +529,7 @@ class ModelPhotRepTask(Task):
             snrMin=self.config.selectSnrMin,
             magName=self.config.magName,
             extended=self.config.selectExtended,
+            doFlags=False, isPrimary=False,
         )
 
         name_type = "Gal" if self.config.selectExtended else "Star"
