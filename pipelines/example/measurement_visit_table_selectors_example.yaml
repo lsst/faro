@@ -44,11 +44,6 @@ tasks:
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(TExTableTask)
         config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
-        ####### above function implements "currentBands" option for all selectors could
-        ####### also use the following options to get static bands in all analysis contexts
-        # config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.StarIdentifier.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.PerBandFlagSelector.selectorBandType="staticBandSet"
-        # config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
-        # config.measure.selectorActions.StarIdentifier.staticBandSet=["g","z"]
-        # config.measure.selectorActions.PerBandFlagSelector.staticBandSet=["g","z"]
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 5.0
+        config.measure.shearConvention = False
