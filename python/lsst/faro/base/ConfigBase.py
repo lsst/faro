@@ -58,20 +58,4 @@ class MeasurementTaskConfig(Config):
         elif keyName in columnsBandKeysSet:
             columnName = band + '_' + self.columnsBand[keyName]
 
-        columns = []
-        for name, value in self.items():
-            if isinstance(self._fields[name], ColumnField):
-                columns.append(value)
-
-        return columns
-
-    def columnsBand(self):
-        """Return list of by-band column names that are set in configuration.
-        """
-
-        columns = []
-        for name, value in self.items():
-            if isinstance(self._fields[name], ColumnBandField):
-                columns.append(value)
-
-        return columns
+        return columnName

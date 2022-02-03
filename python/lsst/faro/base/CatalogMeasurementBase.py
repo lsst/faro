@@ -26,7 +26,6 @@ import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
 import lsst.geom
-import lsst.faro.utils.selectors as selectors
 from .BaseSubTasks import NumSourcesTask
 
 __all__ = (
