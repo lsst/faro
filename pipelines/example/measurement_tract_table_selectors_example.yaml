@@ -1,0 +1,34 @@
+description: Compute metrics from tract catalogs
+tasks:
+  nsrcMeasTract:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasTract
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+  TE1:
+    class: lsst.faro.measurement.TractTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE1_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(TExTableTask)
+        config.measure=selectors.brightIsolatedStarObjectTable(config.measure)
+        config.measure.columns={"ra":"coord_ra","dec":"coord_dec","deblend_nChild":"deblend_nChild"}
+        config.measure.columnsBand={"ixx":"ixx","ixy":"ixx","iyy":"ixx","ixxPsf":"ixx","ixyPsf":"ixx","iyyPsf":"iyy"}
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 1.0
+        config.measure.shearConvention = False
+        ####### above function implements "currentBands" option for all selectors could
+        ####### also use the following options to get static bands in all analysis contexts
+        # config.measure.selectorActions.SNRSelector.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.StarIdentifier.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.PerBandFlagSelector.selectorBandType="staticBandSet"
+        # config.measure.selectorActions.SNRSelector.staticBandSet=["g","z"]
+        # config.measure.selectorActions.StarIdentifier.staticBandSet=["g","z"]
+        # config.measure.selectorActions.PerBandFlagSelector.staticBandSet=["g","z"]

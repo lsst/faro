@@ -66,18 +66,6 @@ class PatchTableMeasurementConfig(
 ):
     """Configuration for PatchTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Band-independent columns from objectTable_tract to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "detect_isPrimary", "patch"],
-    )
-
-    columnsBand = pexConfig.ListField(
-        doc="Band-specific columns from objectTable_tract to load.",
-        dtype=str,
-        default=["psfFlux", "psfFluxErr"],
-    )
-
     instrument = pexConfig.Field(
         doc="Instrument.",
         dtype=str,
@@ -86,19 +74,23 @@ class PatchTableMeasurementConfig(
 
 
 class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
-    """Base class for per-band science performance metrics measured on single-tract object catalogs."""
+    """Base class for per-band science performance metrics measured on single-patch object catalogs."""
 
     ConfigClass = PatchTableMeasurementConfig
-    _DefaultName = "tractTableMeasurementTask"
+    _DefaultName = "patchTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        kwargs = {"band": butlerQC.quantum.dataId['band']}
+        kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
-        columns = self.config.columns.list()
-        for column in self.config.columnsBand:
-            columns.append(kwargs["band"] + column)
-        catalog = inputs["catalog"].get(parameters={"columns": columns})
+        columns = list(self.config.measure.columns.values())
+        columns.append("patch")
+
+        for column in self.config.measure.columnsBand.values():
+            columns.append(kwargs["currentBands"] + "_" + column)
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
         selection = (catalog["patch"] == butlerQC.quantum.dataId["patch"])
         kwargs["catalog"] = catalog[selection]
 
@@ -106,7 +98,7 @@ class PatchTableMeasurementTask(CatalogMeasurementBaseTask):
             refCats = inputs.pop("refCat")
             filter_map = FilterMap()
             filterList = filter_map.getFilters(self.config.instrument,
-                                               [kwargs["band"]])
+                                               [kwargs["currentBands"]])
 
             # TODO: add capability to select the reference epoch
             epoch = None
@@ -166,21 +158,25 @@ class PatchMultiBandTableMeasurementConfig(
 
 class PatchMultiBandTableMeasurementTask(PatchTableMeasurementTask):
 
-    """Base class for science performance metrics measured on single-tract source catalogs, multi-band."""
+    """Base class for science performance metrics measured on single-patch source catalogs, multi-band."""
 
     ConfigClass = PatchMultiBandTableMeasurementConfig
-    _DefaultName = "tractMultiBandTableMeasurementTask"
+    _DefaultName = "patchMultiBandTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
 
-        kwargs = {"bands": self.config.bands.list()}
+        kwargs = {"currentBands": self.config.bands.list()}
 
-        columns = self.config.columns.list()
+        columns = list(self.config.measure.columns.values())
+        columns.append("patch")
+
         for band in self.config.bands:
-            for column in self.config.columnsBand:
-                columns.append(band + column)
-        catalog = inputs["catalog"].get(parameters={"columns": columns})
+            for column in self.config.measure.columnsBand.values():
+                columns.append(band + "_" + column)
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
         selection = (catalog["patch"] == butlerQC.quantum.dataId["patch"])
         kwargs["catalog"] = catalog[selection]
 

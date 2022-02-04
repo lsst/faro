@@ -1,0 +1,49 @@
+description: Compute per-visit metrics from sourceTable_visit catalogs
+tasks:
+  nsrcMeasVisitTable:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasVisitTable
+      # Reference dataset must be consistently specified
+      # in connections and reference object loader.
+      # Reference datasets include:
+      # - Gaia (gaia_dr2_20200414)
+      # - PS1 (ps1_pv3_3pi_20170110)
+      # Examples to specify the reference dataset:
+      # connections.refDataset: 'gaia_dr2_20200414'
+      # connections.refDataset: 'ps1_pv3_3pi_20170110'
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+        # Example configuration to apply proper motions for Gaia
+        # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
+        # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
+        # config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
+        # config.referenceCatalogLoader.doApplyColorTerms = False
+        # Example configuration to apply color terms from PS1 to HSC
+        # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'ps1_pv3_3pi_20170110'
+        # config.referenceCatalogLoader.doApplyColorTerms = True
+        # config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = None
+        # import os
+        # from lsst.utils import getPackageDir
+        # config.referenceCatalogLoader.refObjLoader.load(os.path.join(getPackageDir('obs_subaru'),
+        #                                                              'config',
+        #                                                              'filterMap.py'))
+        # config.referenceCatalogLoader.colorterms.load(os.path.join(getPackageDir('obs_subaru'),
+        #                                                            'config',
+        #                                                            'colorterms.py'))
+  TE3:
+    class: lsst.faro.measurement.VisitTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: TE3_table
+      python: |
+        from lsst.faro.measurement import TExTableTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(TExTableTask)
+        config.measure=selectors.brightIsolatedStarSourceTable(config.measure)
+        config.measure.minSep = 0.25
+        config.measure.maxSep = 5.0
+        config.measure.shearConvention = False

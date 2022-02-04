@@ -65,12 +65,6 @@ class ForcedSourceTableMeasurementConfig(
 ):
     """Configuration for ForcedSourceTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Band-independent columns from forcedSourceTable_tract to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "band", "detect_isPrimary", "psfFlux", "psfFluxErr"],
-    )
-
 
 class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for per-band science performance metrics measured on multi-visit forced source catalogs."""
@@ -80,12 +74,17 @@ class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        kwargs = {"band": butlerQC.quantum.dataId['band']}
+        kwargs = {"currentBands": butlerQC.quantum.dataId['band']}
 
-        columns = self.config.columns.list()
-        tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
+        columns = list(self.config.measure.columns.values())
+        for column in self.config.measure.columnsBand.values():
+            columns.append(kwargs["currentBands"] + "_" + column)
+
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        tmp_catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
         # Extract only the entries from the band of interest:
-        kwargs["catalog"] = tmp_catalog[tmp_catalog.band == kwargs["band"]]
+        kwargs["catalog"] = tmp_catalog[tmp_catalog.band == kwargs["currentBands"]]
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
@@ -141,12 +140,17 @@ class ForcedSourceMultiBandTableMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        kwargs = {"bands": self.config.bands.list()}
+        kwargs = {"currentBands": self.config.bands.list()}
 
-        columns = self.config.columns.list()
-        tmp_catalog = inputs["catalog"].get(parameters={"columns": columns})
+        columns = list(self.config.measure.columns.values())
+        for band in kwargs["currentBands"]:
+            for column in self.config.measure.columnsBand.values():
+                columns.append(band + "_" + column)
+
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        tmp_catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
         # Extract only the entries from the band of interest:
-        kwargs["catalog"] = tmp_catalog[tmp_catalog.band.isin(kwargs["bands"])]
+        kwargs["catalog"] = tmp_catalog[tmp_catalog.band.isin(kwargs["currentBands"])]
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:

@@ -26,7 +26,6 @@ import lsst.pex.config as pexConfig
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections
 from lsst.pipe.tasks.loadReferenceCatalog import LoadReferenceCatalogTask
 import lsst.geom
-
 from .BaseSubTasks import NumSourcesTask
 
 __all__ = (
@@ -102,6 +101,33 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         return self.measure.run(self.config.connections.metric, **kwargs)
 
+    def _getTableColumnsSelectors(self, columns, currentBands=None):
+        """given a list of selectors return columns required to apply these
+        selectors.
+        Parameters
+        ----------
+        columns:  `list` [`str`]
+        a list of columns required to calculate a metric. This list
+        is appended with any addditional columns required for the selectorActions.
+
+        currentBands:  `list` [`str`]
+        The filter band(s) associated with the observations.
+
+        Returns
+        -------
+        columnNames: `list` [`str`] the set of columns required to compute a
+        metric with any addditional columns required for the selectorActions
+        appended to the set.
+
+        """
+        columnNames = set(columns)
+        for actionStruct in [self.config.measure.selectorActions]:
+            for action in actionStruct:
+                for col in action.columns(currentBands):
+                    columnNames.add(col)
+
+        return columnNames
+
     def _getReferenceCatalog(self, butlerQC, dataIds, refCats, filterList, epoch=None):
         """Load reference catalog in sky region of interest and optionally applies proper
         motion correction and color terms.
@@ -159,7 +185,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         refCatTable = Table()
         refCatTable['ra'] = refCatCorrected['ra']*u.deg
-        refCatTable['dec'] = refCatCorrected['ra']*u.deg
+        refCatTable['dec'] = refCatCorrected['dec']*u.deg
         for n, filterName in enumerate(filterList):
             refCatTable['refMag-' + filterName] = refCatCorrected["refMag"][:, n]*u.ABmag
             refCatTable['refMagErr-' + filterName] = refCatCorrected["refMagErr"][:, n]*u.ABmag

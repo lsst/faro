@@ -19,10 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from lsst.pex.config import Config, Field
+from lsst.pex.config import Field, DictField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
+from lsst.faro.base.ConfigBase import MeasurementTaskConfig
+import lsst.faro.utils.selectors as selectors
 from lsst.faro.utils.tex_table import calculateTEx
 
 import astropy.units as u
@@ -31,7 +33,7 @@ import numpy as np
 __all__ = ("TExTableConfig", "TExTableTask")
 
 
-class TExTableConfig(Config):
+class TExTableConfig(MeasurementTaskConfig):
     """Class to organize the yaml configuration parameters to be passed to
     TExTableTask when using a parquet table input. All values needed to perform
     TExTableTask have default values set below.
@@ -59,19 +61,28 @@ class TExTableConfig(Config):
         dtype=bool,
         default=True,
     )
-    raColumn = Field(doc="RA column", dtype=str, default="coord_ra")
-    decColumn = Field(doc="Dec column", dtype=str, default="coord_dec")
-    ixxColumn = Field(doc="Ixx column", dtype=str, default="ixx")
-    ixyColumn = Field(doc="Ixy column", dtype=str, default="ixy")
-    iyyColumn = Field(doc="Iyy column", dtype=str, default="iyy")
-    ixxPsfColumn = Field(doc="Ixx PSF column", dtype=str, default="ixxPSF")
-    ixyPsfColumn = Field(doc="Ixy PSF column", dtype=str, default="ixyPSF")
-    iyyPsfColumn = Field(doc="Iyy PSF column", dtype=str, default="iyyPSF")
-    extendednessColumn = Field(doc="Extendedness column", dtype=str, default="extendedness")
-    psfFluxColumn = Field(doc="PsfFlux column", dtype=str, default="psfFlux")
-    psfFluxErrColumn = Field(doc="PsfFluxErr column", dtype=str, default="psfFluxErr")
-    deblend_nChildColumn = Field(doc="nChild column", dtype=str, default="deblend_nChild")
-    # Eventually want to add option to use only PSF reserve stars
+    columns = DictField(
+        doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
+        and columns that do not change name with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={"ra": "coord_ra",
+                 "dec": "coord_dec",
+                 "ixx": "ixx",
+                 "ixy": "ixx",
+                 "iyy": "ixx",
+                 "ixxPsf": "ixx",
+                 "ixyPsf": "ixx",
+                 "iyyPsf": "iyy",
+                 "deblend_nChild": "deblend_nChild"
+                 }
+    )
+    columnsBand = DictField(
+        doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
+        keytype=str,
+        itemtype=str,
+        default={}
+    )
 
 
 class TExTableTask(Task):
@@ -91,17 +102,22 @@ class TExTableTask(Task):
     _DefaultName = "TExTableTask"
 
     def run(
-        self, metricName, catalog, band=None
+        self, metricName, catalog, currentBands, **kwargs
     ):
 
         self.log.info("Measuring %s", metricName)
 
         # If accessing objectTable_tract, we need to append the band name at
         #   the beginning of the column name.
-        if band is not None:
-            prependString = band
+        if currentBands is not None:
+            prependString = currentBands
         else:
             prependString = None
+
+        # filter catalog
+        catalog = selectors.applySelectors(catalog,
+                                           self.config.selectorActions,
+                                           currentBands=currentBands)
 
         result = calculateTEx(catalog, self.config, prependString)
         if "corr" not in result.keys():

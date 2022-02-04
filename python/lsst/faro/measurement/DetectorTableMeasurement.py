@@ -59,12 +59,6 @@ class DetectorTableMeasurementConfig(
 ):
     """Configuration for DetectorTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Columns from sourceTable_visit to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec", "detector"],
-    )
-
     def validate(self):
         super().validate()
         if "detector" not in self.columns:
@@ -81,13 +75,20 @@ class DetectorTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "detectorTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        """currentBands is set to None in sourceTable contexts, because currentBands is used to
+        provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
+        kwargs = {}
+        kwargs["currentBands"] = None
+
+        columns = list(self.config.measure.columns.values())
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, currentBands=kwargs["currentBands"])
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+
         selection = catalog["detector"] == butlerQC.quantum.dataId["detector"]
         catalog = catalog[selection]
+        kwargs["catalog"] = catalog
 
-        kwargs = {}
-        kwargs['catalog'] = catalog
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]

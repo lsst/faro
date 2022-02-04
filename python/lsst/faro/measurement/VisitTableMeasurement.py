@@ -20,7 +20,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.pipe.base as pipeBase
-import lsst.pex.config as pexConfig
 
 from lsst.faro.base.CatalogMeasurementBase import (
     CatalogMeasurementBaseConnections,
@@ -56,12 +55,6 @@ class VisitTableMeasurementConfig(
 ):
     """Configuration for VisitTableMeasurementTask."""
 
-    columns = pexConfig.ListField(
-        doc="Columns from sourceTable_visit to load.",
-        dtype=str,
-        default=["coord_ra", "coord_dec"],
-    )
-
 
 class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     """Base class for science performance metrics measured on single-visit source catalogs."""
@@ -70,11 +63,18 @@ class VisitTableMeasurementTask(CatalogMeasurementBaseTask):
     _DefaultName = "visitTableMeasurementTask"
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
+        """currentBands is set to None in SourceTable contexts, because currentBands is used to
+        provide the correct parquet column names."""
         inputs = butlerQC.get(inputRefs)
-        catalog = inputs["catalog"].get(parameters={"columns": self.config.columns})
 
         kwargs = {}
-        kwargs['catalog'] = catalog
+        kwargs["currentBands"] = None
+
+        columns = list(self.config.measure.columns.values())
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, currentBands=kwargs["currentBands"])
+        catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
+        kwargs["catalog"] = catalog
+
         if self.config.connections.refDataset != "":
             refCats = inputs.pop("refCat")
             filterList = [butlerQC.quantum.dataId.records["physical_filter"].name]

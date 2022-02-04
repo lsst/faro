@@ -544,7 +544,7 @@ def corrSpin2(
     return xy
 
 
-def calculateTEx(catalog, config, prependString):
+def calculateTEx(catalog, config, currentBand):
     """Compute ellipticity residual correlation metrics using parquet table as input.
     Parameters
     ----------
@@ -561,37 +561,15 @@ def calculateTEx(catalog, config, prependString):
         A dictionary with entries for radius, corr, and corrErr.
     """
 
-    if prependString is not None:
-        ixxColumn = prependString + "_" + config.ixxColumn
-        iyyColumn = prependString + "_" + config.iyyColumn
-        ixyColumn = prependString + "_" + config.ixyColumn
-        ixxPsfColumn = prependString + "_" + config.ixxPsfColumn
-        iyyPsfColumn = prependString + "_" + config.iyyPsfColumn
-        ixyPsfColumn = prependString + "_" + config.ixyPsfColumn
-        extendednessColumn = prependString + "_" + config.extendednessColumn
-        psfFluxColumn = prependString + "_" + config.psfFluxColumn
-        psfFluxErrColumn = prependString + "_" + config.psfFluxErrColumn
-    else:
-        ixxColumn = config.ixxColumn
-        iyyColumn = config.iyyColumn
-        ixyColumn = config.ixyColumn
-        ixxPsfColumn = config.ixxPsfColumn
-        iyyPsfColumn = config.iyyPsfColumn
-        ixyPsfColumn = config.ixyPsfColumn
-        extendednessColumn = config.extendednessColumn
-        psfFluxColumn = config.psfFluxColumn
-        psfFluxErrColumn = config.psfFluxErrColumn
-
-    # TO-DO: Filtering should be pulled out into a separate function for standard quality selections
-    snrMin = 50
-    selection = (
-        (catalog[extendednessColumn] < 0.5)
-        & ((catalog[psfFluxColumn] / catalog[psfFluxErrColumn]) > snrMin)
-        & (catalog[config.deblend_nChildColumn] == 0)
-    )
+    ixxColumn = config._getColumnName("ixx", currentBand)
+    iyyColumn = config._getColumnName("iyy", currentBand)
+    ixyColumn = config._getColumnName("ixy", currentBand)
+    ixxPsfColumn = config._getColumnName("ixxPsf", currentBand)
+    iyyPsfColumn = config._getColumnName("ixxPsf", currentBand)
+    ixyPsfColumn = config._getColumnName("ixxPsf", currentBand)
 
     nMinSources = 50
-    if np.sum(selection) < nMinSources:
+    if len(catalog) < nMinSources:
         return {"nomeas": np.nan * u.Unit("")}
 
     treecorrKwargs = dict(
@@ -606,14 +584,14 @@ def calculateTEx(catalog, config, prependString):
         iyyColumn,
         ixxPsfColumn,
         iyyPsfColumn,
-        config.raColumn,
-        config.decColumn,
+        config._getColumnName("ra"),
+        config._getColumnName("dec"),
         ixyColumn,
         ixyPsfColumn,
         shearConvention=config.shearConvention,
         **treecorrKwargs
     )
-    xy = rhoStatisticsFunc(catalog[selection])[config.rhoStat]
+    xy = rhoStatisticsFunc(catalog)[config.rhoStat]
 
     radius = np.exp(xy.meanlogr) * u.arcmin
     if config.rhoStat == 0:
