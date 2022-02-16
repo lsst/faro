@@ -101,7 +101,7 @@ class CatalogMeasurementBaseTask(MetricTask):
     def run(self, **kwargs):
         if self.measure.config.shelveName:
             # Persist in-memory objects for development and testing
-            self._persistMeasurementInputs(self.measure.config.shelveName, **kwargs)
+            self._persistMeasurementInputs(self.measure.config, self.measure.config.shelveName, **kwargs)
         return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getTableColumnsSelectors(self, columns, currentBands=None):
@@ -196,7 +196,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         return refCatFrame
 
-    def _persistMeasurementInputs(self, shelveName, **kwargs):
+    def _persistMeasurementInputs(self, config, shelveName, **kwargs):
         """Persist in-memory objects sent as inputs to metric measurement run method.
 
         This function is intended to be used for development and testing purposes
@@ -204,6 +204,8 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         Parameters
         ----------
+        config : `lsst.pex.config.Config`
+            Config to be saved.
         shelveName : `str`
             Filename for output shelve.
         """
@@ -211,6 +213,7 @@ class CatalogMeasurementBaseTask(MetricTask):
         import shelve
         shelf = shelve.open(shelveName, 'n')
 
+        shelf['config'] = config
         for key in kwargs.keys():
             try:
                 shelf[key] = kwargs[key]
