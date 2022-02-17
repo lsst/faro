@@ -26,9 +26,12 @@ from lsst.verify import Measurement, Datum
 from lsst.faro.base.ConfigBase import MeasurementTaskConfig
 import lsst.faro.utils.selectors as selectors
 from lsst.faro.utils.tex_table import calculateTEx
-from lsst.faro.utils.extinction_corr import extinction_corr
+from lsst.faro.utils.extinction_corr import extinctionCorrTable
+from lsst.faro.utils.stellarLocus import stellarLocusFit
+from lsst.faro.utils.stats_utils import calcQuartileClippedStats
 
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 import numpy as np
 
 __all__ = ("TExTableConfig", "TExTableTask",
@@ -148,7 +151,7 @@ class TExTableTask(Task):
         )
 
 
-class wPerpTableConfig(Config):
+class wPerpTableConfig(MeasurementTaskConfig):
     """Class to organize the yaml configuration parameters to be passed to
     TExTableTask when using a parquet table input. All values needed to perform
     TExTableTask have default values set below.
@@ -163,12 +166,12 @@ class wPerpTableConfig(Config):
     config.measure.raColumn = "coord_ra_new"
     """
 
-    bright_rmag_cut = Field(
-        doc="Bright magnitude limit to select", dtype=float, default=17.0
-    )
-    faint_rmag_cut = Field(
-        doc="Faint magnitude limit to select", dtype=float, default=23.0
-    )
+    #bright_rmag_cut = Field(
+    #    doc="Bright magnitude limit to select", dtype=float, default=17.0
+    #)
+    #faint_rmag_cut = Field(
+    #    doc="Faint magnitude limit to select", dtype=float, default=23.0
+    #)
     columns = DictField(
         doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
         and columns that do not change name with band in ObjectTable contexts""",
@@ -182,17 +185,17 @@ class wPerpTableConfig(Config):
         doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
         keytype=str,
         itemtype=str,
-        default={"psfMag": "psfFlux"
-                }
+        default={"psfFlux": "psfFlux"
+                } ##### Check what columns are needed!
     )
-    stellarLocusFitDict = pexConfig.DictField(
+    stellarLocusFitDict = DictField(
         doc="The parameters to use for the stellar locus fit. The default parameters are examples and are "
             "not useful for any of the fits. The dict needs to contain xMin/xMax/yMin/yMax which are the "
             "limits of the initial box for fitting the stellar locus, mHW and bHW are the initial "
             "intercept and gradient for the fitting.",
         keytype=str,
         itemtype=float,
-        default={"xMin": 0.1, "xMax": 0.2, "yMin": 0.1, "yMax": 0.2, "mHW": 0.5, "bHW": 0.0}
+        default={"xMin": 0.28, "xMax": 1.0, "yMin": 0.02, "yMax": 0.48, "mHW": 0.52, "bHW": -0.08}
     )
 
 
@@ -206,7 +209,7 @@ class wPerpTableTask(Task):
 
     Output:
     ----------
-    TEx metric with defined configuration.
+    wPerp stellar locus metric with defined configuration.
     """
 
     ConfigClass = wPerpTableConfig
@@ -218,6 +221,11 @@ class wPerpTableTask(Task):
 
         self.log.info("Measuring %s", metricName)
 
+        # Validation to require that gri bands are in the input set
+        if set(currentBands).issuperset(set(['g', 'r', 'i'])) is False:
+            self.log.warn("Data in gri bands required for wPerp calculation.")
+            return Struct(measurement=Measurement(metricName, np.nan * u.mmag))
+
         # If accessing objectTable_tract, we need to append the band name at
         #   the beginning of the column name.
         if currentBands is not None:
@@ -225,14 +233,57 @@ class wPerpTableTask(Task):
         else:
             prependString = None
 
+        # import pdb; pdb.set_trace()
+
         # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=currentBands)
 
-        extVals = extinction_corr(catalog, currentBands)
+        # Filter based on configured r-mag limits:
+        # rmag_tmp = (catalog.r_psfFlux.values*u.nJy).to(u.ABmag).value
+        # magfilter = (rmag_tmp < self.config.faint_rmag_cut) &\
+        #             (rmag_tmp > self.config.bright_rmag_cut)
+        # catalog = catalog[magfilter]
 
-        # Next, figure out how to call Sophie's fit function(s).
-        # The main issue is figuring out how to give the bands in the order we need?
-        fitParams = stellarLocusFit(xs, ys, self.config.stellarLocusFitDict)
+        # Create a SkyCoord object to get the extinction:
+        sc = SkyCoord(catalog['coord_ra']*u.deg, catalog['coord_dec']*u.deg)
+
+        extVals = extinctionCorrTable(sc, currentBands)
+
+        g0 = (catalog.g_psfFlux.values*u.nJy).to(u.ABmag).value - extVals['A_g']
+        r0 = (catalog.r_psfFlux.values*u.nJy).to(u.ABmag).value - extVals['A_r']
+        i0 = (catalog.i_psfFlux.values*u.nJy).to(u.ABmag).value - extVals['A_i']
+
+        # Call the stellar locus fit function:
+        p1vals, p2vals, fitParams = stellarLocusFit(g0-r0, r0-i0,
+                                                    self.config.stellarLocusFitDict)
+
+        # Ivezic+2004 defines wPerp between -0.2 < p1 < 0.6.
+        # Also, do some expanded color cuts to get rid of large color outliers that
+        #   skew the rms.
+        magcushion = 0.2
+        okp1 = (p1vals > -0.2) & (p1vals < 0.6) &\
+               ((r0-i0) < fitParams['yMax']+magcushion) &\
+               ((r0-i0) > fitParams['yMin']-magcushion) &\
+               ((g0-r0) < fitParams['xMax']+magcushion) &\
+               ((g0-r0) > fitParams['xMin']-magcushion)
+
+        # import pdb; pdb.set_trace()
+
+        if np.size(p2vals[okp1[0]]) > 2:
+            p2_rms = calcQuartileClippedStats(p2vals[okp1[0]]).rms * u.mag
+            extras = {
+                "wPerp_coeffs": Datum(
+                    [fitParams['mODR2'], fitParams['bODR2']],
+                    unit=u.Unit(""),
+                    label="wPerp_coefficients",
+                    description="Slope, intercept coeffs from wPerp fit",
+                ),
+             }
+            return Struct(
+                measurement=Measurement(metricName, p2_rms.to(u.mmag), extras=extras)
+            )
+        else:
+            return Struct(measurement=Measurement(metricName, np.nan * u.mmag))
 

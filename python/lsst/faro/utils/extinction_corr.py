@@ -37,7 +37,45 @@ except ModuleNotFoundError as e:
         e.msg,
     )
 
-__all__ = ("extinction_corr",)
+__all__ = ("extinction_corr", "extinctionCorrTable",)
+
+
+def extinctionCorrTable(coords, bands):
+
+    # Extinction coefficients for HSC filters for conversion from E(B-V) to extinction, A_filter.
+    # Numbers provided by Masayuki Tanaka (NAOJ).
+    #
+    # Band, A_filter/E(B-V)
+    extinctionCoeffs_HSC = {
+        # See https://www.sdss.org/dr16/spectro/sspp/
+        # Assuming diff of ~0.65, given 0.553, 0.475, 0.453 for gri
+        "u": 4.505,
+        "g": 3.240,
+        "r": 2.276,
+        "i": 1.633,
+        "z": 1.263,
+        "y": 1.075,
+        "HSC-G": 3.240,
+        "HSC-R": 2.276,
+        "HSC-I": 1.633,
+        "HSC-Z": 1.263,
+        "HSC-Y": 1.075,
+        "NB0387": 4.007,
+        "NB0816": 1.458,
+        "NB0921": 1.187,
+    }
+
+    bands = list(bands)
+    sfd = SFDQuery()
+    ebvValues = sfd(coords)
+    extinction_dict = {"E(B-V)": ebvValues}
+
+    # Create a dict with the extinction values for each band (and E(B-V), too):
+    for band in bands:
+        coeff_name = "A_" + str(band)
+        extinction_dict[coeff_name] = ebvValues * extinctionCoeffs_HSC[band]
+
+    return extinction_dict
 
 
 def extinction_corr(catalog, bands):
