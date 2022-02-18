@@ -61,10 +61,10 @@ class DetectorTableMeasurementConfig(
 
     def validate(self):
         super().validate()
-        if "detector" not in self.columns:
+        if "detector" not in self.measure.columns:
             msg = "The column `detector` must be appear in the list of columns."
             raise pexConfig.FieldValidationError(
-                DetectorTableMeasurementConfig.columns, self, msg
+                self.measure.ConfigClass.columns, self, msg
             )
 
 
