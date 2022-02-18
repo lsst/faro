@@ -20,7 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from lsst.pex.config import Config, DictField
+from lsst.pex.config import Config, DictField, Field
 from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
 
 
@@ -42,6 +42,12 @@ class MeasurementTaskConfig(Config):
         keytype=str,
         itemtype=str,
         default={}
+    )
+    shelveName = Field(
+        doc="""Name of shelve file to persist in-memory objects set as input to metric
+        measurement run method.""",
+        dtype=str,
+        default="",
     )
 
     def _getColumnName(self, keyName, band=None):

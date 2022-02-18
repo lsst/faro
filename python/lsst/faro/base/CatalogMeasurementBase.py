@@ -99,6 +99,9 @@ class CatalogMeasurementBaseTask(MetricTask):
         self.makeSubtask("measure")
 
     def run(self, **kwargs):
+        if self.measure.config.shelveName:
+            # Persist in-memory objects for development and testing
+            self._persistMeasurementInputs(self.measure.config.shelveName, **kwargs)
         return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getTableColumnsSelectors(self, columns, currentBands=None):
@@ -192,3 +195,25 @@ class CatalogMeasurementBaseTask(MetricTask):
         refCatFrame = hstack([refCatTable, refCat.asAstropy()]).to_pandas()
 
         return refCatFrame
+
+    def _persistMeasurementInputs(self, shelveName, **kwargs):
+        """Persist in-memory objects sent as inputs to metric measurement run method.
+
+        This function is intended to be used for development and testing purposes
+        as a debug tool and is NOT to be used in routine operation.
+
+        Parameters
+        ----------
+        shelveName : `str`
+            Filename for output shelve.
+        """
+
+        import shelve
+        shelf = shelve.open(shelveName, 'n')
+
+        for key in kwargs.keys():
+            try:
+                shelf[key] = kwargs[key]
+            except TypeError:
+                print('ERROR shelving: {0}'.format(key))
+        shelf.close()
