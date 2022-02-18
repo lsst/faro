@@ -44,8 +44,8 @@ class MeasurementTaskConfig(Config):
         default={}
     )
     shelveName = Field(
-        doc="""Name of shelve file to persist in-memory objects set as input to metric
-        measurement run method.""",
+        doc="""Name of shelve file to persist in-memory objects sent as input to the metric
+        measurement run method. Used for testing, development, and debug work.""",
         dtype=str,
         default="",
     )

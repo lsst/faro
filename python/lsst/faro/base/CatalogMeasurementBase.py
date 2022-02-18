@@ -211,7 +211,7 @@ class CatalogMeasurementBaseTask(MetricTask):
         """
 
         import shelve
-        
+
         with shelve.open(shelveName, 'n') as shelf:
             shelf['config'] = config
             for key in kwargs.keys():
