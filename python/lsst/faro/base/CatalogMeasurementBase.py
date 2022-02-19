@@ -99,9 +99,10 @@ class CatalogMeasurementBaseTask(MetricTask):
         self.makeSubtask("measure")
 
     def run(self, **kwargs):
-        if self.measure.config.shelveName:
-            # Persist in-memory objects for development and testing
-            self._persistMeasurementInputs(self.measure.config, self.measure.config.shelveName, **kwargs)
+        if 'shelveName' in self.measure.config.keys():
+            if self.measure.config.shelveName:
+                # Persist in-memory objects for development and testing
+                self._persistMeasurementInputs(self.measure.config, self.measure.config.shelveName, **kwargs)
         return self.measure.run(self.config.connections.metric, **kwargs)
 
     def _getTableColumnsSelectors(self, columns, currentBands=None):
