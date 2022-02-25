@@ -1,0 +1,32 @@
+description: Compute metrics from tract catalogs
+tasks:
+  # nsrcMeasForcedSourceTable:
+  #   class: lsst.faro.measurement.ForcedSourceTableMeasurementTask
+  #   config:
+  #     connections.package: info
+  #     connections.metric: nsrcMeasForcedSourceTable
+  #     python: |
+  #       from lsst.faro.base import NumSourcesTask
+  #       config.measure.retarget(NumSourcesTask)
+  #       config.measure.columns={"band":"band","ra":"coord_ra"}
+  PA1_table:
+    class: lsst.faro.measurement.ForcedSourceTableMeasurementTask
+    config:
+      connections.package: validate_drp
+      connections.metric: PA1_table
+      python: |
+        from lsst.faro.measurement.ForcedSourceTableMeasurementTasks import PA1TableTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(PA1TableTask)
+        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.selectorActions.SNRSelector.fluxType = "psfFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 20
+        config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
+        #No extendedness in forcedSourceTable
+        #config.measure.selectorActions.StarIdentifier = selectors.StarIdentifier
+        #config.measure.selectorActions.StarIdentifier.selectorBandType = "currentBands"
+        config.measure.columns={"ra":"coord_ra","dec":"coord_dec", "band":"band","objectID":"objectId", "flux":"psfFlux","fluxErr":"psfFluxErr"}
+        config.measure.columnsBand={}
+        config.measure.nMinPhotRepeat=50
+        config.measure.meanSNR=50
+        config.measure.writeExtras=False

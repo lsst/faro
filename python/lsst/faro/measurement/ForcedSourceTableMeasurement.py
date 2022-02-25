@@ -79,12 +79,14 @@ class ForcedSourceTableMeasurementTask(CatalogMeasurementBaseTask):
         columns = list(self.config.measure.columns.values())
         for column in self.config.measure.columnsBand.values():
             columns.append(kwargs["currentBands"] + "_" + column)
-
-        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, None)
+        #columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        
         tmp_catalog = inputs["catalog"].get(parameters={"columns": columnsWithSelectors})
-
+        
         # Extract only the entries from the band of interest:
-        kwargs["catalog"] = tmp_catalog[tmp_catalog.band == kwargs["currentBands"]]
+        kwargs["catalog"] = tmp_catalog.loc[tmp_catalog.band == kwargs["currentBands"],:]
 
         outputs = self.run(**kwargs)
         if outputs.measurement is not None:
