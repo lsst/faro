@@ -20,9 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-import scipy.stats as scipyStats
 import scipy.odr as scipyODR
-from lsst.pipe.base import Struct
 
 __all__ = (
     "stellarLocusFit",
@@ -153,20 +151,19 @@ def stellarLocusFit(xs, ys, paramDict):
     paramsOut["mPerp"] = -1.0/paramsOut["mODR2"]
 
     # Calculate the fit lines for the entire X, Y range
-    ### UPDATE THIS TO CALCULATE FOR ALL COLORS RATHER THAN BETWEEN XMIN/YMIN - XMAX/YMAX!
     xMinLine = np.min(xs)-0.2
     xMaxLine = np.max(xs)+0.2
     yMinLine = np.min(ys)-0.2
-    yMinLine = np.max(ys)+0.2
+    yMaxLine = np.max(ys)+0.2
 
     if np.fabs(paramsOut["mHW"]) > 1:
-        ysFitLineHW = np.array([yMinLIne, yMaxLine])
+        ysFitLineHW = np.array([yMinLine, yMaxLine])
         xsFitLineHW = (ysFitLineHW - paramsOut["bHW"])/paramsOut["mHW"]
         yFiducialHW = np.array(paramsOut['yMin'])
         xFiducialHW = (yFiducialHW - paramsOut["bODR"])/paramsOut["mODR"]
-        ysFitLine = np.array([yMinLIne, yMaxLine])
+        ysFitLine = np.array([yMinLine, yMaxLine])
         xsFitLine = (ysFitLine - paramsOut["bODR"])/paramsOut["mODR"]
-        ysFitLine2 = np.array([yMinLIne, yMaxLine])
+        ysFitLine2 = np.array([yMinLine, yMaxLine])
         xsFitLine2 = (ysFitLine2 - paramsOut["bODR2"])/paramsOut["mODR2"]
         yFiducial = np.array(paramsOut['yMin'])
         xFiducial = (yFiducial - paramsOut["bODR2"])/paramsOut["mODR2"]

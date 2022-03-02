@@ -36,7 +36,7 @@ from astropy.coordinates import SkyCoord
 import numpy as np
 
 __all__ = ("TExTableConfig", "TExTableTask",
-           "wPerpTableConfig", "wPerpTableTask")
+           "WPerpTableConfig", "WPerpTableTask")
 
 
 class TExTableConfig(MeasurementTaskConfig):
@@ -152,7 +152,7 @@ class TExTableTask(Task):
         )
 
 
-class wPerpTableConfig(MeasurementTaskConfig):
+class WPerpTableConfig(MeasurementTaskConfig):
     """Class to organize the yaml configuration parameters to be passed to
     TExTableTask when using a parquet table input. All values needed to perform
     TExTableTask have default values set below.
@@ -167,12 +167,6 @@ class wPerpTableConfig(MeasurementTaskConfig):
     config.measure.raColumn = "coord_ra_new"
     """
 
-    #bright_rmag_cut = Field(
-    #    doc="Bright magnitude limit to select", dtype=float, default=17.0
-    #)
-    #faint_rmag_cut = Field(
-    #    doc="Faint magnitude limit to select", dtype=float, default=23.0
-    #)
     columns = DictField(
         doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
         and columns that do not change name with band in ObjectTable contexts""",
@@ -180,14 +174,14 @@ class wPerpTableConfig(MeasurementTaskConfig):
         itemtype=str,
         default={"ra": "coord_ra",
                  "dec": "coord_dec",
-                }
+                 }
     )
     columnsBand = DictField(
         doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
         keytype=str,
         itemtype=str,
         default={"psfFlux": "psfFlux"
-                } ##### Check what columns are needed!
+                 }
     )
     stellarLocusFitDict = DictField(
         doc="The parameters to use for the stellar locus fit. The default parameters are examples and are "
@@ -200,7 +194,7 @@ class wPerpTableConfig(MeasurementTaskConfig):
     )
 
 
-class wPerpTableTask(Task):
+class WPerpTableTask(Task):
     """Class to perform the wPerp calculation on a parquet table data
     object.
 
@@ -213,7 +207,7 @@ class wPerpTableTask(Task):
     wPerp stellar locus metric with defined configuration.
     """
 
-    ConfigClass = wPerpTableConfig
+    ConfigClass = WPerpTableConfig
     _DefaultName = "wPerpTableTask"
 
     def run(
@@ -227,18 +221,11 @@ class wPerpTableTask(Task):
             self.log.warn("Data in gri bands required for wPerp calculation.")
             return Struct(measurement=Measurement(metricName, np.nan * u.mmag))
 
-        # If accessing objectTable_tract, we need to append the band name at
-        #   the beginning of the column name.
-        if currentBands is not None:
-            prependString = currentBands
-        else:
-            prependString = None
-
         # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=currentBands)
-       
+
         # Filter based on configured r-mag limits:
         # rmag_tmp = (catalog.r_psfFlux.values*u.nJy).to(u.ABmag).value
         # magfilter = (rmag_tmp < self.config.faint_rmag_cut) &\
