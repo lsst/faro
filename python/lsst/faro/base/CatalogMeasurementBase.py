@@ -216,7 +216,4 @@ class CatalogMeasurementBaseTask(MetricTask):
         with shelve.open(shelveName, 'n') as shelf:
             shelf['config'] = config
             for key in kwargs.keys():
-                try:
-                    shelf[key] = kwargs[key]
-                except TypeError:
-                    print('ERROR shelving: {0}'.format(key))
+                shelf[key] = kwargs[key]
