@@ -30,6 +30,7 @@ from lsst.faro.utils.extinction_corr import extinctionCorrTable
 from lsst.faro.utils.stellarLocus import stellarLocusFit
 from lsst.faro.utils.stats_utils import calcQuartileClippedStats
 
+# from scipy.stats import median_abs_deviation
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
@@ -233,12 +234,15 @@ class wPerpTableTask(Task):
         else:
             prependString = None
 
-        # import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
+        # print('catalog orig length: ', len(catalog))
 
         # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=currentBands)
+        
+        # print('catalog after selectors: ', len(catalog))
 
         # Filter based on configured r-mag limits:
         # rmag_tmp = (catalog.r_psfFlux.values*u.nJy).to(u.ABmag).value
@@ -270,9 +274,13 @@ class wPerpTableTask(Task):
                ((g0-r0) > fitParams['xMin']-magcushion)
 
         # import pdb; pdb.set_trace()
+        # print('keepers: ', len(p2vals[okp1]), ' max mag: ', np.max(r0))
 
-        if np.size(p2vals[okp1[0]]) > 2:
-            p2_rms = calcQuartileClippedStats(p2vals[okp1[0]]).rms * u.mag
+        if np.size(p2vals[okp1]) > 2:
+            p2_mad =  calcQuartileClippedStats(p2vals[okp1]).mad * u.mag
+            #p2_rms =  calcQuartileClippedStats(p2vals[okp1]).rms * u.mag
+            # p2_mad = median_abs_deviation(p2vals[okp1]) * u.mag
+            print(p2_mad.to(u.mmag))
             extras = {
                 "wPerp_coeffs": Datum(
                     [fitParams['mODR2'], fitParams['bODR2']],
@@ -282,8 +290,7 @@ class wPerpTableTask(Task):
                 ),
              }
             return Struct(
-                measurement=Measurement(metricName, p2_rms.to(u.mmag), extras=extras)
+                measurement=Measurement(metricName, p2_mad.to(u.mmag), extras=extras)
             )
         else:
             return Struct(measurement=Measurement(metricName, np.nan * u.mmag))
-

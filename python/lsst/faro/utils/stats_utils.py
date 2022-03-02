@@ -21,6 +21,7 @@
 
 import numpy as np
 from lsst.pipe.base import Struct
+from scipy.stats import median_abs_deviation
 
 __all__ = (
     "calcQuartileClippedStats",
@@ -71,12 +72,14 @@ def calcQuartileClippedStats(dataArray, nSigmaToClip=3.0):
     quartileClippedMean = dataArray[good].mean()
     quartileClippedStdDev = dataArray[good].std()
     quartileClippedRms = np.sqrt(np.mean(dataArray[good] ** 2))
+    quartileClippedMad = median_abs_deviation(dataArray[good])
 
     return Struct(
         median=median,
         mean=quartileClippedMean,
         stdDev=quartileClippedStdDev,
         rms=quartileClippedRms,
+        mad=quartileClippedMad,
         clipValue=clipValue,
         goodArray=good,
     )

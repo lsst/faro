@@ -26,7 +26,7 @@ from lsst.pipe.base import Struct
 
 __all__ = (
     "stellarLocusFit",
-    "perpDistance",
+    "parallelPerpDistance",
 )
 
 
@@ -162,62 +162,74 @@ def stellarLocusFit(xs, ys, paramDict):
     if np.fabs(paramsOut["mHW"]) > 1:
         ysFitLineHW = np.array([yMinLIne, yMaxLine])
         xsFitLineHW = (ysFitLineHW - paramsOut["bHW"])/paramsOut["mHW"]
+        yFiducialHW = np.array(paramsOut['yMin'])
+        xFiducialHW = (yFiducialHW - paramsOut["bODR"])/paramsOut["mODR"]
         ysFitLine = np.array([yMinLIne, yMaxLine])
         xsFitLine = (ysFitLine - paramsOut["bODR"])/paramsOut["mODR"]
-        # "p1" is the position along the stellar locus.
-        # Evaluate p1 for all input points:
-        p1fit1 = (ys - paramsOut["bODR"])/paramsOut["mODR"]
         ysFitLine2 = np.array([yMinLIne, yMaxLine])
         xsFitLine2 = (ysFitLine2 - paramsOut["bODR2"])/paramsOut["mODR2"]
-        p1fit2 = (ys - paramsOut["bODR2"])/paramsOut["mODR2"]
+        yFiducial = np.array(paramsOut['yMin'])
+        xFiducial = (yFiducial - paramsOut["bODR2"])/paramsOut["mODR2"]
     else:
         xsFitLineHW = np.array([xMinLine, xMaxLine])
         ysFitLineHW = paramsOut["mHW"]*xsFitLineHW + paramsOut["bHW"]
+        xFiducialHW = np.array(paramsOut['xMin'])
+        yFiducialHW = paramsOut["mHW"]*xFiducialHW + paramsOut["bHW"]
         xsFitLine = np.array([xMinLine, xMaxLine])
         ysFitLine = [paramsOut["mODR"]*xsFitLine[0] + paramsOut["bODR"],
                      paramsOut["mODR"]*xsFitLine[1] + paramsOut["bODR"]]
-        p1fit1 = [paramsOut["mODR"]*xs + paramsOut["bODR"]]
         xsFitLine2 = np.array([xMinLine, xMaxLine])
         ysFitLine2 = [paramsOut["mODR2"]*xsFitLine2[0] + paramsOut["bODR2"],
                       paramsOut["mODR2"]*xsFitLine2[1] + paramsOut["bODR2"]]
-        p1fit2 = [paramsOut["mODR2"]*xs + paramsOut["bODR2"]]
+        xFiducial = np.array(paramsOut['xMin'])
+        yFiducial = paramsOut["mODR2"]*xFiducial + paramsOut["bODR2"]
 
     # Calculate the distances to the fit line
     # Need two points to characterise the lines we want
     # to get the distances to
-    pt1 = np.array([xsFitLine2[0], ysFitLine2[0]])
+    pt1 = np.array([xFiducial, yFiducial])
     pt2 = np.array([xsFitLine2[1], ysFitLine2[1]])
 
-    pt1HW = np.array([xsFitLine2[0], ysFitLineHW[0]])
+    pt1HW = np.array([xFiducialHW, yFiducialHW])
     pt2HW = np.array([xsFitLine2[1], ysFitLineHW[1]])
 
-    # "p2" is the distance from the fit line
-    p2HW = perpDistance(pt1HW, pt2HW, zip(xs, ys))
-    p2 = perpDistance(pt1, pt2, zip(xs, ys))
+    # "p2" is the distance from the fit line, and "p1" is the distance
+    # along the line.
+    p1HW, p2HW = parallelPerpDistance(pt1HW, pt2HW, zip(xs, ys))
+    p1, p2 = parallelPerpDistance(pt1, pt2, zip(xs, ys))
 
-    return np.array(p1fit2), np.array(p2), paramsOut
+    return np.array(p1), np.array(p2), paramsOut
 
 
-def perpDistance(pt1, pt2, points):
-    """Calculate the perpendicular distance to a line from a point
+def parallelPerpDistance(pt1, pt2, points):
+    """Calculate the perpendicular distance to a line from a point, and
+       the distance along the line (parallel) from that point to a fiducial.
     Parameters
     ----------
     pt1 : `numpy.ndarray`
-         A point on the line
+        A point on the line; this will be taken as the zero point for
+        the parallel distance.
     pt2 : `numpy.ndarray`
-         Another point on the line
+        Another point on the line
     points : `zip`
         The points to calculate the distance to
     Returns
     -------
-    dists : `list`
+    dists_parallel : `list`
+        The distances along the line from the points to the fiducial point (pt1).
+    dists_perp : `list`
         The distances from the line to the points. Uses the cross
         product to work this out.
     """
-    dists = []
+    dists_parallel = []
+    dists_perp = []
+
     for point in points:
         point = np.array(point)
-        distToLine = np.cross(pt1 - point, pt2 - point)/np.linalg.norm(pt2 - point)
-        dists.append(distToLine)
+        distToLine = np.cross(pt1 - point, pt2 - point)/np.linalg.norm(pt2 - pt1)
+        distAlongLine = np.sqrt(distToLine**2 + (np.linalg.norm(pt1 - point))**2)
+        sign = np.sign((point - pt1)/np.linalg.norm(point - pt1))[0]
+        dists_perp.append(distToLine)
+        dists_parallel.append(sign*distAlongLine)
 
-    return dists
+    return dists_parallel, dists_perp
