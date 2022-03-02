@@ -23,6 +23,7 @@ import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 import lsst.geom as geom
 import numpy as np
+import time
 
 from lsst.faro.utils.matcher import matchCatalogs
 
@@ -155,6 +156,11 @@ class MatchedBaseConfig(
         dtype=bool,
         default=False,
     )
+    loggingInterval = pexConfig.Field(
+        doc="Interval (in seconds) at which to log progress.",
+        dtype=int,
+        default=600,
+    )
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
@@ -184,13 +190,17 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
         )
         self.log.verbose("Finished matching catalogs.")
-
+        nextLogTime = time.time() + self.config.loggingInterval
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info("%s sources in matched catalog.", len(matched))
-        for record in matched:
+        for record_index, record in enumerate(matched):
             if box.contains(wcs.skyToPixel(record.getCoord())):
                 out_matched.append(record)
+            if (currentTime := time.time()) > nextLogTime:
+                self.log.verbose("Checked %d records for trimming out "
+                                 "of %d.", record_index + 1, len(matched))
+                nextLogTime = currentTime + self.config.loggingInterval
         self.log.info(
             "%s sources when trimmed to %s boundaries.", len(out_matched), self.level
         )
