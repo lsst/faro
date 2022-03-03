@@ -16,6 +16,10 @@ tasks:
       python: |
         from lsst.faro.base import NumSourcesTask
         config.measure.retarget(NumSourcesTask)
+        config.measure.columns={"detect_isPrimary": "detect_isPrimary",
+                                "detector": "detector"}
+        # Example for persisting in-memory inputs to metric measurement run method
+        # config.measure.shelveName="shelve.out"
         # Example configuration to apply proper motions for Gaia
         # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
