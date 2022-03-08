@@ -8,6 +8,7 @@ from .MatchedCatalogMeasurement import *
 from .DetectorMeasurement import *
 from .VisitMeasurement import *
 from .TractMeasurement import *
+from .TractTableValueMeasurement import *
 from .PatchMeasurement import *
 
 # Versions of metrics using parquet table inputs

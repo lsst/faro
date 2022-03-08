@@ -30,7 +30,9 @@ from lsst.faro.measurement import (VisitTableMeasurementConfig, VisitTableMeasur
                                    DetectorTableMeasurementConfig, DetectorTableMeasurementTask,
                                    VisitMeasurementConfig, VisitMeasurementTask,
                                    DetectorMeasurementConfig, DetectorMeasurementTask,
-                                   TractMeasurementConfig, TractMeasurementTask,)
+                                   TractMeasurementConfig, TractMeasurementTask,
+                                   TractTableValueMeasurementConfig, TractTableValueMeasurementTask,
+                                   )
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(TESTDIR, 'data')
@@ -89,6 +91,21 @@ class TaskTest(unittest.TestCase):
         )
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testTractTableValueMeasurementTask(self):
+        table = self.load_data('CatalogMeasurementBaseTask').asAstropy().to_pandas()
+        config = TractTableValueMeasurementConfig(
+            band_order=[''],
+            format_column='{band}{column}',
+            prefixes_column=[''],
+            row=0,
+        )
+        config.action.column = 'parent'
+        t = TractTableValueMeasurementTask()
+        t.config = config
+        outputs = t.run(table=table, bands=[''], name_metric='parent')
+        expected = 0 * u.Unit('')
+        self.assertEqual(outputs.measurement[0].quantity, expected)
 
     def testVisitMeasurementTask(self):
         """Test run method of VisitMeasurementTask."""
