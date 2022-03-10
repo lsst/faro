@@ -8,7 +8,6 @@ setupRequired(pipe_base)
 setupRequired(sconsUtils)
 setupRequired(utils)
 setupRequired(verify)
-setupOptional(validate_drp)
 setupOptional(verify_metrics)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
