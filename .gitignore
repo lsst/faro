@@ -6,7 +6,7 @@ config.log
 tests/tmp*
 bin/make_job_document.py
 ups/*.cfgc
-.coverage
+.coverage*
 .pytest_cache
 tests/.tests
 pytest_session.txt
