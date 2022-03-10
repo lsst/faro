@@ -28,14 +28,13 @@ import os
 import astropy.units as u
 
 import lsst.utils.tests
-from lsst.utils import getPackageDir
 from astropy.table import Table
 from lsst.faro.utils.stellar_locus import stellarLocusResid
 from lsst.faro.utils.extinction_corr import extinction_corr
 from lsst.faro.measurement import WPerpTask
 
-
-DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
+DATADIR = os.path.join(TESTDIR, 'data')
 
 
 class StellarLocusTest(lsst.utils.tests.TestCase):

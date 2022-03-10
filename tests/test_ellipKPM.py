@@ -27,14 +27,14 @@ import yaml
 import os
 import logging
 
-from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import TExTask
 from lsst.faro.utils.calibrated_catalog import CalibratedCatalog
 
 log = logging.getLogger(__name__)
 
-DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
+DATADIR = os.path.join(TESTDIR, 'data')
 
 
 class Te1Test(unittest.TestCase):

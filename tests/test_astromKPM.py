@@ -27,11 +27,11 @@ import yaml
 import os
 import astropy.units as u
 
-from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import AMxTask, ADxTask, AFxTask, AB1Task
 
-DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
+DATADIR = os.path.join(TESTDIR, 'data')
 
 
 class AmxTest(unittest.TestCase):
