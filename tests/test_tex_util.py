@@ -26,14 +26,13 @@ import unittest
 import os
 import numpy as np
 
-from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.utils.tex import (TraceSize, PsfTraceSizeDiff,
                                  E1, E2, E1Resids, E2Resids,
                                  RhoStatistics)
 
-
-DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
+DATADIR = os.path.join(TESTDIR, 'data')
 
 
 class TEXUtilTest(unittest.TestCase):

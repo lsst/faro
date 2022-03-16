@@ -27,11 +27,11 @@ import os
 import numpy as np
 import astropy.units as u
 
-from lsst.utils import getPackageDir
 from lsst.afw.table import SimpleCatalog, GroupView
 from lsst.faro.utils.phot_repeat import calcPhotRepeat
 
-DATADIR = os.path.join(getPackageDir('faro'), 'tests', 'data')
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
+DATADIR = os.path.join(TESTDIR, 'data')
 
 
 class PhotUtilTest(unittest.TestCase):
