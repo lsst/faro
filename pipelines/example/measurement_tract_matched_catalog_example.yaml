@@ -1,0 +1,24 @@
+description: Compute per-visit metrics from sourceTable_visit catalogs
+tasks:
+  nsrcMeasMatchedTable:
+    class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasMatchedTable
+      connections.individualSourceCatalogName: isolated_star_sources
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+        config.measure.columns={"ra":"ra","band":"band"}
+  nsrcMeasMatchedMultiBandTable:
+    class: lsst.faro.measurement.TractMatchedCatalogMultiBandTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasMatchedMultiBandTable
+      connections.individualSourceCatalogName: isolated_star_sources
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+        config.measure.columns={"ra":"ra","band":"band"}
