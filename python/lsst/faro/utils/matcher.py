@@ -214,7 +214,7 @@ def ellipticity(i_xx, i_xy, i_yy):
     return e, e1, e2
 
 
-def makeMatchedPhotom(data: Dict[str, List[CalibratedCatalog]]):
+def makeMatchedPhotom(data: Dict[str, List[CalibratedCatalog]], logger=None):
     """ Merge catalogs in multiple bands into a single shared catalog.
     """
 
@@ -235,9 +235,15 @@ def makeMatchedPhotom(data: Dict[str, List[CalibratedCatalog]]):
             cat_tmp.append(cat_tmp_i[qual_cuts])
             calibs_photo.append(cat_calib.photoCalib)
 
-        cat_tmp = mergeCatalogs(cat_tmp, calibs_photo, models=['base_PsfFlux'])
+        if logger:
+            logger.debug("Merging %d catalogs for band %s.", len(cat_tmp), band)
+        cat_tmp = mergeCatalogs(cat_tmp, calibs_photo, models=['base_PsfFlux'],
+                                logger=logger)
         if cat_tmp:
             if not cat_tmp.isContiguous():
+                if logger:
+                    logger.debug("Deep copying the %s band catalog to make it "
+                                 "contiguous.", band)
                 cat_tmp = cat_tmp.copy(deep=True)
 
         cat_tmp = cat_tmp.asAstropy()
@@ -248,6 +254,9 @@ def makeMatchedPhotom(data: Dict[str, List[CalibratedCatalog]]):
                 cat_tmp[c].name = f"{c}_{band}"
 
         if cat_all:
+            if logger:
+                logger.debug("Joining the %s band catalog with the main "
+                             "catalog.", band)
             cat_all = join(cat_all, cat_tmp, keys="id")
         else:
             cat_all = cat_tmp
@@ -262,6 +271,7 @@ def mergeCatalogs(
     astromCalibs=None,
     models=["slot_PsfFlux"],
     applyExternalWcs=False,
+    logger=None,
 ):
     """Merge catalogs and optionally apply photometric and astrometric calibrations.
     """
@@ -304,5 +314,8 @@ def mergeCatalogs(
                     photoCalib.instFluxToMagnitude(tempCat, modelName, modelName)
 
         catalog.extend(tempCat)
+
+        if logger:
+            logger.verbose("Merged %d catalog(s) out of %d." % (ii + 1, len(cat)))
 
     return catalog

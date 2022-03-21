@@ -183,6 +183,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         srcvis, matched = matchCatalogs(
             sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
         )
+        self.log.verbose("Finished matching catalogs.")
+
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info("%s sources in matched catalog.", len(matched))
@@ -204,6 +206,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
+        self.log.verbose("Inputs obtained from the butler.")
         oid = outputRefs.outputCatalog.dataId.byName()
         skymap = inputs["skyMap"]
         del inputs["skyMap"]
