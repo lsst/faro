@@ -156,11 +156,8 @@ class MatchedBaseConfig(
         dtype=bool,
         default=False,
     )
-    loggingInterval = pexConfig.Field(
-        doc="Interval (in seconds) at which to log progress.",
-        dtype=int,
-        default=600,
-    )
+
+    _loggingInterval = 600
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
@@ -190,7 +187,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius, logger=self.log
         )
         self.log.verbose("Finished matching catalogs.")
-        nextLogTime = time.time() + self.config.loggingInterval
+        nextLogTime = time.time() + self.config._loggingInterval
         # Trim the output to the patch bounding box
         out_matched = type(matched)(matched.schema)
         self.log.info("%s sources in matched catalog.", len(matched))
@@ -200,7 +197,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
             if (currentTime := time.time()) > nextLogTime:
                 self.log.verbose("Checked %d records for trimming out "
                                  "of %d.", record_index + 1, len(matched))
-                nextLogTime = currentTime + self.config.loggingInterval
+                nextLogTime = currentTime + self.config._loggingInterval
         self.log.info(
             "%s sources when trimmed to %s boundaries.", len(out_matched), self.level
         )
