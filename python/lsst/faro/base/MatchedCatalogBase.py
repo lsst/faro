@@ -23,6 +23,7 @@ import lsst.afw.table as afwTable
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
 import lsst.geom as geom
+from lsst.utils.logging import PeriodicLogger
 import numpy as np
 
 from lsst.faro.utils.matcher import matchCatalogs
@@ -197,6 +198,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         doApplyExternalPhotoCalib=False,
     ):
         self.log.info("Running catalog matching")
+        periodicLog = PeriodicLogger(self.log)
         radius = geom.Angle(self.radius, geom.arcseconds)
         if len(sourceCatalogs) < 2:
             self.log.warning("%s valid input catalogs: ", len(sourceCatalogs))
@@ -206,12 +208,16 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 sourceCatalogs, photoCalibs, astromCalibs, dataIds, radius,
                 self.config, logger=self.log
             )
+            self.log.verbose("Finished matching catalogs.")
+
             # Trim the output to the patch bounding box
             out_matched = type(matched)(matched.schema)
             self.log.info("%s sources in matched catalog.", len(matched))
-            for record in matched:
+            for record_index, record in enumerate(matched):
                 if box.contains(wcs.skyToPixel(record.getCoord())):
                     out_matched.append(record)
+                periodicLog.log("Checked %d records for trimming out of %d.", record_index + 1, len(matched))
+
             self.log.info(
                 "%s sources when trimmed to %s boundaries.", len(out_matched), self.level
             )
@@ -227,6 +233,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
+        self.log.verbose("Inputs obtained from the butler.")
         oid = outputRefs.outputCatalog.dataId.byName()
         skymap = inputs["skyMap"]
         del inputs["skyMap"]
