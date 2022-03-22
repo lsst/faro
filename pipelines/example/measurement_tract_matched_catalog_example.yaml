@@ -22,3 +22,15 @@ tasks:
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(NumSourcesTask)
         config.measure.columns={"ra":"ra","band":"band"}
+  PA1MatchedTable:
+    class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: PA1MatchedTable
+      connections.individualSourceCatalogName: isolated_star_sources
+      python: |
+        from lsst.faro.measurement.MatchedCatalogTableMeasurementTasks import PA1TableTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(PA1TableTask)
+        config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
+        'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}
