@@ -1,32 +1,32 @@
 description: Compute per-visit metrics from sourceTable_visit catalogs
 tasks:
-  # nsrcMeasMatchedTable:
-  #   class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
-  #   config:
-  #     connections.package: info
-  #     connections.metric: nsrcMeasMatchedTable
-  #     connections.individualSourceCatalogName: isolated_star_sources
-  #     python: |
-  #       from lsst.faro.base import NumSourcesTask
-  #       import lsst.faro.utils.selectors as selectors
-  #       config.measure.retarget(NumSourcesTask)
-  #       config.measure.columns={"ra":"ra","band":"band"}
-  # nsrcMeasMatchedMultiBandTable:
-  #   class: lsst.faro.measurement.TractMatchedCatalogMultiBandTableMeasurementTask
-  #   config:
-  #     connections.package: info
-  #     connections.metric: nsrcMeasMatchedMultiBandTable
-  #     connections.individualSourceCatalogName: isolated_star_sources
-  #     python: |
-  #       from lsst.faro.base import NumSourcesTask
-  #       import lsst.faro.utils.selectors as selectors
-  #       config.measure.retarget(NumSourcesTask)
-  #       config.measure.columns={"ra":"ra","band":"band"}
-  PA1MatchedTable3:
+  nsrcMeasMatchedTable:
     class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
     config:
       connections.package: info
-      connections.metric: PA1MatchedTable3
+      connections.metric: nsrcMeasMatchedTable
+      connections.individualSourceCatalogName: isolated_star_sources
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+        config.measure.columns={"ra":"ra","band":"band"}
+  nsrcMeasMatchedMultiBandTable:
+    class: lsst.faro.measurement.TractMatchedCatalogMultiBandTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: nsrcMeasMatchedMultiBandTable
+      connections.individualSourceCatalogName: isolated_star_sources
+      python: |
+        from lsst.faro.base import NumSourcesTask
+        import lsst.faro.utils.selectors as selectors
+        config.measure.retarget(NumSourcesTask)
+        config.measure.columns={"ra":"ra","band":"band"}
+  PA1MatchedTable:
+    class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
+    config:
+      connections.package: info
+      connections.metric: PA1MatchedTable
       connections.individualSourceCatalogName: isolated_star_sources
       python: |
         from lsst.faro.measurement.MatchedCatalogTableMeasurementTasks import PA1TableTask
@@ -59,6 +59,6 @@ tasks:
         config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
         config.measure.selectorActions.FlagSelector = selectors.FlagSelector
         config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_12_0_instFluxFlag']
-        
+
         config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
         'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}
