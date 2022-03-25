@@ -22,16 +22,24 @@ tasks:
   #       import lsst.faro.utils.selectors as selectors
   #       config.measure.retarget(NumSourcesTask)
   #       config.measure.columns={"ra":"ra","band":"band"}
-  PA1MatchedTable:
+  PA1MatchedTable3:
     class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
     config:
       connections.package: info
-      connections.metric: PA1MatchedTable
+      connections.metric: PA1MatchedTable3
       connections.individualSourceCatalogName: isolated_star_sources
       python: |
         from lsst.faro.measurement.MatchedCatalogTableMeasurementTasks import PA1TableTask
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(PA1TableTask)
+
+        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.selectorActions.SNRSelector.fluxType = "apFlux_12_0_instFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 20
+        config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
+        config.measure.selectorActions.FlagSelector = selectors.FlagSelector
+        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_12_0_instFluxFlag']
+        
         config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
         'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}
   PF1MatchedTable:
@@ -44,5 +52,13 @@ tasks:
         from lsst.faro.measurement.MatchedCatalogTableMeasurementTasks import PF1TableTask
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(PF1TableTask)
+
+        config.measure.selectorActions.SNRSelector = selectors.SNRSelector
+        config.measure.selectorActions.SNRSelector.fluxType = "apFlux_12_0_instFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 20
+        config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
+        config.measure.selectorActions.FlagSelector = selectors.FlagSelector
+        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_12_0_instFluxFlag']
+        
         config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
         'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}

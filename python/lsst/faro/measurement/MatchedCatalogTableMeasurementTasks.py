@@ -32,6 +32,8 @@ import numpy as np
 __all__ = (
     "PA1TableConfig",
     "PA1TableTask",
+    "PF1TableTask",
+    "PF1TableTask",
 )
 class PA1TableConfig(MeasurementTaskConfig):
     """Config fields for the PA1 photometric repeatability metric.
@@ -61,7 +63,6 @@ class PA1TableConfig(MeasurementTaskConfig):
                  "dec": "coord_dec",
                  "flux": "psfFlux",
                  "fluxErr":"psfFluxErr",
-                 "fluxFlag":"psfFluxFlag",
                  "objectID":"obj_index",
                  }
     )
@@ -98,7 +99,7 @@ class PA1TableTask(Task):
         # filter catalog        
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
-                                           currentBands=currentBands)
+                                           currentBands=None)
         
         objectidColumn=self.config._getColumnName("objectID", currentBands)
         fluxColumn=self.config._getColumnName("flux", currentBands)
@@ -226,7 +227,7 @@ class PF1TableTask(Task):
         # filter catalog        
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
-                                           currentBands=currentBands)
+                                           currentBands=None)
         
         objectidColumn=self.config._getColumnName("objectID", currentBands)
         fluxColumn=self.config._getColumnName("flux", currentBands)

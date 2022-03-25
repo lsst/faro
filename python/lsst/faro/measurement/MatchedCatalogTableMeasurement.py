@@ -87,7 +87,7 @@ class TractMatchedCatalogTableMeasurementTask(CatalogMeasurementBaseTask):
         columns = list(self.config.measure.columns.values())
         for column in self.config.measure.columnsBand.values():
             columns.append(kwargs["currentBands"] + '_' + column)
-        columnsWithSelectors = self._getTableColumnsSelectors(columns, kwargs["currentBands"])
+        columnsWithSelectors = self._getTableColumnsSelectors(columns, None)
         catalog = inputs["individualSourceCatalog"].get(parameters={"columns": columnsWithSelectors})
         sel = (catalog[self.config.measure._getColumnName("band")] == kwargs["currentBands"])
         kwargs["catalog"] = catalog.loc[sel, :]
