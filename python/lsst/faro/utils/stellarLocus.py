@@ -224,7 +224,7 @@ def parallelPerpDistance(pt1, pt2, points):
     for point in points:
         point = np.array(point)
         distToLine = np.cross(pt1 - point, pt2 - point)/np.linalg.norm(pt2 - pt1)
-        distAlongLine = np.sqrt(distToLine**2 + (np.linalg.norm(pt1 - point))**2)
+        distAlongLine = np.sqrt((np.linalg.norm(pt1 - point))**2 - distToLine**2)
         sign = np.sign((point - pt1)/np.linalg.norm(point - pt1))[0]
         dists_perp.append(distToLine)
         dists_parallel.append(sign*distAlongLine)
