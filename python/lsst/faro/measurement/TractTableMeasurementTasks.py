@@ -30,7 +30,6 @@ from lsst.faro.utils.extinction_corr import extinctionCorrTable
 from lsst.faro.utils.stellarLocus import stellarLocusFit
 from lsst.faro.utils.stats_utils import calcQuartileClippedStats
 
-# from scipy.stats import median_abs_deviation
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
@@ -154,8 +153,8 @@ class TExTableTask(Task):
 
 class WPerpTableConfig(MeasurementTaskConfig):
     """Class to organize the yaml configuration parameters to be passed to
-    TExTableTask when using a parquet table input. All values needed to perform
-    TExTableTask have default values set below.
+    wPerpTableTask when using a parquet table input. All values needed to perform
+    wPerpTableTask have default values set below.
 
     Optional Input (yaml file)
     ----------
@@ -195,7 +194,7 @@ class WPerpTableConfig(MeasurementTaskConfig):
 
 
 class WPerpTableTask(Task):
-    """Class to perform the wPerp calculation on a parquet table data
+    """Class to perform the wPerp calculation on data from a parquet table
     object.
 
     Parameters
@@ -225,12 +224,6 @@ class WPerpTableTask(Task):
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=currentBands)
-
-        # Filter based on configured r-mag limits:
-        # rmag_tmp = (catalog.r_psfFlux.values*u.nJy).to(u.ABmag).value
-        # magfilter = (rmag_tmp < self.config.faint_rmag_cut) &\
-        #             (rmag_tmp > self.config.bright_rmag_cut)
-        # catalog = catalog[magfilter]
 
         # Create a SkyCoord object to get the extinction:
         sc = SkyCoord(catalog['coord_ra']*u.deg, catalog['coord_dec']*u.deg)

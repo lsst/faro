@@ -67,6 +67,9 @@ def calcQuartileClippedStats(dataArray, nSigmaToClip=3.0):
     assert len(quartiles) == 3
     median = quartiles[1]
     interQuartileDistance = quartiles[2] - quartiles[0]
+    # If the data array has a roughly Gaussian distribution,
+    # 0.74*interquartileDistance is an estimate of standard deviation.
+    # In that case, the following line is equivalent to nSigma clipping.
     clipValue = nSigmaToClip * 0.74 * interQuartileDistance
     good = np.logical_not(np.abs(dataArray - median) > clipValue)
     quartileClippedMean = dataArray[good].mean()

@@ -450,7 +450,6 @@ def applySelectors(catalog, selectorList, currentBands=None, returnMask=False):
     """
     mask = np.ones(len(catalog), dtype=bool)
     for selector in selectorList:
-        # import pdb; pdb.set_trace()
         mask &= selector(catalog, currentBands=currentBands)
     if returnMask:
         return catalog, mask
@@ -523,8 +522,6 @@ def brightIsolatedStarObjectTable(config):
     config.selectorActions.FlagSelector.selectorBandType = "currentBands"
     # setup per band flag selectors
     config.selectorActions.PerBandFlagSelector = PerBandFlagSelector
-    # config.selectorActions.PerBandFlagSelector.selectWhenFalse = ["pixelFlags_saturated", "pixelFlags_cr",
-    #                                                               "pixelFlags_bad", "pixelFlags_edge"]
     config.selectorActions.PerBandFlagSelector.selectWhenFalse = ["psfFlux_flag",
                                                                   "pixelFlags_saturatedCenter",
                                                                   "extendedness_flag"]
