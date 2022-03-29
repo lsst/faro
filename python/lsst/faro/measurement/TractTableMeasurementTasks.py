@@ -249,7 +249,7 @@ class WPerpTableTask(Task):
                ((g0-r0) > fitParams['xMin']-magcushion)
 
         if np.size(p2vals[okp1]) > 2:
-            p2_mad = calcQuartileClippedStats(p2vals[okp1]).mad * u.mag
+            p2_sigmaMAD = calcQuartileClippedStats(p2vals[okp1]).sigmaMAD * u.mag
             extras = {
                 "wPerp_coeffs": Datum(
                     [fitParams['mODR2'], fitParams['bODR2']],
@@ -259,7 +259,7 @@ class WPerpTableTask(Task):
                 ),
             }
             return Struct(
-                measurement=Measurement(metricName, p2_mad.to(u.mmag), extras=extras)
+                measurement=Measurement(metricName, p2_sigmaMAD.to(u.mmag), extras=extras)
             )
         else:
             return Struct(measurement=Measurement(metricName, np.nan * u.mmag))

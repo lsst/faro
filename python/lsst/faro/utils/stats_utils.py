@@ -75,14 +75,14 @@ def calcQuartileClippedStats(dataArray, nSigmaToClip=3.0):
     quartileClippedMean = dataArray[good].mean()
     quartileClippedStdDev = dataArray[good].std()
     quartileClippedRms = np.sqrt(np.mean(dataArray[good] ** 2))
-    quartileClippedMad = median_abs_deviation(dataArray[good])
+    quartileClippedSigmaMAD = median_abs_deviation(dataArray[good], scale='normal')
 
     return Struct(
         median=median,
         mean=quartileClippedMean,
         stdDev=quartileClippedStdDev,
         rms=quartileClippedRms,
-        mad=quartileClippedMad,
+        sigmaMAD=quartileClippedSigmaMAD,
         clipValue=clipValue,
         goodArray=good,
     )
