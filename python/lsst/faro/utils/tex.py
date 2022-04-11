@@ -443,6 +443,9 @@ def calculateTEx(data: List[CalibratedCatalog], config):
     )
 
     # Filtering should be pulled out into a separate function for standard quality selections
+    # and only use sources that are single sources.
+    # This is the same as `isPrimary`, except that it also includes
+    # sources that are outside of the inner tract/patch regions.
     snrMin = 50
     selection = (
         (catalog["base_ClassificationExtendedness_value"] < 0.5)
@@ -450,7 +453,7 @@ def calculateTEx(data: List[CalibratedCatalog], config):
             (catalog["slot_PsfFlux_instFlux"] / catalog["slot_PsfFlux_instFluxErr"])
             > snrMin
         )
-        & (catalog["deblend_nChild"] == 0)
+        & catalog["detect_isDeblendedSource"]
     )
 
     nMinSources = 50
