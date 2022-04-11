@@ -86,7 +86,7 @@ def matchCatalogs(
     # Create an object that matches multiple catalogs with same schema
     mmatch = MultiMatch(
         newSchema,
-        dataIdFormat={"visit": np.int32, "detector": np.int32},
+        dataIdFormat={"visit": np.int64, "detector": np.int32},
         radius=matchRadius,
         RecordClass=SimpleRecord,
     )
