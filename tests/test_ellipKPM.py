@@ -26,6 +26,7 @@ import unittest
 import yaml
 import os
 import logging
+import numpy as np
 
 from lsst.afw.table import SimpleCatalog
 from lsst.faro.measurement import TExTask
@@ -74,7 +75,7 @@ class Te1Test(unittest.TestCase):
             result = task.run('TE1', {'i': [CalibratedCatalog(catalog), ]})
             log.debug('result: ', result)
             log.debug('expected: ', expected)
-            self.assertAlmostEqual(result.measurement, expected, places=10)
+            np.testing.assert_almost_equal(result.measurement.quantity, expected.quantity, decimal=5)
 
 
 if __name__ == "__main__":
