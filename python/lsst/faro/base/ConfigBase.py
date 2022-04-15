@@ -31,14 +31,17 @@ class MeasurementTaskConfig(Config):
         default={},
     )
     columns = DictField(
-        doc="""Columns required for metric calculation. Should be all columns in SourceTable contexts,
-        and columns that do not change name with band in ObjectTable contexts""",
+        doc="""Columns required for metric calculation. These are full column names, encompassing all columns
+        in a SourceTable and columns that do not change name with band in an ObjectTable. If per-band columns
+        are required, use `columnsBand` instead.""",
         keytype=str,
         itemtype=str,
         default={}
     )
     columnsBand = DictField(
-        doc="""Columns required for metric calculation that change with band in ObjectTable contexts""",
+        doc="""Column suffixes used to identify the required columns for metric calculation. The band name
+        will be prepended to this stub to select the columns of interest. These values are used to select
+        flux columns in an objectTable.""",
         keytype=str,
         itemtype=str,
         default={}
