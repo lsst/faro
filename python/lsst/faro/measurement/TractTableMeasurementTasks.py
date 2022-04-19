@@ -76,12 +76,7 @@ class AA1TableConfig(MeasurementTaskConfig):
         keytype=str,
         itemtype=str,
         default={"ra": "coord_ra",
-                 "dec": "coord_dec",
-                #  "extendedness": "extendedness",
-                #  "psfFlux": "psfFlux",
-                #  "psfFluxErr": "psfFluxErr",
-                #  "deblend_nChild": "deblend_nChild",
-                #  "isPrimary": "detect_isPrimary",
+                 "dec": "coord_dec"
                  }
     )
     writeExtras = Field(
@@ -265,8 +260,7 @@ class TExTableConfig(MeasurementTaskConfig):
                  "iyy": "ixx",
                  "ixxPsf": "ixx",
                  "ixyPsf": "ixx",
-                 "iyyPsf": "iyy",
-                 "deblend_nChild": "deblend_nChild"
+                 "iyyPsf": "iyy"
                  }
     )
     columnsBand = DictField(
