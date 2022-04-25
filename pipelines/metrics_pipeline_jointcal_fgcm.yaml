@@ -1,7 +1,7 @@
 description: Complete metrics measurement pipeline with external calibrations
 imports:
   # Photometric and astrometric repeatability:
-  - location: $FARO_DIR/pipelines/metrics_pipeline_matched_jointcal_fgcm.yaml 
+  - location: $FARO_DIR/pipelines/metrics_pipeline_matched_jointcal_fgcm.yaml
   # Astrometry relative to a reference band:
   - location: $FARO_DIR/pipelines/metrics_pipeline_matched_multi_jointcal_fgcm.yaml
   # Ellipticity residual correlations, visit-level:
