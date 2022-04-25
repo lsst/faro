@@ -35,6 +35,8 @@ tasks:
         config.measure.columnsBand = {"flux": "ap09Flux"}
         config.measure.selectorActions.FlagSelector=selectors.FlagSelector
         config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]
+        config.measure.selectorActions.PerBandFlagSelector=selectors.PerBandFlagSelector
+        config.measure.selectorActions.PerBandFlagSelector.selectWhenFalse=["pixelFlags_edge"]
   skyObjectStd:
     class: lsst.faro.measurement.TractTableMeasurementTask
     config:
@@ -48,3 +50,5 @@ tasks:
         config.measure.columnsBand = {"flux": "ap09Flux"}
         config.measure.selectorActions.FlagSelector=selectors.FlagSelector
         config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]
+        config.measure.selectorActions.PerBandFlagSelector=selectors.PerBandFlagSelector
+        config.measure.selectorActions.PerBandFlagSelector.selectWhenFalse=["pixelFlags_edge"]
