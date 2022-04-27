@@ -22,12 +22,12 @@ tasks:
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
         config.measure.shearConvention = False
-  SkyObjectMean:
+  skyObjectMean:
     class: lsst.faro.measurement.TractTableMeasurementTask
     config:
       measure.statistic: MEAN
       connections.package: pipe_analysis
-      connections.metric: SkyObjectMean_ap09Flux
+      connections.metric: skyObjectMean_ap09Flux
       python: |
         from lsst.faro.measurement import FluxStatisticTask
         import lsst.faro.utils.selectors as selectors
@@ -35,12 +35,12 @@ tasks:
         config.measure.columnsBand = {"flux": "ap09Flux"}
         config.measure.selectorActions.FlagSelector=selectors.FlagSelector
         config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]
-  SkyObjectStd:
+  skyObjectStd:
     class: lsst.faro.measurement.TractTableMeasurementTask
     config:
       measure.statistic: STDEV
       connections.package: pipe_analysis
-      connections.metric: SkyObjectStd_ap09Flux
+      connections.metric: skyObjectStd_ap09Flux
       python: |
         from lsst.faro.measurement import FluxStatisticTask
         import lsst.faro.utils.selectors as selectors
