@@ -20,10 +20,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-import pandas as pd
 import astropy.units as u
 
 __all__ = ("calcPhotRepeatTable")
+
 
 def calcPhotRepeatTable(catalog,
                         objectidColumn,
@@ -41,7 +41,7 @@ def calcPhotRepeatTable(catalog,
     fluxColumn : `pandas.DataFrame` schema key
         column name for flux mesurements
     fluxErrColumn : `pandas.DataFrame` schema key
-        column name for error on flux meausrements 
+        column name for error on flux meausrements
     residuals: boolean controling whether residuals should be returned in output
 
     Returns
@@ -58,33 +58,27 @@ def calcPhotRepeatTable(catalog,
         - ``residuals``:  array for each input source,
           containing the magnitude residuals, in mag, with respect to ``magMean``.
     """
-    magColumn=fluxColumn.replace("Flux","Mag")
-    mags=(catalog.loc[:,fluxColumn].values*u.nJy).to(u.ABmag).value
-    catalog=catalog.assign(**{magColumn:mags})
-    photRepeatFrame=catalog.groupby(
-                                        objectidColumn
-                                    ).aggregate(
-                                            {magColumn:[
-                                                np.nanstd,
-                                                np.count_nonzero,
-                                                np.mean
-                                            ]
-                                        }
-                                    ).rename(
-                                        columns={
-                                            'nanstd': 'rms',
-                                            'count_nonzero':'count',
-                                            "mean":"magMean"
-                                        }
-                                    )
-    photRepeatFrame.columns=photRepeatFrame.columns.get_level_values(1)
-    photRepeatFrame.loc[:,"meanSnr"]=catalog.groupby(
-                                                objectidColumn
-                                            ).apply(
-                                                lambda row: np.mean(row[fluxColumn]/row[fluxErrColumn])
-                                                )
-    if residuals:                            
-        photRepeatFrame.loc[:,"residuals"]=catalog.groupby(
-                                                objectidColumn
-                                            )[magColumn].apply(lambda x:np.array(x-np.mean(x)))
-    return photRepeatFrame    
+    magColumn = fluxColumn.replace("Flux", "Mag")
+    mags = (catalog.loc[:, fluxColumn].values*u.nJy).to(u.ABmag).value
+    catalog = catalog.assign(**{magColumn: mags})
+
+    photRepeatFrame = catalog.groupby(
+        objectidColumn
+    ).aggregate({magColumn: [np.nanstd, np.count_nonzero, np.mean]}).rename(
+        columns={
+            'nanstd': 'rms',
+            'count_nonzero': 'count',
+            "mean": "magMean"
+        }
+    )
+    photRepeatFrame.columns = photRepeatFrame.columns.get_level_values(1)
+    photRepeatFrame.loc[:, "meanSnr"] = catalog.groupby(
+        objectidColumn
+    ).apply(
+        lambda row: np.mean(row[fluxColumn]/row[fluxErrColumn])
+    )
+    if residuals:
+        photRepeatFrame.loc[:, "residuals"] = catalog.groupby(
+            objectidColumn
+        )[magColumn].apply(lambda x: np.array(x-np.mean(x)))
+    return photRepeatFrame

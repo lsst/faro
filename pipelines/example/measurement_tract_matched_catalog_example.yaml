@@ -34,14 +34,14 @@ tasks:
         config.measure.retarget(PA1TableTask)
 
         config.measure.selectorActions.SNRSelector = selectors.SNRSelector
-        config.measure.selectorActions.SNRSelector.fluxType = "apFlux_12_0_instFlux"
-        config.measure.selectorActions.SNRSelector.snrMin = 20
+        config.measure.selectorActions.SNRSelector.fluxType = "psfFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 50
         config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
         config.measure.selectorActions.FlagSelector = selectors.FlagSelector
-        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_12_0_instFluxFlag']
+        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_17_0_flag']
         
-        config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
-        'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}
+        config.measure.columns={"ra":"ra","band":"band",'flux':'psfFlux',
+        'fluxErr':'psfFluxErr', 'objectID':'obj_index'}
   PF1MatchedTable:
     class: lsst.faro.measurement.TractMatchedCatalogTableMeasurementTask
     config:
@@ -54,11 +54,11 @@ tasks:
         config.measure.retarget(PF1TableTask)
 
         config.measure.selectorActions.SNRSelector = selectors.SNRSelector
-        config.measure.selectorActions.SNRSelector.fluxType = "apFlux_12_0_instFlux"
-        config.measure.selectorActions.SNRSelector.snrMin = 20
+        config.measure.selectorActions.SNRSelector.fluxType = "psfFlux"
+        config.measure.selectorActions.SNRSelector.snrMin = 50
         config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
         config.measure.selectorActions.FlagSelector = selectors.FlagSelector
-        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_12_0_instFluxFlag']
+        config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_17_0_flag']
 
-        config.measure.columns={"ra":"ra","band":"band",'flux':'apFlux_12_0_instFlux',
-        'fluxErr':'apFlux_12_0_instFluxErr', 'objectID':'obj_index'}
+        config.measure.columns={"ra":"ra","band":"band",'flux':'psfFlux',
+        'fluxErr':'psfFluxErr', 'objectID':'obj_index'}

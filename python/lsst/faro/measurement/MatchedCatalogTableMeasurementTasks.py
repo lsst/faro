@@ -43,6 +43,11 @@ class PA1TableConfig(MeasurementTaskConfig):
         dtype=int,
         default=50,
     )
+    nObsCut = Field(
+        doc="Minimum number of observations required for a single repeatability measurement",
+        dtype=int,
+        default=2,
+    )
     meanSNRCut = Field(
         doc="""Minimum mean Signal to Noise ratio over all observations of a source 
             for source to be incuded in PA1""",
@@ -113,7 +118,7 @@ class PA1TableTask(Task):
                                             residuals=False
                                             )
 
-        okRms=(photRepeatFrame[("count")] > 2)
+        okRms=(photRepeatFrame[("count")] > self.config.nObsCut)
         okMeanSNR=(photRepeatFrame['meanSnr']> self.config.meanSNRCut)
         
         #compute PA1 metric          
@@ -124,17 +129,17 @@ class PA1TableTask(Task):
             if self.config.writeExtras:
                 extras = {
                     "rms": Datum(
-                        (photRepeatFrame["rms"].values*u.mag).to(u.mmag),
+                        (photRepeatFrame.loc[okRms & okMeanSNR,("rms")].values*u.mag).to(u.mmag),
                         label="RMS",
                         description="Photometric repeatability rms for each star.",
                     ),
                     "count": Datum(
-                        photRepeatFrame["count"].values * u.count,
+                        photRepeatFrame.loc[okRms & okMeanSNR,("count")].values * u.count,
                         label="count",
                         description="Number of detections used to calculate repeatability.",
                     ),
                     "mean_mag": Datum(
-                        photRepeatFrame["magMean"].values * u.mag,
+                        photRepeatFrame.loc[okRms & okMeanSNR,("magMean")].values * u.mag,
                         label="mean_mag",
                         description="Mean magnitude of each star.",
                     ),
@@ -152,6 +157,11 @@ class PF1TableConfig(MeasurementTaskConfig):
         doc="Minimum number of objects required for photometric repeatability.",
         dtype=int,
         default=50,
+    )
+    nObsCut = Field(
+        doc="Minimum number of observations required for a single repeatability measurement",
+        dtype=int,
+        default=2,
     )
     meanSNRCut = Field(
         doc="""Minimum mean Signal to Noise ratio over all observations of a source 
@@ -241,19 +251,21 @@ class PF1TableTask(Task):
                                             residuals=True
                                             )
 
-        okRms = (photRepeatFrame[("count")] > 2)
+        okRms=(photRepeatFrame[("count")] > self.config.nObsCut)
         okMeanSNR = (photRepeatFrame['meanSnr']> self.config.meanSNRCut)
 
         #compute PF1 metric
-        import pdb; pdb.set_trace()
-        if (("residuals" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() > self.config.nMinPhotRepeat)):
+        
+        if (("residuals" in photRepeatFrame.columns) and 
+            ((okRms & okMeanSNR).sum() > self.config.nMinPhotRepeat)):
             residualArray = (np.concatenate(
                     photRepeatFrame.loc[(okRms & okMeanSNR), "residuals"].values 
             ) *u.mag).to(u.mmag)
             percentileAtPA2 = (
                 100 * np.mean(np.abs(residualArray.value) > pa2_thresh.value) * u.percent
             )          
-            self.log.info("PF1 = %i percent" % percentileAtPA2.value)
+            self.log.info("PF1 = %i percent" % percentileAtPA2.value + 
+                          "larger than %i mmag outlier" % pa2_thresh.value)
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:
             return Struct(measurement=Measurement("PF1", np.nan * u.percent))
