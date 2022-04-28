@@ -35,6 +35,8 @@ __all__ = (
     "PF1TableTask",
     "PF1TableTask",
 )
+
+
 class PA1TableConfig(MeasurementTaskConfig):
     """Config fields for the PA1 photometric repeatability metric.
     """
@@ -49,7 +51,7 @@ class PA1TableConfig(MeasurementTaskConfig):
         default=2,
     )
     meanSNRCut = Field(
-        doc="""Minimum mean Signal to Noise ratio over all observations of a source 
+        doc="""Minimum mean Signal to Noise ratio over all observations of a source
             for source to be incuded in PA1""",
         dtype=float,
         default=50,
@@ -67,8 +69,8 @@ class PA1TableConfig(MeasurementTaskConfig):
         default={"ra": "coord_ra",
                  "dec": "coord_dec",
                  "flux": "psfFlux",
-                 "fluxErr":"psfFluxErr",
-                 "objectID":"obj_index",
+                 "fluxErr": "psfFluxErr",
+                 "objectID": "obj_index",
                  }
     )
     columnsBand = DictField(
@@ -76,11 +78,12 @@ class PA1TableConfig(MeasurementTaskConfig):
         keytype=str,
         itemtype=str,
         default={}
-    ) 
+    )
+
 
 class PA1TableTask(Task):
-    """Class to perform the PA1 calculation on a Matched parquet Source Table. 
-    PA1 is the photometric repeatability metric from an input set of multiple 
+    """Class to perform the PA1 calculation on a Matched parquet Source Table.
+    PA1 is the photometric repeatability metric from an input set of multiple
     visits of the same field.
 
     Parameters
@@ -100,46 +103,47 @@ class PA1TableTask(Task):
     ):
 
         self.log.info("Measuring %s", metricName)
-        
-        # filter catalog        
+
+        # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=None)
-        
-        objectidColumn=self.config._getColumnName("objectID", currentBands)
-        fluxColumn=self.config._getColumnName("flux", currentBands)
-        fluxErrColumn=self.config._getColumnName("fluxErr", currentBands)
-        
-        # compute aggregated values
-        photRepeatFrame=calcPhotRepeatTable(catalog,
-                                            objectidColumn,
-                                            fluxColumn,
-                                            fluxErrColumn,
-                                            residuals=False
-                                            )
 
-        okRms=(photRepeatFrame[("count")] > self.config.nObsCut)
-        okMeanSNR=(photRepeatFrame['meanSnr']> self.config.meanSNRCut)
-        
-        #compute PA1 metric          
-        repeatability=(np.median(photRepeatFrame.loc[okRms & okMeanSNR,("rms")])*u.mag).to(u.mmag)
+        objectidColumn = self.config._getColumnName("objectID", currentBands)
+        fluxColumn = self.config._getColumnName("flux", currentBands)
+        fluxErrColumn = self.config._getColumnName("fluxErr", currentBands)
+
+        # compute aggregated values
+        photRepeatFrame = calcPhotRepeatTable(catalog,
+                                              objectidColumn,
+                                              fluxColumn,
+                                              fluxErrColumn,
+                                              residuals=False
+                                              )
+
+        okRms = (photRepeatFrame[("count")] > self.config.nObsCut)
+        okMeanSNR = (photRepeatFrame['meanSnr'] > self.config.meanSNRCut)
+
+        # compute PA1 metric
+        repeatability = (np.median(photRepeatFrame.loc[okRms & okMeanSNR, ("rms")])*u.mag).to(u.mmag)
         self.log.info("Median rms = %i mmag" % repeatability.value)
 
-        if ("magMean" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() > self.config.nMinPhotRepeat):
+        if ("magMean" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() >
+                                                       self.config.nMinPhotRepeat):
             if self.config.writeExtras:
                 extras = {
                     "rms": Datum(
-                        (photRepeatFrame.loc[okRms & okMeanSNR,("rms")].values*u.mag).to(u.mmag),
+                        (photRepeatFrame.loc[okRms & okMeanSNR, ("rms")].values*u.mag).to(u.mmag),
                         label="RMS",
                         description="Photometric repeatability rms for each star.",
                     ),
                     "count": Datum(
-                        photRepeatFrame.loc[okRms & okMeanSNR,("count")].values * u.count,
+                        photRepeatFrame.loc[okRms & okMeanSNR, ("count")].values * u.count,
                         label="count",
                         description="Number of detections used to calculate repeatability.",
                     ),
                     "mean_mag": Datum(
-                        photRepeatFrame.loc[okRms & okMeanSNR,("magMean")].values * u.mag,
+                        photRepeatFrame.loc[okRms & okMeanSNR, ("magMean")].values * u.mag,
                         label="mean_mag",
                         description="Mean magnitude of each star.",
                     ),
@@ -151,6 +155,7 @@ class PA1TableTask(Task):
                 return Struct(measurement=Measurement("PA1", repeatability))
         else:
             return Struct(measurement=Measurement("PA1", np.nan * u.mmag))
+
 
 class PF1TableConfig(MeasurementTaskConfig):
     nMinPhotRepeat = Field(
@@ -164,7 +169,7 @@ class PF1TableConfig(MeasurementTaskConfig):
         default=2,
     )
     meanSNRCut = Field(
-        doc="""Minimum mean Signal to Noise ratio over all observations of a source 
+        doc="""Minimum mean Signal to Noise ratio over all observations of a source
             for source to be incuded in PA1""",
         dtype=float,
         default=50,
@@ -186,8 +191,8 @@ class PF1TableConfig(MeasurementTaskConfig):
         default={"ra": "coord_ra",
                  "dec": "coord_dec",
                  "flux": "psfFlux",
-                 "fluxErr":"psfFluxErr",
-                 "objectID":"obj_index",
+                 "fluxErr": "psfFluxErr",
+                 "objectID": "obj_index",
                  }
     )
     columnsBand = DictField(
@@ -195,7 +200,7 @@ class PF1TableConfig(MeasurementTaskConfig):
         keytype=str,
         itemtype=str,
         default={}
-    ) 
+    )
 
 
 class PF1TableTask(Task):
@@ -220,7 +225,7 @@ class PF1TableTask(Task):
 
         Parameters
         ----------
-        Matched Catalog: 
+        Matched Catalog:
             pandas dataframe of SourceTable observations with group index column
 
         metricName : `str`
@@ -234,37 +239,37 @@ class PF1TableTask(Task):
         self.log.info("Measuring %s", metricName)
         pa2_thresh = self.config.threshPA2 * u.mmag
 
-        # filter catalog        
+        # filter catalog
         catalog = selectors.applySelectors(catalog,
                                            self.config.selectorActions,
                                            currentBands=None)
-        
-        objectidColumn=self.config._getColumnName("objectID", currentBands)
-        fluxColumn=self.config._getColumnName("flux", currentBands)
-        fluxErrColumn=self.config._getColumnName("fluxErr", currentBands)
-        
+
+        objectidColumn = self.config._getColumnName("objectID", currentBands)
+        fluxColumn = self.config._getColumnName("flux", currentBands)
+        fluxErrColumn = self.config._getColumnName("fluxErr", currentBands)
+
         # compute aggregated values
         photRepeatFrame = calcPhotRepeatTable(catalog,
-                                            objectidColumn,
-                                            fluxColumn,
-                                            fluxErrColumn,
-                                            residuals=True
-                                            )
+                                              objectidColumn,
+                                              fluxColumn,
+                                              fluxErrColumn,
+                                              residuals=True
+                                              )
 
-        okRms=(photRepeatFrame[("count")] > self.config.nObsCut)
-        okMeanSNR = (photRepeatFrame['meanSnr']> self.config.meanSNRCut)
+        okRms = (photRepeatFrame[("count")] > self.config.nObsCut)
+        okMeanSNR = (photRepeatFrame['meanSnr'] > self.config.meanSNRCut)
 
-        #compute PF1 metric
-        
-        if (("residuals" in photRepeatFrame.columns) and 
-            ((okRms & okMeanSNR).sum() > self.config.nMinPhotRepeat)):
+        # compute PF1 metric
+
+        if (("residuals" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() >
+                                                          self.config.nMinPhotRepeat)):
             residualArray = (np.concatenate(
-                    photRepeatFrame.loc[(okRms & okMeanSNR), "residuals"].values 
-            ) *u.mag).to(u.mmag)
+                photRepeatFrame.loc[(okRms & okMeanSNR), "residuals"].values
+            ) * u.mag).to(u.mmag)
             percentileAtPA2 = (
                 100 * np.mean(np.abs(residualArray.value) > pa2_thresh.value) * u.percent
-            )          
-            self.log.info("PF1 = %i percent" % percentileAtPA2.value + 
+            )
+            self.log.info("PF1 = %i percent" % percentileAtPA2.value +
                           "larger than %i mmag outlier" % pa2_thresh.value)
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:

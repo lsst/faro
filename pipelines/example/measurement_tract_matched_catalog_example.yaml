@@ -39,7 +39,7 @@ tasks:
         config.measure.selectorActions.SNRSelector.selectorBandType = "currentBands"
         config.measure.selectorActions.FlagSelector = selectors.FlagSelector
         config.measure.selectorActions.FlagSelector.selectWhenFalse = ['apFlux_17_0_flag']
-        
+
         config.measure.columns={"ra":"ra","band":"band",'flux':'psfFlux',
         'fluxErr':'psfFluxErr', 'objectID':'obj_index'}
   PF1MatchedTable:
