@@ -123,13 +123,12 @@ class PA1TableTask(Task):
 
         okRms = (photRepeatFrame[("count")] > self.config.nObsCut)
         okMeanSNR = (photRepeatFrame['meanSnr'] > self.config.meanSNRCut)
-
+        nObjects = (okRms & okMeanSNR).sum()
         # compute PA1 metric
         repeatability = (np.median(photRepeatFrame.loc[okRms & okMeanSNR, ("rms")])*u.mag).to(u.mmag)
         self.log.info("Median rms = %i mmag" % repeatability.value)
 
-        if ("magMean" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() >
-                                                       self.config.nMinPhotRepeat):
+        if ("magMean" in photRepeatFrame.columns) and (nObjects > self.config.nMinPhotRepeat):
             if self.config.writeExtras:
                 extras = {
                     "rms": Datum(
@@ -258,19 +257,18 @@ class PF1TableTask(Task):
 
         okRms = (photRepeatFrame[("count")] > self.config.nObsCut)
         okMeanSNR = (photRepeatFrame['meanSnr'] > self.config.meanSNRCut)
-
+        nObjects = (okRms & okMeanSNR).sum()
         # compute PF1 metric
 
-        if (("residuals" in photRepeatFrame.columns) and ((okRms & okMeanSNR).sum() >
-                                                          self.config.nMinPhotRepeat)):
+        if (("residuals" in photRepeatFrame.columns) and (nObjects > self.config.nMinPhotRepeat)):
             residualArray = (np.concatenate(
                 photRepeatFrame.loc[(okRms & okMeanSNR), "residuals"].values
             ) * u.mag).to(u.mmag)
             percentileAtPA2 = (
                 100 * np.mean(np.abs(residualArray.value) > pa2_thresh.value) * u.percent
             )
-            self.log.info("PF1 = %i percent" % percentileAtPA2.value +
-                          "larger than %i mmag outlier" % pa2_thresh.value)
+            logstring = "PF1 = {} percent larger than {} mmag outlier"
+            self.log.info(logstring.format(percentileAtPA2.value, pa2_thresh.value))
             return Struct(measurement=Measurement("PF1", percentileAtPA2))
         else:
             return Struct(measurement=Measurement("PF1", np.nan * u.percent))
