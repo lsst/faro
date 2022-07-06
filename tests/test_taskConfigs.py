@@ -54,7 +54,7 @@ class ConfigTest(unittest.TestCase):
         expected.faint_mag_cut = 23.8
         expected.threshAD = 19.63
         expected.threshAF = 11.55
-        expected.bins = [0.5, 1.6, 3.1, 2.8]
+        expected.bins = [0.5, 1.6, 2.8, 3.1]
         task = AMxTask(config=expected)
         self.check_config(task, expected, default, field_list)
 
@@ -70,7 +70,7 @@ class ConfigTest(unittest.TestCase):
         expected.faint_mag_cut = 23.8
         expected.threshAD = 19.63
         expected.threshAF = 11.55
-        expected.bins = [0.5, 1.6, 3.1, 2.8]
+        expected.bins = [0.5, 1.6, 2.8, 3.1]
         task = ADxTask(config=expected)
         self.check_config(task, expected, default, field_list)
 
@@ -86,7 +86,7 @@ class ConfigTest(unittest.TestCase):
         expected.faint_mag_cut = 23.8
         expected.threshAD = 19.63
         expected.threshAF = 11.55
-        expected.bins = [0.5, 1.6, 3.1, 2.8]
+        expected.bins = [0.5, 1.6, 2.8, 3.1]
         task = AFxTask(config=expected)
         self.check_config(task, expected, default, field_list)
 
