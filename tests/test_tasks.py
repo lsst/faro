@@ -72,6 +72,8 @@ class TaskTest(unittest.TestCase):
         """Test run method of VisitTableMeasurementTask."""
         catalog = self.load_data('CatalogMeasurementBaseTask')
         config = DetectorTableMeasurementConfig()
+        # For this test, we don't care that this is not a real detector column.
+        config.measure.columns = {"detector": "id"}
         t = DetectorTableMeasurementTask(config)
         outputs = t.run(catalog=catalog)
         expected = 771 * u.count
@@ -101,8 +103,7 @@ class TaskTest(unittest.TestCase):
             row=0,
         )
         config.action.column = 'parent'
-        t = TractTableValueMeasurementTask()
-        t.config = config
+        t = TractTableValueMeasurementTask(config=config)
         outputs = t.run(table=table, bands=[''], name_metric='parent')
         expected = 0 * u.Unit('')
         self.assertEqual(outputs.measurement[0].quantity, expected)
