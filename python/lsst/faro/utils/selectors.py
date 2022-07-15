@@ -431,6 +431,49 @@ class UnknownIdentifier(DataFrameAction):
         return mask
 
 
+class ParentIdentifier(DataFrameAction):
+    """Identifies parent records from the dataFrame"""
+
+    includeBlends = Field(
+        dtype=bool,
+        default=True,
+        doc="Include parents with more than 1 child"
+    )
+    includeIsolated = Field(
+        dtype=bool,
+        default=True,
+        doc="Include parents with only a single child"
+    )
+
+    def columns(self, currentBands=None):
+        return ["deblend_nChild", "parent"]
+
+    def __call__(self, df, currentBands=None):
+        """Select on the given flags
+        Parameters
+        ----------
+        df : `pandas.core.frame.DataFrame`
+        Returns
+        -------
+        result : `numpy.ndarray`
+            A mask of the objects that satisfy the given
+            flag cuts.
+        Notes
+        -----
+        Uses the columns in selectWhenFalse and selectWhenTrue to decide which
+        columns to select on in each circumstance.
+        """
+        mask = df["parent"].values == 0
+
+        if not self.includeBlends:
+            mask = mask & (df["deblend_nChild"].values < 2)
+
+        if not self.includeIsolated:
+            mask = mask & (df["deblend_nChild"].values > 1)
+
+        return mask
+
+
 def applySelectors(catalog, selectorList, currentBands=None, returnMask=False):
     """ Apply the selectors to narrow down the sources to use
         Parameters

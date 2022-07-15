@@ -32,7 +32,10 @@ from lsst.faro.measurement import (VisitTableMeasurementConfig, VisitTableMeasur
                                    DetectorMeasurementConfig, DetectorMeasurementTask,
                                    TractMeasurementConfig, TractMeasurementTask,
                                    TractTableValueMeasurementConfig, TractTableValueMeasurementTask,
+                                   TractTableMeasurementConfig, TractTableMeasurementTask,
+                                   ColumnMeasurementTask,
                                    )
+import lsst.faro.utils.selectors as selectors
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 DATADIR = os.path.join(TESTDIR, 'data')
@@ -119,7 +122,6 @@ class TaskTest(unittest.TestCase):
             astromCalibs=[None, ],
             dataIds=[{'band': 'r'}, ],
         )
-        print(outputs)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
 
@@ -131,6 +133,36 @@ class TaskTest(unittest.TestCase):
         outputs = t.run(catalog=catalog)
         expected = 771 * u.count
         self.assertEqual(outputs.measurement.quantity, expected)
+
+    def testColumnMeasurementTask(self):
+        """Test run method of ColumnMeasurementTask"""
+        catalog = self.load_data('CatalogMeasurementBaseTask').asAstropy().to_pandas()
+        config = TractTableMeasurementConfig()
+
+        # Test a counting rows
+        config.measure.retarget(ColumnMeasurementTask)
+        config.measure.value.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+        config.measure.value.selectorActions.ParentIdentifier.includeBlends = True
+        config.measure.value.selectorActions.ParentIdentifier.includeIsolated = False
+        t = TractTableMeasurementTask(config)
+        outputs = t.run(catalog=catalog)
+        expected = 62 * u.count
+        self.assertEqual(outputs.measurement.quantity, expected)
+
+        # Test statistic on rows
+        config.measure.retarget(ColumnMeasurementTask)
+        config.measure.value.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+        config.measure.value.selectorActions.ParentIdentifier.includeBlends = True
+        config.measure.value.selectorActions.ParentIdentifier.includeIsolated = True
+        config.measure.value.columns = {"deblend_nChild": "deblend_nChild"}
+        t = TractTableMeasurementTask(config)
+        outputs = t.run(catalog=catalog)
+        expected = 144 * u.count
+        # The lsst.afw.math statistics package can sometimes get a
+        # rounding error, even when adding int's.
+        # So check the value and unit separately
+        self.assertAlmostEqual(outputs.measurement.quantity.value, expected.value)
+        self.assertEqual(outputs.measurement.quantity.unit, expected.unit)
 
 
 if __name__ == "__main__":

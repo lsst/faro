@@ -86,3 +86,160 @@ tasks:
         config.measure.selectorActions.FlagSelector.selectWhenTrue=["sky_object"]
         config.measure.selectorActions.PerBandFlagSelector=selectors.PerBandFlagSelector
         config.measure.selectorActions.PerBandFlagSelector.selectWhenFalse=["pixelFlags_edge"]
+  nBlends:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nBlends
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+    nIsolated:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nIsolated
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = False
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = True
+    nDetectedPeaks:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        measure.statistic: SUM
+        connections.package: validate_drp
+        connections.metric: nDetectedPeaks
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = True
+          config.measure.columns = {"deblend_nChild": "deblend_nChild"}
+    nBlendTooLarge:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nBlendTooLarge
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_parentTooBig"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+    nTooManyPeaks:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nTooManyPeaks
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_tooManyPeaks"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+    nBlendMaskSkip:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nBlendMaskSkip
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_masked"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+    nBlendsFailed:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nBlendsFailed
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_failed"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+    nIsolatedFailed:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        connections.package: validate_drp
+        connections.metric: nIsolatedFailed
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_failed"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = False
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = True
+    nFailedPeaks:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        measure.statistic: SUM
+        connections.package: validate_drp
+        connections.metric: nFailedPeaks
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.FlagSelector.selectWhenTrue=["deblend_failed"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = True
+          config.measure.columns = {"deblend_nChild": "deblend_nChild"}
+    meanBlendLogL:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        measure.statistic: MEAN
+        connections.package: validate_drp
+        connections.metric: meanBlendLogL
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = True
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = False
+          config.measure.columns = {"deblend_nChild": "deblend_nChild"}
+    meanIsolatedLogL:
+      class: lsst.faro.measurement.TractTableMeasurementTask
+      config:
+        measure.statistic: MEAN
+        connections.package: validate_drp
+        connections.metric: meanIsolatedLogL
+        python: |
+          from lsst.faro.measurement import ColumnMeasurementTask
+          config.measure.retarget(ColumnMeasurementTask)
+          config.measure.selectorActions.FlagSelector=selectors.FlagSelector
+          config.measure.selectorActions.FlagSelector.selectWhenFalse=["sky_object"]
+          config.measure.selectorActions.ParentIdentifier = selectors.ParentIdentifier
+          config.measure.selectorActions.ParentIdentifier.includeBlends = False
+          config.measure.selectorActions.ParentIdentifier.includeIsolated = True
+          config.measure.columns = {"deblend_nChild": "deblend_nChild"}

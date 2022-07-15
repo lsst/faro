@@ -20,7 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import lsst.afw.math as afwMath
-from lsst.pex.config import Field, DictField
+from lsst.pex.config import Field, DictField, ChoiceField
 from lsst.pipe.base import Struct, Task
 from lsst.verify import Measurement, Datum
 
@@ -31,7 +31,11 @@ from lsst.faro.utils.tex_table import calculateTEx
 import astropy.units as u
 import numpy as np
 
-__all__ = ("TExTableConfig", "TExTableTask", "FluxStatisticConfig", "FluxStatisticTask")
+__all__ = (
+    "TExTableConfig", "TExTableTask",
+    "FluxStatisticConfig", "FluxStatisticTask",
+    "ColumnMeasurementConfig", "ColumnMeasurementTask"
+)
 
 
 class TExTableConfig(MeasurementTaskConfig):
@@ -206,5 +210,91 @@ class FluxStatisticTask(Task):
         return Struct(
             measurement=Measurement(
                 metricName, result*u.nanojansky, extras=None
+            )
+        )
+
+
+class ColumnMeasurementConfig(MeasurementTaskConfig):
+    # choices from lsst.afw.math.Statistic.h
+    statistic = ChoiceField(
+        doc="Name of statistic to calculate",
+        dtype=str,
+        default="SUM",
+        allowed={
+            "NOTHING": "We don't want anything",
+            "ERRORS": "Include errors of requested quantities",
+            "NPOINT": "number of sample points",
+            "MEAN": "estimate sample mean",
+            "STDEV": "estimate sample standard deviation",
+            "VARIANCE": "estimate sample variance",
+            "MEDIAN": "estimate sample median",
+            "IQRANGE": "estimate sample inter-quartile range",
+            "MEANCLIP": "estimate sample N-sigma clipped mean (N set in StatisticsControl, default=3)",
+            "STDEVCLIP": "estimate sample N-sigma clipped stdev (N set in StatisticsControl, default=3)",
+            "VARIANCECLIP": "estimate sample N-sigma clipped variance",
+            "MIN": "estimate sample minimum",
+            "MAX": "estimate sample maximum",
+            "SUM": "find sum of pixels in the image",
+            "MEANSQUARE": "find mean value of square of pixel values",
+            "ORMASK": "get the or-mask of all pixels used.",
+            "NCLIPPED": "number of clipped points",
+            "NMASKED": "number of masked points",
+        }
+    )
+
+    numSigmaClip = Field(
+        doc="Rejection threshold (sigma) for statistics clipping.",
+        dtype=float,
+        default=3,
+    )
+
+    clipMaxIter = Field(
+        doc="Maximum number of clipping iterations to apply.",
+        dtype=int,
+        default=3,
+    )
+
+    units = Field(
+        doc="Name of the (astropy) units to use",
+        dtype=str,
+        default="count",
+    )
+
+
+class ColumnMeasurementTask(Task):
+    ConfigClass = ColumnMeasurementConfig
+    _DefaultName = "ColumnMeasurementTask"
+
+    def run(
+        self, metricName, catalog, **kwargs
+    ):
+        self.log.info("Measuring %s", metricName)
+
+        # filter catalog using selectors
+        catalog = selectors.applySelectors(
+            catalog,
+            self.config.selectorActions,
+        )
+
+        nColumns = len(self.config.columns)
+        if nColumns == 0:
+            # Return the number of rows matching the selection criteria
+            result = len(catalog)
+        elif nColumns == 1:
+            # Calculate the statistic on the column
+            data = catalog[list(self.config.columns.values())[0]].to_numpy()
+            statisticToRun = afwMath.stringToStatisticsProperty(self.config.statistic)
+            statControl = afwMath.StatisticsControl(self.config.numSigmaClip, self.config.clipMaxIter)
+            result = afwMath.makeStatistics(data, statisticToRun, statControl).getValue()
+        else:
+            raise ValueError("Expected either 0 or 1 columns to measure {metricName}, received {nColumns}")
+
+        # set the units for the measurement
+        units = getattr(u, self.config.units)
+
+        # return result
+        return Struct(
+            measurement=Measurement(
+                metricName, result*units, extras=None
             )
         )
