@@ -73,19 +73,7 @@ class CatalogMeasurementBaseConfig(
     )
 
     def setDefaults(self):
-        self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ""
         self.referenceCatalogLoader.doApplyColorTerms = False
-
-    def validate(self):
-        super().validate()
-        if (
-            self.connections.refDataset
-            != self.referenceCatalogLoader.refObjLoader.ref_dataset_name
-        ):
-            msg = "The reference datasets specified in connections and reference catalog loader must match."
-            raise pexConfig.FieldValidationError(
-                CatalogMeasurementBaseConfig.referenceCatalogLoader, self, msg
-            )
 
 
 class CatalogMeasurementBaseTask(MetricTask):
