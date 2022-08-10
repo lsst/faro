@@ -173,7 +173,8 @@ class CatalogMeasurementBaseTask(MetricTask):
         radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
         loaderTask = LoadReferenceCatalogTask(
-            config=self.config.referenceCatalogLoader, dataIds=dataIds, refCats=refCats
+            config=self.config.referenceCatalogLoader, dataIds=dataIds, refCats=refCats,
+            name=self.config.connections.refCat
         )
 
         # Get catalog with proper motion and color terms applied
