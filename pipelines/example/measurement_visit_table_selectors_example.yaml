@@ -18,12 +18,10 @@ tasks:
         import lsst.faro.utils.selectors as selectors
         config.measure.retarget(NumSourcesTask)
         # Example configuration to apply proper motions for Gaia
-        # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'gaia_dr2_20200414'
         # config.referenceCatalogLoader.refObjLoader.requireProperMotion = True
         # config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = 'phot_g_mean'
         # config.referenceCatalogLoader.doApplyColorTerms = False
         # Example configuration to apply color terms from PS1 to HSC
-        # config.referenceCatalogLoader.refObjLoader.ref_dataset_name = 'ps1_pv3_3pi_20170110'
         # config.referenceCatalogLoader.doApplyColorTerms = True
         # config.referenceCatalogLoader.refObjLoader.anyFilterMapsToThis = None
         # import os
