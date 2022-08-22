@@ -73,19 +73,7 @@ class CatalogMeasurementBaseConfig(
     )
 
     def setDefaults(self):
-        self.referenceCatalogLoader.refObjLoader.ref_dataset_name = ""
         self.referenceCatalogLoader.doApplyColorTerms = False
-
-    def validate(self):
-        super().validate()
-        if (
-            self.connections.refDataset
-            != self.referenceCatalogLoader.refObjLoader.ref_dataset_name
-        ):
-            msg = "The reference datasets specified in connections and reference catalog loader must match."
-            raise pexConfig.FieldValidationError(
-                CatalogMeasurementBaseConfig.referenceCatalogLoader, self, msg
-            )
 
 
 class CatalogMeasurementBaseTask(MetricTask):
@@ -173,7 +161,8 @@ class CatalogMeasurementBaseTask(MetricTask):
         radius = butlerQC.quantum.dataId.region.getBoundingCircle().getOpeningAngle()
 
         loaderTask = LoadReferenceCatalogTask(
-            config=self.config.referenceCatalogLoader, dataIds=dataIds, refCats=refCats
+            config=self.config.referenceCatalogLoader, dataIds=dataIds, refCats=refCats,
+            name=self.config.connections.refCat
         )
 
         # Get catalog with proper motion and color terms applied
