@@ -101,7 +101,15 @@ class VisitMeasurementTask(CatalogMeasurementBaseTask):
     ):
         data = defaultdict(list)
         for catalog, photoCalib, astromCalib, dataId in zip(catalogs, photoCalibs, astromCalibs, dataIds):
-            data[dataId['band']].append(CalibratedCatalog(catalog, photoCalib, astromCalib))
+            if self.config.requireAstrometry and astromCalib is None:
+                self.log.info("requireAstrometry is True but astromCalib is None for %s.  Skipping...",
+                              dataId)
+                continue
+            if self.config.requirePhotometry and photoCalib is None:
+                self.log.info("requirePhotometry is True but photoCalib is None for %s.  Skipping...",
+                              dataId)
+                continue
+            data[dataId["band"]].append(CalibratedCatalog(catalog, photoCalib, astromCalib))
 
         return self.measure.run(self.config.connections.metric, data)
 
