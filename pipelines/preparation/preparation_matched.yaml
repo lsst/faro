@@ -33,4 +33,3 @@ tasks:
       selectExtended: True
       python: |
         config.connections.outputCatalog = 'matchedCatalogTractGxsSNR5to80'
-

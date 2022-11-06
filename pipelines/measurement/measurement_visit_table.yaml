@@ -5,7 +5,7 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasVisitTable
-      # Reference dataset must be consistently specified 
+      # Reference dataset must be consistently specified
       # in connections and reference object loader.
       # Reference datasets include:
       # - Gaia (gaia_dr2_20200414)
@@ -39,7 +39,7 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTableTask
         config.measure.retarget(TExTableTask)
-        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
         "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 0.25
         config.measure.maxSep = 5.0
@@ -52,7 +52,7 @@ tasks:
       python: |
         from lsst.faro.measurement import TExTableTask
         config.measure.retarget(TExTableTask)
-        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness", 
+        config.columns = ["coord_ra","coord_dec","ixx","iyy","ixy","ixxPSF","iyyPSF","ixyPSF","extendedness",
         "psfFlux","psfFluxErr","deblend_nChild"]
         config.measure.minSep = 5.0
         config.measure.maxSep = 20.0
