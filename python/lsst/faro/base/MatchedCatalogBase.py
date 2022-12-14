@@ -240,9 +240,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         box, wcs = self.get_box_wcs(skymap, oid)
         # Cast to float to handle fractional pixels
         box = geom.Box2D(box)
-        inputs["dataIds"] = [
-            butlerQC.registry.expandDataId(el.dataId) for el in inputRefs.sourceCatalogs
-        ]
+        inputs["dataIds"] = [el.dataId for el in inputRefs.sourceCatalogs]
         inputs["wcs"] = wcs
         inputs["box"] = box
         inputs["doApplyExternalSkyWcs"] = self.config.doApplyExternalSkyWcs

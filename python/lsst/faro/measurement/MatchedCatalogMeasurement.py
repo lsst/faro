@@ -145,8 +145,8 @@ class PatchMatchedMultiBandMeasurementTask(CatalogMeasurementBaseTask):
         activators in the future.
         """
         try:
-            in_id = butlerQC.registry.expandDataId(inputRefs.matchedCatalogMulti.dataId)
-            out_id = butlerQC.registry.expandDataId(outputRefs.measurement.dataId)
+            in_id = inputRefs.matchedCatalogMulti.dataId
+            out_id = outputRefs.measurement.dataId
             inputs = butlerQC.get(inputRefs)
             inputs["in_id"] = in_id
             inputs["out_id"] = out_id
