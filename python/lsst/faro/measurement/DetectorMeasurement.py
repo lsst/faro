@@ -75,7 +75,7 @@ class DetectorMeasurementConnections(
             "These catalogs use the detector id for the catalog id, sorted on id for "
             "fast lookup."
         ),
-        name="{externalWcsName}SkyWcsCatalog",
+        name="finalVisitSummary",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
     )
@@ -132,7 +132,7 @@ class DetectorMeasurementConfig(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False
     )
     useGlobalExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the global external wcs.", dtype=bool, default=False
+        doc="Whether or not to use the global external wcs.", dtype=bool, default=True
     )
     doApplyExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the external photoCalib.", dtype=bool, default=False
