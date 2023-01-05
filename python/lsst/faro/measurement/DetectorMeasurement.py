@@ -94,7 +94,7 @@ class DetectorMeasurementConnections(
             "information).  These catalogs use the detector id for the catalog id, "
             "sorted on id for fast lookup."
         ),
-        name="{externalPhotoCalibName}PhotoCalibCatalog",
+        name="finalVisitSummary",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
     )
@@ -140,7 +140,7 @@ class DetectorMeasurementConfig(
     useGlobalExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the global external photoCalib.",
         dtype=bool,
-        default=False,
+        default=True,
     )
 
 
