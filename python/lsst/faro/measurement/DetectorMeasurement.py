@@ -129,13 +129,13 @@ class DetectorMeasurementConfig(
     CatalogMeasurementBaseConfig, pipelineConnections=DetectorMeasurementConnections
 ):
     doApplyExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the external wcs.", dtype=bool, default=False
+        doc="Whether or not to use the external wcs.", dtype=bool, default=True
     )
     useGlobalExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the global external wcs.", dtype=bool, default=True
     )
     doApplyExternalPhotoCalib = pexConfig.Field(
-        doc="Whether or not to use the external photoCalib.", dtype=bool, default=False
+        doc="Whether or not to use the external photoCalib.", dtype=bool, default=True
     )
     useGlobalExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the global external photoCalib.",

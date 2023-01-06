@@ -11,7 +11,3 @@ tasks:
       selectExtended: False
       python: |
         config.connections.outputCatalog = 'matchedCatalogPatchMultiBand'
-        config.doApplyExternalPhotoCalib = False
-        config.useGlobalExternalPhotoCalib = False
-        config.doApplyExternalSkyWcs = False
-        config.useGlobalExternalSkyWcs = False
