@@ -115,9 +115,7 @@ class VisitMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
-        inputs["dataIds"] = [
-            butlerQC.registry.expandDataId(c.dataId) for c in inputRefs.catalogs
-        ]
+        inputs["dataIds"] = [c.dataId for c in inputRefs.catalogs]
         outputs = self.run(**inputs)
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
