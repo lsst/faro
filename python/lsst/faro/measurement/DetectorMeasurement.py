@@ -38,7 +38,7 @@ class DetectorMeasurementConnections(
         "photoCalibName": "calexp.photoCalib",
         "externalPhotoCalibName": "fgcm",
         "wcsName": "calexp.wcs",
-        "externalWcsName": "jointcal",
+        "externalWcsName": "gbdesAstrometricFit",
     },
 ):
 
