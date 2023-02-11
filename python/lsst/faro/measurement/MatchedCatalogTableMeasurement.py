@@ -113,8 +113,8 @@ class TractMatchedCatalogTableMeasurementTask(CatalogMeasurementBaseTask):
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
-            self.log.debugf(
-                "Skipping measurement of {!r} on {} " "as not applicable.",
+            self.log.debug(
+                "Skipping measurement of %r on %s as not applicable.",
                 self,
                 inputRefs,
             )
@@ -197,8 +197,8 @@ class TractMatchedCatalogMultiBandTableMeasurementTask(TractMatchedCatalogTableM
         if outputs.measurement is not None:
             butlerQC.put(outputs, outputRefs)
         else:
-            self.log.debugf(
-                "Skipping measurement of {!r} on {} " "as not applicable.",
+            self.log.debug(
+                "Skipping measurement of %r on %s as not applicable.",
                 self,
                 inputRefs,
             )
