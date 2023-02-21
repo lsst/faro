@@ -73,8 +73,8 @@ class Te1Test(unittest.TestCase):
         for band in ('i',):
             catalog, expected = self.load_data(('TE1', band))
             result = task.run('TE1', {'i': [CalibratedCatalog(catalog), ]})
-            log.debug('result: ', result)
-            log.debug('expected: ', expected)
+            log.debug('result:   %s', result.measurement)
+            log.debug('expected: %s', expected)
             np.testing.assert_almost_equal(result.measurement.quantity, expected.quantity, decimal=5)
 
 
