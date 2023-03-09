@@ -44,7 +44,7 @@ class MatchedBaseConnections(
         "photoCalibName": "calexp.photoCalib",
         "wcsName": "calexp.wcs",
         "externalPhotoCalibName": "fgcm",
-        "externalWcsName": "jointcal",
+        "externalWcsName": "gbdesAstrometricFit",
     },
 ):
     sourceCatalogs = pipeBase.connectionTypes.Input(
