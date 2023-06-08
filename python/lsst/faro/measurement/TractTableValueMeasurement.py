@@ -23,9 +23,9 @@ import astropy.units as u
 
 import lsst.pex.config as pexConfig
 import lsst.pipe.base.connectionTypes as cT
+from lsst.pex.config.configurableActions import ConfigurableActionField
 from lsst.pipe.base import Struct
 from lsst.pipe.tasks.diff_matched_tract_catalog import SourceType
-from lsst.pipe.tasks.configurableActions import ConfigurableActionField
 from lsst.pipe.tasks.dataFrameActions import SingleColumnAction
 from lsst.verify import Measurement
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, MetricComputationError
