@@ -21,7 +21,7 @@
 
 
 from lsst.pex.config import Config, DictField, Field
-from lsst.pipe.tasks.configurableActions import ConfigurableActionStructField
+from lsst.pex.config.configurableActions import ConfigurableActionStructField
 
 
 class MeasurementTaskConfig(Config):
