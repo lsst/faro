@@ -5,7 +5,7 @@ tasks:
     config:
       connections.package: info
       connections.metric: nsrcMeasDetectorTable
-      # Reference dataset must be consistently specified 
+      # Reference dataset must be consistently specified
       # in connections and reference object loader.
       # Reference datasets include:
       # - Gaia (gaia_dr2_20200414)
