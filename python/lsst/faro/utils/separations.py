@@ -260,10 +260,8 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
                         np.abs(okdist[realdist] - np.median(okdist[realdist]))
                     )
 
-    # return quantity
-    # import pdb; pdb.set_trace()
     if len(sepResiduals) > 0:
-        sepResiduals = np.concatenate(np.array(sepResiduals)) * u.radian
+        sepResiduals = np.concatenate(sepResiduals) * u.radian
     return sepResiduals
 
 
