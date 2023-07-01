@@ -113,7 +113,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get("base_PsfFlux_mag")
+        mag = cat["base_PsfFlux_mag"]
         (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
@@ -122,7 +122,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
 
     # List of lists of id, importantValue
     matchKeyOutput = [
-        obj.get(key) for key in importantKeys for obj in groupViewInMagRange.groups
+        obj[key] for key in importantKeys for obj in groupViewInMagRange.groups
     ]
 
     jump = len(groupViewInMagRange)
@@ -206,7 +206,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get("base_PsfFlux_mag")
+        mag = cat["base_PsfFlux_mag"]
         (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
@@ -215,7 +215,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
 
     # List of lists of id, importantValue
     matchKeyOutput = [
-        obj.get(key) for key in importantKeys for obj in groupViewInMagRange.groups
+        obj[key] for key in importantKeys for obj in groupViewInMagRange.groups
     ]
 
     jump = len(groupViewInMagRange)
@@ -329,7 +329,7 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
     minMag, maxMag = magRange.to(u.mag).value
 
     def magInRange(cat):
-        mag = cat.get("base_PsfFlux_mag")
+        mag = cat["base_PsfFlux_mag"]
         (w,) = np.where(np.isfinite(mag))
         medianMag = np.median(mag[w])
         return minMag <= medianMag and medianMag < maxMag
@@ -341,7 +341,7 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
     uniqVisits = set()
     for id in uniqObj:
         for v, f in zip(
-            groupViewInMagRange[id].get("visit"), groupViewInMagRange[id].get("filt")
+            groupViewInMagRange[id]["visit"], groupViewInMagRange[id]["filt"]
         ):
             if f == band:
                 uniqVisits.add(v)
@@ -363,11 +363,11 @@ def calcRmsDistancesVsRef(groupView, refVisit, magRange, band, verbose=False):
         distancesVisit = list()
 
         for obj in uniqObj:
-            visMatch = np.where(groupViewInMagRange[obj].get("visit") == vis)
-            refMatch = np.where(groupViewInMagRange[obj].get("visit") == refVisit)
+            visMatch = np.where(groupViewInMagRange[obj]["visit"] == vis)
+            refMatch = np.where(groupViewInMagRange[obj]["visit"] == refVisit)
 
-            raObj = groupViewInMagRange[obj].get("coord_ra")
-            decObj = groupViewInMagRange[obj].get("coord_dec")
+            raObj = groupViewInMagRange[obj]["coord_ra"]
+            decObj = groupViewInMagRange[obj]["coord_dec"]
 
             # Require it to have a match in both the reference and visit image:
             if np.size(visMatch[0]) > 0 and np.size(refMatch[0]) > 0:

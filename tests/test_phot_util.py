@@ -49,7 +49,7 @@ class PhotUtilTest(unittest.TestCase):
         def nMatchFilter(cat):
             if len(cat) < nMatchesRequired:
                 return False
-            return np.isfinite(cat.get(magKey)).all()
+            return np.isfinite(cat[magKey]).all()
 
         return matches.where(nMatchFilter), magKey
 

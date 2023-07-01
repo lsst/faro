@@ -35,8 +35,8 @@ class StarFracTask(Task):
         self.log.info("Measuring %s", metricName)
         if not catalog.isContiguous():
             catalog = catalog.copy(deep=True)
-        extended = catalog.get("base_ClassificationExtendedness_value")
-        good_extended = extended[~catalog.get("base_ClassificationExtendedness_flag")]
+        extended = catalog["base_ClassificationExtendedness_value"]
+        good_extended = extended[~catalog["base_ClassificationExtendedness_flag"]]
         n_gals = sum(good_extended)
         frac = 100 * (len(good_extended) - n_gals) / len(good_extended)
         meas = Measurement("starFrac", frac * u.percent)
