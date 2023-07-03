@@ -202,9 +202,9 @@ def ellipticityFromCat(cat, slot_shape="slot_Shape"):
         Complex ellipticity, real part, imaginary part
     """
     i_xx, i_xy, i_yy = (
-        cat.get(slot_shape + "_xx"),
-        cat.get(slot_shape + "_xy"),
-        cat.get(slot_shape + "_yy"),
+        cat[slot_shape + "_xx"],
+        cat[slot_shape + "_xy"],
+        cat[slot_shape + "_yy"],
     )
     return ellipticity(i_xx, i_xy, i_yy)
 

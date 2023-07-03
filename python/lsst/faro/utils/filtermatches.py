@@ -61,17 +61,17 @@ def filterMatches(
     def nMatchFilter(cat):
         if len(cat) < nMatchesRequired:
             return False
-        return np.isfinite(cat.get(magKey)).all()
+        return np.isfinite(cat[magKey]).all()
 
     def snrFilter(cat):
         # Note that this also implicitly checks for psfSnr being non-nan.
-        snr = cat.get("base_PsfFlux_snr")
+        snr = cat["base_PsfFlux_snr"]
         (ok0,) = np.where(np.isfinite(snr))
         medianSnr = np.median(snr[ok0])
         return snrMin <= medianSnr and medianSnr <= snrMax
 
     def ptsrcFilter(cat):
-        ext = cat.get("base_ClassificationExtendedness_value")
+        ext = cat["base_ClassificationExtendedness_value"]
         # Keep only objects that are flagged as "not extended" in *ALL* visits,
         # (base_ClassificationExtendedness_value = 1 for extended, 0 for point-like)
         if extended:
@@ -81,17 +81,17 @@ def filterMatches(
 
     def flagFilter(cat):
         if doFlags:
-            flag_sat = cat.get("base_PixelFlags_flag_saturated")
-            flag_cr = cat.get("base_PixelFlags_flag_cr")
-            flag_bad = cat.get("base_PixelFlags_flag_bad")
-            flag_edge = cat.get("base_PixelFlags_flag_edge")
+            flag_sat = cat["base_PixelFlags_flag_saturated"]
+            flag_cr = cat["base_PixelFlags_flag_cr"]
+            flag_bad = cat["base_PixelFlags_flag_bad"]
+            flag_edge = cat["base_PixelFlags_flag_edge"]
             return np.logical_not(np.any([flag_sat, flag_cr, flag_bad, flag_edge]))
         else:
             return True
 
     def isPrimaryFilter(cat):
         if isPrimary:
-            flag_isPrimary = cat.get("detect_isPrimary")
+            flag_isPrimary = cat["detect_isPrimary"]
             return np.all(flag_isPrimary)
         else:
             return True

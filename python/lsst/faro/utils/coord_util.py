@@ -42,13 +42,14 @@ def averageRaFromCat(cat):
     Parameters
     ----------
     cat : collection
-         Object with .get method for 'coord_ra', 'coord_dec' that returns radians.
+        Object for which ``cat["coord_ra"]`` and ``cat["coord_dec"]`` both
+        return radians.
     Returns
     -------
     ra_mean : `float`
         Mean RA in radians.
     """
-    meanRa, meanDec = averageRaDecFromCat(cat)
+    meanRa, _ = averageRaDecFromCat(cat)
     return meanRa
 
 
@@ -62,13 +63,14 @@ def averageDecFromCat(cat):
     Parameters
     ----------
     cat : collection
-         Object with .get method for 'coord_ra', 'coord_dec' that returns radians.
+        Object for which ``cat["coord_ra"]`` and ``cat["coord_dec"]`` both
+        return radians.
     Returns
     -------
     dec_mean : `float`
         Mean Dec in radians.
     """
-    meanRa, meanDec = averageRaDecFromCat(cat)
+    _, meanDec = averageRaDecFromCat(cat)
     return meanDec
 
 
@@ -78,7 +80,8 @@ def averageRaDecFromCat(cat):
     Parameters
     ----------
     cat : collection
-         Object with .get method for 'coord_ra', 'coord_dec' that returns radians.
+        Object for which ``cat["coord_ra"]`` and ``cat["coord_dec"]`` both
+        return radians.
     Returns
     -------
     ra_mean : `float`
@@ -86,7 +89,7 @@ def averageRaDecFromCat(cat):
     dec_mean : `float`
         Mean Dec in radians.
     """
-    return averageRaDec(cat.get("coord_ra"), cat.get("coord_dec"))
+    return averageRaDec(cat["coord_ra"], cat["coord_dec"])
 
 
 def averageRaDec(ra, dec):

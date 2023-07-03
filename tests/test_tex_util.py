@@ -43,7 +43,7 @@ class TEXUtilTest(unittest.TestCase):
         cat_file = 'src_HSC_i_HSC-I_903986_0_31_HSC_runs_ci_hsc_20210407T021858Z.fits'
         cat = SimpleCatalog.readFits(os.path.join(DATADIR, cat_file))
 
-        # selection = np.isfinite(cat.get('e1')) & np.isfinite(cat.get('e2'))
+        # selection = np.isfinite(cat['e1']) & np.isfinite(cat['e2'])
         selection = np.tile(True, len(cat))
 
         return cat.subset(selection).copy(deep=True)
