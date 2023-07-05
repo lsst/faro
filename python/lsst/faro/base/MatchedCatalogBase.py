@@ -54,6 +54,13 @@ class MatchedBaseConnections(
         name="src",
         multiple=True,
     )
+    visitSummary = pipeBase.connectionTypes.Input(
+        doc="Exposure catalog with WCS and PhotoCalib this detector+visit combination.",
+        dimensions=("instrument", "visit"),
+        storageClass="ExposureCatalog",
+        name="finalVisitSummary",
+        multiple=True,
+    )
     photoCalibs = pipeBase.connectionTypes.Input(
         doc="Photometric calibration object.",
         dimensions=("instrument", "visit", "detector", "band"),
@@ -245,6 +252,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs["box"] = box
         inputs["doApplyExternalSkyWcs"] = self.config.doApplyExternalSkyWcs
         inputs["doApplyExternalPhotoCalib"] = self.config.doApplyExternalPhotoCalib
+        visitSummary = inputs.pop("visitSummary")
 
         if self.config.doApplyExternalPhotoCalib:
             if self.config.useGlobalExternalPhotoCalib:
@@ -253,64 +261,66 @@ class MatchedBaseTask(pipeBase.PipelineTask):
                 )
             else:
                 externalPhotoCalibCatalog = inputs.pop("externalPhotoCalibTractCatalog")
+        else:
+            externalPhotoCalibCatalog = visitSummary
 
-            flatPhotoCalibList = np.hstack(externalPhotoCalibCatalog)
-            visitPhotoCalibList = np.array(
-                [calib["visit"] for calib in flatPhotoCalibList]
-            )
-            detectorPhotoCalibList = np.array(
-                [calib["id"] for calib in flatPhotoCalibList]
-            )
+        flatPhotoCalibList = np.hstack(externalPhotoCalibCatalog)
+        visitPhotoCalibList = np.array(
+            [calib["visit"] for calib in flatPhotoCalibList]
+        )
+        detectorPhotoCalibList = np.array(
+            [calib["id"] for calib in flatPhotoCalibList]
+        )
 
         if self.config.doApplyExternalSkyWcs:
             if self.config.useGlobalExternalSkyWcs:
                 externalSkyWcsCatalog = inputs.pop("externalSkyWcsGlobalCatalog")
             else:
                 externalSkyWcsCatalog = inputs.pop("externalSkyWcsTractCatalog")
+        else:
+            externalSkyWcsCatalog = visitSummary
 
-            flatSkyWcsList = np.hstack(externalSkyWcsCatalog)
-            visitSkyWcsList = np.array([calib["visit"] for calib in flatSkyWcsList])
-            detectorSkyWcsList = np.array([calib["id"] for calib in flatSkyWcsList])
+        flatSkyWcsList = np.hstack(externalSkyWcsCatalog)
+        visitSkyWcsList = np.array([calib["visit"] for calib in flatSkyWcsList])
+        detectorSkyWcsList = np.array([calib["id"] for calib in flatSkyWcsList])
 
         remove_indices = []
 
-        if self.config.doApplyExternalPhotoCalib:
-            for i in range(len(inputs["dataIds"])):
-                dataId = inputs["dataIds"][i]
-                detector = dataId["detector"]
-                visit = dataId["visit"]
-                calib_find = (visitPhotoCalibList == visit) & (
-                    detectorPhotoCalibList == detector
-                )
-                if np.sum(calib_find) < 1:
-                    self.log.warning("Detector id %s not found in externalPhotoCalibCatalog "
-                                     "for visit %s and will not be used.",
-                                     detector, visit)
-                    inputs["photoCalibs"][i] = None
-                    remove_indices.append(i)
-                else:
-                    row = flatPhotoCalibList[calib_find]
-                    externalPhotoCalib = row[0].getPhotoCalib()
-                    inputs["photoCalibs"][i] = externalPhotoCalib
+        for i in range(len(inputs["dataIds"])):
+            dataId = inputs["dataIds"][i]
+            detector = dataId["detector"]
+            visit = dataId["visit"]
+            calib_find = (visitPhotoCalibList == visit) & (
+                detectorPhotoCalibList == detector
+            )
+            if np.sum(calib_find) < 1:
+                self.log.warning("Detector id %s not found in externalPhotoCalibCatalog "
+                                 "for visit %s and will not be used.",
+                                 detector, visit)
+                inputs["photoCalibs"][i] = None
+                remove_indices.append(i)
+            else:
+                row = flatPhotoCalibList[calib_find]
+                externalPhotoCalib = row[0].getPhotoCalib()
+                inputs["photoCalibs"][i] = externalPhotoCalib
 
-        if self.config.doApplyExternalSkyWcs:
-            for i in range(len(inputs["dataIds"])):
-                dataId = inputs["dataIds"][i]
-                detector = dataId["detector"]
-                visit = dataId["visit"]
-                calib_find = (visitSkyWcsList == visit) & (
-                    detectorSkyWcsList == detector
-                )
-                if np.sum(calib_find) < 1:
-                    self.log.warning("Detector id %s not found in externalSkyWcsCatalog "
-                                     "for visit %s and will not be used.",
-                                     detector, visit)
-                    inputs["astromCalibs"][i] = None
-                    remove_indices.append(i)
-                else:
-                    row = flatSkyWcsList[calib_find]
-                    externalSkyWcs = row[0].getWcs()
-                    inputs["astromCalibs"][i] = externalSkyWcs
+        for i in range(len(inputs["dataIds"])):
+            dataId = inputs["dataIds"][i]
+            detector = dataId["detector"]
+            visit = dataId["visit"]
+            calib_find = (visitSkyWcsList == visit) & (
+                detectorSkyWcsList == detector
+            )
+            if np.sum(calib_find) < 1:
+                self.log.warning("Detector id %s not found in externalSkyWcsCatalog "
+                                 "for visit %s and will not be used.",
+                                 detector, visit)
+                inputs["astromCalibs"][i] = None
+                remove_indices.append(i)
+            else:
+                row = flatSkyWcsList[calib_find]
+                externalSkyWcs = row[0].getWcs()
+                inputs["astromCalibs"][i] = externalSkyWcs
 
         # Remove datasets that didn't have matching external calibs
         remove_indices = np.unique(np.array(remove_indices))
