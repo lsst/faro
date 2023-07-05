@@ -48,6 +48,12 @@ class DetectorMeasurementConnections(
         storageClass="SourceCatalog",
         name="src",
     )
+    visitSummary = pipeBase.connectionTypes.Input(
+        doc="Exposure catalog with WCS and PhotoCalib this detector+visit combination.",
+        dimensions=("instrument", "visit"),
+        storageClass="ExposureCatalog",
+        name="finalVisitSummary",
+    )
     skyWcs = pipeBase.connectionTypes.Input(
         doc="WCS for the catalog.",
         dimensions=("instrument", "visit", "detector", "band"),
@@ -150,8 +156,12 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
+        visitSummary = inputs.pop("visitSummary")
+        detector = inputRefs.catalog.dataId["detector"]
+        row = visitSummary.find(detector)
+        inputs["photoCalib"] = row.getPhotoCalib()
+        inputs["skyWcs"] = row.getSkyWcs()
         if self.config.doApplyExternalPhotoCalib:
-            detector = inputRefs.catalog.dataId["detector"]
             if self.config.useGlobalExternalPhotoCalib:
                 externalPhotoCalibCatalog = inputs.pop(
                     "externalPhotoCalibGlobalCatalog"
@@ -162,7 +172,6 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             externalPhotoCalib = None if row is None else row.getPhotoCalib()
             inputs["photoCalib"] = externalPhotoCalib
         if self.config.doApplyExternalSkyWcs:
-            detector = inputRefs.catalog.dataId["detector"]
             if self.config.useGlobalExternalSkyWcs:
                 externalSkyWcsCatalog = inputs.pop("externalSkyWcsGlobalCatalog")
             else:
