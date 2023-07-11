@@ -332,6 +332,8 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         detectorSkyWcsList = np.array([calib["id"] for calib in flatSkyWcsList])
 
         remove_indices = []
+        inputs.setdefault("photoCalibs", [None] * len(inputs["dataIds"]))
+        inputs.setdefault("astromCalibs", [None] * len(inputs["dataIds"]))
 
         for i in range(len(inputs["dataIds"])):
             dataId = inputs["dataIds"][i]
