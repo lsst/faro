@@ -15,6 +15,7 @@ tasks:
       selectExtended: False
       python: |
         config.connections.outputCatalog = 'matchedCatalogTractMag17to21p5'
+        config.connections.visitSummary = 'visitSummary'
   matchCatalogsTractStarsSNR5to80:
     # Used by "photRepStar" stellar photometric repeatability metrics
     class: lsst.faro.preparation.TractMatchedPreparationTask
@@ -24,6 +25,7 @@ tasks:
       selectExtended: False
       python: |
         config.connections.outputCatalog = 'matchedCatalogTractStarsSNR5to80'
+        config.connections.visitSummary = 'visitSummary'
   matchCatalogsTractGxsSNR5to80:
     # Used by "photRepGal" galaxy photometric repeatability metrics
     class: lsst.faro.preparation.TractMatchedPreparationTask
@@ -33,4 +35,4 @@ tasks:
       selectExtended: True
       python: |
         config.connections.outputCatalog = 'matchedCatalogTractGxsSNR5to80'
-
+        config.connections.visitSummary = 'visitSummary'

@@ -34,11 +34,18 @@ __all__ = ("DetectorMeasurementConfig", "DetectorMeasurementTask")
 class DetectorMeasurementConnections(
     CatalogMeasurementBaseConnections,
     dimensions=("instrument", "visit", "detector", "band"),
+    # TODO: remove deprecated templates on DM-39854.
     defaultTemplates={
         "photoCalibName": "calexp.photoCalib",
         "externalPhotoCalibName": "fgcm",
         "wcsName": "calexp.wcs",
         "externalWcsName": "gbdesAstrometricFit",
+    },
+    deprecatedTemplates={
+        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
+        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
+        "wcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
+        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
     },
 ):
 
@@ -48,17 +55,27 @@ class DetectorMeasurementConnections(
         storageClass="SourceCatalog",
         name="src",
     )
+    visitSummary = pipeBase.connectionTypes.Input(
+        doc="Exposure catalog with WCS and PhotoCalib this detector+visit combination.",
+        dimensions=("instrument", "visit"),
+        storageClass="ExposureCatalog",
+        name="finalVisitSummary",
+    )
     skyWcs = pipeBase.connectionTypes.Input(
         doc="WCS for the catalog.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="Wcs",
         name="{wcsName}",
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
     )
     photoCalib = pipeBase.connectionTypes.Input(
         doc="Photometric calibration object.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="PhotoCalib",
         name="{photoCalibName}",
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
     )
     externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -68,6 +85,8 @@ class DetectorMeasurementConnections(
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
     )
     externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -78,6 +97,8 @@ class DetectorMeasurementConnections(
         name="{externalWcsName}SkyWcsCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -87,6 +108,8 @@ class DetectorMeasurementConnections(
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -97,6 +120,8 @@ class DetectorMeasurementConnections(
         name="{externalPhotoCalibName}PhotoCalibCatalog",
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
     )
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement.",
@@ -107,6 +132,8 @@ class DetectorMeasurementConnections(
 
     def __init__(self, *, config=None):
         super().__init__(config=config)
+        # TODO: remove references to deprecates things after DM-39854 (may
+        # allow the __init__ override to go away entirely).
         if config.doApplyExternalSkyWcs:
             if config.useGlobalExternalSkyWcs:
                 self.inputs.remove("externalSkyWcsTractCatalog")
@@ -123,24 +150,34 @@ class DetectorMeasurementConnections(
         else:
             self.inputs.remove("externalPhotoCalibTractCatalog")
             self.inputs.remove("externalPhotoCalibGlobalCatalog")
+        del self.skyWcs
+        del self.photoCalib
 
 
 class DetectorMeasurementConfig(
     CatalogMeasurementBaseConfig, pipelineConnections=DetectorMeasurementConnections
 ):
     doApplyExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the external wcs.", dtype=bool, default=False
+        doc="Whether or not to use the external wcs.", dtype=bool, default=False,
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
     )
     useGlobalExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the global external wcs.", dtype=bool, default=False
+        doc="Whether or not to use the global external wcs.", dtype=bool, default=False,
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
     )
     doApplyExternalPhotoCalib = pexConfig.Field(
-        doc="Whether or not to use the external photoCalib.", dtype=bool, default=False
+        doc="Whether or not to use the external photoCalib.", dtype=bool, default=False,
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
     )
     useGlobalExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the global external photoCalib.",
         dtype=bool,
         default=False,
+        # TODO: remove on DM-39854.
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
     )
 
 
@@ -150,8 +187,13 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
 
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
+        visitSummary = inputs.pop("visitSummary")
+        detector = inputRefs.catalog.dataId["detector"]
+        row = visitSummary.find(detector)
+        inputs["photoCalib"] = row.getPhotoCalib()
+        inputs["skyWcs"] = row.getSkyWcs()
+        # TODO: significant simplification should be possible here on DM-39854.
         if self.config.doApplyExternalPhotoCalib:
-            detector = inputRefs.catalog.dataId["detector"]
             if self.config.useGlobalExternalPhotoCalib:
                 externalPhotoCalibCatalog = inputs.pop(
                     "externalPhotoCalibGlobalCatalog"
@@ -162,7 +204,6 @@ class DetectorMeasurementTask(CatalogMeasurementBaseTask):
             externalPhotoCalib = None if row is None else row.getPhotoCalib()
             inputs["photoCalib"] = externalPhotoCalib
         if self.config.doApplyExternalSkyWcs:
-            detector = inputRefs.catalog.dataId["detector"]
             if self.config.useGlobalExternalSkyWcs:
                 externalSkyWcsCatalog = inputs.pop("externalSkyWcsGlobalCatalog")
             else:
