@@ -51,10 +51,10 @@ class MatchedBaseConnections(
     },
     # TODO: remove on DM-39854.
     deprecatedTemplates={
-        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "wcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
+        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "wcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
     },
 ):
     sourceCatalogs = pipeBase.connectionTypes.Input(
@@ -78,7 +78,7 @@ class MatchedBaseConnections(
         name="{photoCalibName}",
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
     )
     astromCalibs = pipeBase.connectionTypes.Input(
         doc="WCS for the catalog.",
@@ -87,7 +87,7 @@ class MatchedBaseConnections(
         name="{wcsName}",
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
     )
     externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -99,7 +99,7 @@ class MatchedBaseConnections(
         dimensions=("instrument", "visit", "tract", "band"),
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -112,7 +112,7 @@ class MatchedBaseConnections(
         dimensions=("instrument", "visit", "band"),
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -124,7 +124,7 @@ class MatchedBaseConnections(
         dimensions=("instrument", "visit", "tract", "band"),
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -137,7 +137,7 @@ class MatchedBaseConnections(
         dimensions=("instrument", "visit", "band"),
         multiple=True,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
@@ -194,24 +194,24 @@ class MatchedBaseConfig(
     doApplyExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     useGlobalExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the global external wcs.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     doApplyExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the external photoCalib.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     useGlobalExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the global external photoCalib.",
         dtype=bool,
         default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
 
 
@@ -239,14 +239,14 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         # TODO: remove these arguments on DM-39854.
         if doApplyExternalPhotoCalib is not None:
             warnings.warn(
-                "The doApplyExternalPhotoCalib argument is deprecated and will be removed after v27.",
+                "The doApplyExternalPhotoCalib argument is deprecated and will be removed after v26.",
                 category=FutureWarning, stacklevel=find_outside_stacklevel("lsst.faro"),
             )
         else:
             doApplyExternalPhotoCalib = False
         if doApplyExternalSkyWcs is not None:
             warnings.warn(
-                "The doApplyExternalSkyWcs argument is deprecated and will be removed after v27.",
+                "The doApplyExternalSkyWcs argument is deprecated and will be removed after v26.",
                 category=FutureWarning, stacklevel=find_outside_stacklevel("lsst.faro"),
             )
             doApplyExternalSkyWcs = False

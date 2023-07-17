@@ -42,10 +42,10 @@ class DetectorMeasurementConnections(
         "externalWcsName": "gbdesAstrometricFit",
     },
     deprecatedTemplates={
-        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "wcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
-        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v27.",
+        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "wcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
+        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
     },
 ):
 
@@ -67,7 +67,7 @@ class DetectorMeasurementConnections(
         storageClass="Wcs",
         name="{wcsName}",
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
     )
     photoCalib = pipeBase.connectionTypes.Input(
         doc="Photometric calibration object.",
@@ -75,7 +75,7 @@ class DetectorMeasurementConnections(
         storageClass="PhotoCalib",
         name="{photoCalibName}",
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
     )
     externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -86,7 +86,7 @@ class DetectorMeasurementConnections(
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -98,7 +98,7 @@ class DetectorMeasurementConnections(
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -109,7 +109,7 @@ class DetectorMeasurementConnections(
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit", "tract"),
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
         doc=(
@@ -121,7 +121,7 @@ class DetectorMeasurementConnections(
         storageClass="ExposureCatalog",
         dimensions=("instrument", "visit"),
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v27."
+        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
     )
     measurement = pipeBase.connectionTypes.Output(
         doc="Per-detector measurement.",
@@ -160,24 +160,24 @@ class DetectorMeasurementConfig(
     doApplyExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the external wcs.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     useGlobalExternalSkyWcs = pexConfig.Field(
         doc="Whether or not to use the global external wcs.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     doApplyExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the external photoCalib.", dtype=bool, default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
     useGlobalExternalPhotoCalib = pexConfig.Field(
         doc="Whether or not to use the global external photoCalib.",
         dtype=bool,
         default=False,
         # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v27."
+        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
     )
 
 
