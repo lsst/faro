@@ -104,9 +104,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
             "id",
             "coord_ra",
             "coord_dec",
-            "object",
             "visit",
-            "base_PsfFlux_mag",
         ]
     ]
 
@@ -129,7 +127,7 @@ def calcRmsDistances(groupView, annulus, magRange, verbose=False):
 
     ra = matchKeyOutput[1 * jump: 2 * jump]
     dec = matchKeyOutput[2 * jump: 3 * jump]
-    visit = matchKeyOutput[4 * jump: 5 * jump]
+    visit = matchKeyOutput[3 * jump: 4 * jump]
 
     # Calculate the mean position of each object from its constituent visits
     # `aggregate` calculates a quantity for each object in the groupView.
@@ -197,9 +195,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
             "id",
             "coord_ra",
             "coord_dec",
-            "object",
             "visit",
-            "base_PsfFlux_mag",
         ]
     ]
 
@@ -222,7 +218,7 @@ def calcSepOutliers(groupView, annulus, magRange, verbose=False):
 
     ra = matchKeyOutput[1 * jump: 2 * jump]
     dec = matchKeyOutput[2 * jump: 3 * jump]
-    visit = matchKeyOutput[4 * jump: 5 * jump]
+    visit = matchKeyOutput[3 * jump: 4 * jump]
 
     # Calculate the mean position of each object from its constituent visits
     # `aggregate` calulates a quantity for each object in the groupView.
