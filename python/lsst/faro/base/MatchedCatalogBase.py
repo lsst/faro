@@ -63,6 +63,7 @@ class MatchedBaseConnections(
         storageClass="SourceCatalog",
         name="src",
         multiple=True,
+        minimum=2,
     )
     visitSummary = pipeBase.connectionTypes.Input(
         doc="Exposure catalog with WCS and PhotoCalib this detector+visit combination.",
