@@ -287,7 +287,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
     def runQuantum(self, butlerQC, inputRefs, outputRefs):
         inputs = butlerQC.get(inputRefs)
         self.log.verbose("Inputs obtained from the butler.")
-        oid = outputRefs.outputCatalog.dataId.byName()
+        oid = dict(outputRefs.outputCatalog.dataId.required)
         skymap = inputs["skyMap"]
         del inputs["skyMap"]
         box, wcs = self.get_box_wcs(skymap, oid)
