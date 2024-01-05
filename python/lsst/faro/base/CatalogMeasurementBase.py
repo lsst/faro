@@ -148,7 +148,7 @@ class CatalogMeasurementBaseTask(MetricTask):
 
         Parameters
         ----------
-        butlerQC : `lsst.pipe.base.butlerQuantumContext.ButlerQuantumContext`
+        butlerQC : `lsst.pipe.base.QuantumContext`
             Butler quantum context for a Gen3 repository.
         dataIds: interable of `lsst.daf.butler.dataId`
              An iterable object of dataIds that point to reference catalogs
