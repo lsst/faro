@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import warnings
-
-from lsst.utils.introspection import find_outside_stacklevel
 import lsst.afw.table as afwTable
 import lsst.pipe.base as pipeBase
 import lsst.pex.config as pexConfig
@@ -42,20 +39,7 @@ __all__ = (
 class MatchedBaseConnections(
     pipeBase.PipelineTaskConnections,
     dimensions=(),
-    defaultTemplates={
-        "coaddName": "deep",
-        "photoCalibName": "calexp.photoCalib",
-        "wcsName": "calexp.wcs",
-        "externalPhotoCalibName": "fgcm",
-        "externalWcsName": "gbdesAstrometricFit",
-    },
-    # TODO: remove on DM-39854.
-    deprecatedTemplates={
-        "photoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
-        "wcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
-        "externalPhotoCalibName": "Deprecated in favor of visitSummary; will be removed after v26.",
-        "externalWcsName": "Deprecated in favor of visitSummary; will be removed after v26.",
-    },
+    defaultTemplates={"coaddName": "deep"}
 ):
     sourceCatalogs = pipeBase.connectionTypes.Input(
         doc="Source catalogs to match up.",
@@ -71,101 +55,12 @@ class MatchedBaseConnections(
         name="finalVisitSummary",
         multiple=True,
     )
-    photoCalibs = pipeBase.connectionTypes.Input(
-        doc="Photometric calibration object.",
-        dimensions=("instrument", "visit", "detector", "band"),
-        storageClass="PhotoCalib",
-        name="{photoCalibName}",
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
-    )
-    astromCalibs = pipeBase.connectionTypes.Input(
-        doc="WCS for the catalog.",
-        dimensions=("instrument", "visit", "detector", "band"),
-        storageClass="Wcs",
-        name="{wcsName}",
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary and already ignored; will be removed after v26."
-    )
-    externalSkyWcsTractCatalog = pipeBase.connectionTypes.Input(
-        doc=(
-            "Per-tract, per-visit wcs calibrations.  These catalogs use the detector "
-            "id for the catalog id, sorted on id for fast lookup."
-        ),
-        name="{externalWcsName}SkyWcsCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract", "band"),
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
-    )
-    externalSkyWcsGlobalCatalog = pipeBase.connectionTypes.Input(
-        doc=(
-            "Per-visit wcs calibrations computed globally (with no tract information). "
-            "These catalogs use the detector id for the catalog id, sorted on id for "
-            "fast lookup."
-        ),
-        name="{externalWcsName}SkyWcsCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "band"),
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
-    )
-    externalPhotoCalibTractCatalog = pipeBase.connectionTypes.Input(
-        doc=(
-            "Per-tract, per-visit photometric calibrations.  These catalogs use the "
-            "detector id for the catalog id, sorted on id for fast lookup."
-        ),
-        name="{externalPhotoCalibName}PhotoCalibCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "tract", "band"),
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
-    )
-    externalPhotoCalibGlobalCatalog = pipeBase.connectionTypes.Input(
-        doc=(
-            "Per-visit photometric calibrations computed globally (with no tract "
-            "information).  These catalogs use the detector id for the catalog id, "
-            "sorted on id for fast lookup."
-        ),
-        name="{externalPhotoCalibName}PhotoCalibCatalog",
-        storageClass="ExposureCatalog",
-        dimensions=("instrument", "visit", "band"),
-        multiple=True,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of visitSummary; will be removed after v26."
-    )
     skyMap = pipeBase.connectionTypes.Input(
         doc="Input definition of geometry/bbox and projection/wcs for warped exposures",
         name="skyMap",
         storageClass="SkyMap",
         dimensions=("skymap",),
     )
-
-    def __init__(self, *, config=None):
-        super().__init__(config=config)
-        if config.doApplyExternalSkyWcs:
-            if config.useGlobalExternalSkyWcs:
-                self.inputs.remove("externalSkyWcsTractCatalog")
-            else:
-                self.inputs.remove("externalSkyWcsGlobalCatalog")
-        else:
-            self.inputs.remove("externalSkyWcsTractCatalog")
-            self.inputs.remove("externalSkyWcsGlobalCatalog")
-        if config.doApplyExternalPhotoCalib:
-            if config.useGlobalExternalPhotoCalib:
-                self.inputs.remove("externalPhotoCalibTractCatalog")
-            else:
-                self.inputs.remove("externalPhotoCalibGlobalCatalog")
-        else:
-            self.inputs.remove("externalPhotoCalibTractCatalog")
-            self.inputs.remove("externalPhotoCalibGlobalCatalog")
-        del self.photoCalibs
-        del self.astromCalibs
 
 
 class MatchedBaseConfig(
@@ -191,28 +86,6 @@ class MatchedBaseConfig(
     selectExtended = pexConfig.Field(
         doc="Whether to select extended sources", dtype=bool, default=False
     )
-    doApplyExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the external wcs.", dtype=bool, default=False,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
-    )
-    useGlobalExternalSkyWcs = pexConfig.Field(
-        doc="Whether or not to use the global external wcs.", dtype=bool, default=False,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
-    )
-    doApplyExternalPhotoCalib = pexConfig.Field(
-        doc="Whether or not to use the external photoCalib.", dtype=bool, default=False,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
-    )
-    useGlobalExternalPhotoCalib = pexConfig.Field(
-        doc="Whether or not to use the global external photoCalib.",
-        dtype=bool,
-        default=False,
-        # TODO: remove on DM-39854.
-        deprecated="Deprecated in favor of the visitSummary connection; will be removed after v26."
-    )
 
 
 class MatchedBaseTask(pipeBase.PipelineTask):
@@ -233,23 +106,7 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         dataIds,
         wcs,
         box,
-        doApplyExternalSkyWcs=None,
-        doApplyExternalPhotoCalib=None,
     ):
-        # TODO: remove these arguments on DM-39854.
-        if doApplyExternalPhotoCalib is not None:
-            warnings.warn(
-                "The doApplyExternalPhotoCalib argument is deprecated and will be removed after v26.",
-                category=FutureWarning, stacklevel=find_outside_stacklevel("lsst.faro"),
-            )
-        else:
-            doApplyExternalPhotoCalib = False
-        if doApplyExternalSkyWcs is not None:
-            warnings.warn(
-                "The doApplyExternalSkyWcs argument is deprecated and will be removed after v26.",
-                category=FutureWarning, stacklevel=find_outside_stacklevel("lsst.faro"),
-            )
-            doApplyExternalSkyWcs = False
         self.log.info("Running catalog matching")
         periodicLog = PeriodicLogger(self.log)
         radius = geom.Angle(self.radius, geom.arcseconds)
@@ -296,80 +153,38 @@ class MatchedBaseTask(pipeBase.PipelineTask):
         inputs["dataIds"] = [el.dataId for el in inputRefs.sourceCatalogs]
         inputs["wcs"] = wcs
         inputs["box"] = box
-        inputs["doApplyExternalSkyWcs"] = self.config.doApplyExternalSkyWcs
-        inputs["doApplyExternalPhotoCalib"] = self.config.doApplyExternalPhotoCalib
         visitSummary = inputs.pop("visitSummary")
 
-        # TODO: significant simplification should be possible here on DM-39854.
-        if self.config.doApplyExternalPhotoCalib:
-            if self.config.useGlobalExternalPhotoCalib:
-                externalPhotoCalibCatalog = inputs.pop(
-                    "externalPhotoCalibGlobalCatalog"
-                )
-            else:
-                externalPhotoCalibCatalog = inputs.pop("externalPhotoCalibTractCatalog")
-        else:
-            externalPhotoCalibCatalog = visitSummary
-
-        flatPhotoCalibList = np.hstack(externalPhotoCalibCatalog)
-        visitPhotoCalibList = np.array(
-            [calib["visit"] for calib in flatPhotoCalibList]
+        flatVisitSummaryList = np.hstack(visitSummary)
+        visitSummaryVisitIdList = np.array(
+            [calib["visit"] for calib in flatVisitSummaryList]
         )
-        detectorPhotoCalibList = np.array(
-            [calib["id"] for calib in flatPhotoCalibList]
+        visitSummaryDetectorIdList = np.array(
+            [calib["id"] for calib in flatVisitSummaryList]
         )
-
-        if self.config.doApplyExternalSkyWcs:
-            if self.config.useGlobalExternalSkyWcs:
-                externalSkyWcsCatalog = inputs.pop("externalSkyWcsGlobalCatalog")
-            else:
-                externalSkyWcsCatalog = inputs.pop("externalSkyWcsTractCatalog")
-        else:
-            externalSkyWcsCatalog = visitSummary
-
-        flatSkyWcsList = np.hstack(externalSkyWcsCatalog)
-        visitSkyWcsList = np.array([calib["visit"] for calib in flatSkyWcsList])
-        detectorSkyWcsList = np.array([calib["id"] for calib in flatSkyWcsList])
 
         remove_indices = []
-        inputs.setdefault("photoCalibs", [None] * len(inputs["dataIds"]))
-        inputs.setdefault("astromCalibs", [None] * len(inputs["dataIds"]))
+        inputs["photoCalibs"] = [None] * len(inputs["dataIds"])
+        inputs["astromCalibs"] = [None] * len(inputs["dataIds"])
 
         for i in range(len(inputs["dataIds"])):
             dataId = inputs["dataIds"][i]
             detector = dataId["detector"]
             visit = dataId["visit"]
-            calib_find = (visitPhotoCalibList == visit) & (
-                detectorPhotoCalibList == detector
+            row_find = (visitSummaryVisitIdList == visit) & (
+                visitSummaryDetectorIdList == detector
             )
-            if np.sum(calib_find) < 1:
-                self.log.warning("Detector id %s not found in externalPhotoCalibCatalog "
+            if np.sum(row_find) < 1:
+                self.log.warning("Detector id %s not found in visit summary "
                                  "for visit %s and will not be used.",
                                  detector, visit)
                 inputs["photoCalibs"][i] = None
-                remove_indices.append(i)
-            else:
-                row = flatPhotoCalibList[calib_find]
-                externalPhotoCalib = row[0].getPhotoCalib()
-                inputs["photoCalibs"][i] = externalPhotoCalib
-
-        for i in range(len(inputs["dataIds"])):
-            dataId = inputs["dataIds"][i]
-            detector = dataId["detector"]
-            visit = dataId["visit"]
-            calib_find = (visitSkyWcsList == visit) & (
-                detectorSkyWcsList == detector
-            )
-            if np.sum(calib_find) < 1:
-                self.log.warning("Detector id %s not found in externalSkyWcsCatalog "
-                                 "for visit %s and will not be used.",
-                                 detector, visit)
                 inputs["astromCalibs"][i] = None
                 remove_indices.append(i)
             else:
-                row = flatSkyWcsList[calib_find]
-                externalSkyWcs = row[0].getWcs()
-                inputs["astromCalibs"][i] = externalSkyWcs
+                row = flatVisitSummaryList[row_find]
+                inputs["photoCalibs"][i] = row[0].getPhotoCalib()
+                inputs["astromCalibs"][i] = row[0].getWcs()
 
         # Remove datasets that didn't have matching external calibs
         remove_indices = np.unique(np.array(remove_indices))
