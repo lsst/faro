@@ -20,12 +20,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+import os
+from contextlib import redirect_stdout
+
 from astropy.coordinates import SkyCoord
 
 log = logging.getLogger(__name__)
 
 try:
-    from dustmaps.sfd import SFDQuery
+    # Suppress unnecessary .dustmapsrc log message on import.
+    with open(os.devnull, "w") as devnull:
+        with redirect_stdout(devnull):
+            from dustmaps.sfd import SFDQuery
 except ModuleNotFoundError as e:
     log.debug(
         "The extinction_corr method is not available without first installing the dustmaps module:\n"
