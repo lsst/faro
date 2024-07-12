@@ -254,7 +254,7 @@ class SNRSelector(DataFrameAction):
     snrMax = Field(
         doc="The maximum S/N threshold to remove sources with.",
         dtype=float,
-        default=np.Inf
+        default=np.inf
     )
     selectorBandType = ChoiceField(
         doc="Type of selection to do options are current band or static selection",

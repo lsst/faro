@@ -76,7 +76,7 @@ class PA1Config(Config):
     brightSnrMax = Field(
         doc="Maximum median SNR for a source to be considered bright.",
         dtype=float,
-        default=np.Inf,
+        default=np.inf,
     )
     nMinPhotRepeat = Field(
         doc="Minimum number of objects required for photometric repeatability.",
@@ -170,7 +170,7 @@ class PF1Config(Config):
     brightSnrMax = Field(
         doc="Maximum median SNR for a source to be considered bright.",
         dtype=float,
-        default=np.Inf,
+        default=np.inf,
     )
     nMinPhotRepeat = Field(
         doc="Minimum number of objects required for photometric repeatability.",
