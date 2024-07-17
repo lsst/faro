@@ -40,7 +40,7 @@ def filterMatches(
     if snrMin is None:
         snrMin = 50.0
     if snrMax is None:
-        snrMax = np.Inf
+        snrMax = np.inf
     if extended is None:
         extended = False
     if doFlags is None:

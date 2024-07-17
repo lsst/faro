@@ -75,7 +75,7 @@ class MatchedBaseConfig(
     )
     snrMax = pexConfig.Field(
         doc="Maximum SNR for a source to be included.",
-        dtype=float, default=np.Inf
+        dtype=float, default=np.inf
     )
     brightMagCut = pexConfig.Field(
         doc="Bright limit of catalog entries to include.", dtype=float, default=10.0
