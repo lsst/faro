@@ -45,7 +45,7 @@ class MatchedBaseConnections(
         doc="Source catalogs to match up.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="SourceCatalog",
-        name="src",
+        name="initial_stars_footprints_detector",
         multiple=True,
     )
     visitSummary = pipeBase.connectionTypes.Input(
