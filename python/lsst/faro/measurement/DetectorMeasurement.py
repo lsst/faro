@@ -39,7 +39,7 @@ class DetectorMeasurementConnections(
         doc="Source catalog.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="SourceCatalog",
-        name="src",
+        name="initial_stars_footprints_detector",
     )
     visitSummary = pipeBase.connectionTypes.Input(
         doc="Exposure catalog with WCS and PhotoCalib this detector+visit combination.",
