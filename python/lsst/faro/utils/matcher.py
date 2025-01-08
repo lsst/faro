@@ -58,10 +58,11 @@ def matchCatalogs(
     mapper = SchemaMapper(schema)
     mapper.addMinimalSchema(schema)
     mapper.addOutputField(Field[float]("base_PsfFlux_snr", "PSF flux SNR"))
-    mapper.addOutputField(Field[float]("base_PsfFlux_mag", "PSF magnitude"))
-    mapper.addOutputField(
-        Field[float]("base_PsfFlux_magErr", "PSF magnitude uncertainty")
-    )
+    if "base_PsfFlux_mag" not in schema:
+        mapper.addOutputField(Field[float]("base_PsfFlux_mag", "PSF magnitude"))
+        mapper.addOutputField(
+            Field[float]("base_PsfFlux_magErr", "PSF magnitude uncertainty")
+        )
     # Needed because addOutputField(... 'slot_ModelFlux_mag') will add a field with that literal name
     aliasMap = schema.getAliasMap()
     # Possibly not needed since base_GaussianFlux is the default, but this ought to be safe
@@ -70,10 +71,11 @@ def matchCatalogs(
         if "slot_ModelFlux" in aliasMap.keys()
         else "base_GaussianFlux"
     )
-    mapper.addOutputField(Field[float](f"{modelName}_mag", "Model magnitude"))
-    mapper.addOutputField(
-        Field[float](f"{modelName}_magErr", "Model magnitude uncertainty")
-    )
+    if f"{modelName}_mag" not in schema:
+        mapper.addOutputField(Field[float](f"{modelName}_mag", "Model magnitude"))
+        mapper.addOutputField(
+            Field[float](f"{modelName}_magErr", "Model magnitude uncertainty")
+        )
     mapper.addOutputField(Field[float](f"{modelName}_snr", "Model flux snr"))
     mapper.addOutputField(Field[float]("e1", "Source Ellipticity 1"))
     mapper.addOutputField(Field[float]("e2", "Source Ellipticity 1"))
@@ -295,12 +297,14 @@ def mergeCatalogs(
     aliasMap = schema.getAliasMap()
     for model in models:
         modelName = aliasMap[model] if model in aliasMap.keys() else model
-        mapper.addOutputField(
-            Field[float](f"{modelName}_mag", f"{modelName} magnitude")
-        )
-        mapper.addOutputField(
-            Field[float](f"{modelName}_magErr", f"{modelName} magnitude uncertainty")
-        )
+        if f"{modelName}_mag" not in schema:
+            mapper.addOutputField(
+                Field[float](f"{modelName}_mag", f"{modelName} magnitude")
+            )
+            mapper.addOutputField(
+                Field[float](f"{modelName}_magErr", f"{modelName} magnitude uncertainty")
+            )
+
     newSchema = mapper.getOutputSchema()
     newSchema.setAliasMap(schema.getAliasMap())
 
