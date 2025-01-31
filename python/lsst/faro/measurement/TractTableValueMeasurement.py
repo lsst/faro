@@ -107,7 +107,7 @@ class TractTableValueMeasurementConfig(
                 column = column[len(prefix):]
                 break
         if column.startswith('color_'):
-            column = f'color_{self.band_order[self.band_order.index(band)-  1]}_m_{band}_{band}_{column[6:]}'
+            column = f'color_{self.band_order[self.band_order.index(band) - 1]}_m_{band}_{band}_{column[6:]}'
         if column.startswith('flux_'):
             column = f'flux_{band}_{column[5:]}'
         elif column.startswith('mag_'):
