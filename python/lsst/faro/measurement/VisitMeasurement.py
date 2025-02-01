@@ -42,14 +42,14 @@ __all__ = ("VisitMeasurementConfig", "VisitMeasurementTask")
 class VisitMeasurementConnections(
     CatalogMeasurementBaseConnections,
     dimensions=("instrument", "visit", "band"),
-    defaultTemplates={"photoCalibName": "calexp.photoCalib", "wcsName": "calexp.wcs"},
+    defaultTemplates={"photoCalibName": "initial_pvi.photoCalib", "wcsName": "initial_pvi.wcs"},
 ):
 
     catalogs = pipeBase.connectionTypes.Input(
         doc="Source catalogs.",
         dimensions=("instrument", "visit", "detector", "band"),
         storageClass="SourceCatalog",
-        name="src",
+        name="initial_stars_footprints_detector",
         multiple=True,
     )
 
