@@ -25,7 +25,6 @@ import lsst.pex.config as pexConfig
 import lsst.pipe.base.connectionTypes as cT
 from lsst.pex.config.configurableActions import ConfigurableActionField
 from lsst.pipe.base import Struct
-from lsst.pipe.tasks.diff_matched_tract_catalog import SourceType
 from lsst.pipe.tasks.dataFrameActions import SingleColumnAction
 from lsst.verify import Measurement
 from lsst.verify.tasks import MetricTask, MetricConfig, MetricConnections, MetricComputationError
@@ -86,7 +85,7 @@ class TractTableValueMeasurementConfig(
     prefixes_column = pexConfig.ListField(
         dtype=str,
         doc="Column name prefixes to ignore when applying special formatting rules",
-        default=[f'{x.value.label}_' for x in SourceType],
+        default=['all_', 'resolved_', 'unresolved_'],
     )
     row = pexConfig.Field(
         dtype=int,
