@@ -19,10 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
 import fnmatch
 
-from lsst.utils import getPackageDir
 from lsst.pex.config import Config, DictField, ConfigDictField
 
 __all__ = ("FilterMapDict", "FilterMap")
@@ -62,7 +60,7 @@ class FilterMap(Config):
 
     def __init__(self, filename=None):
         if filename is None:
-            filename = os.path.join(getPackageDir('faro'), 'config', 'filterMap.py')
+            filename = "eups://faro/config/filterMap.py"
         self.load(filename)
 
     def getFilters(self, instName, bands, doRaise=True):
