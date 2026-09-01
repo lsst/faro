@@ -60,7 +60,7 @@ class FilterMap(Config):
 
     def __init__(self, filename=None):
         if filename is None:
-            filename = "eups://faro/config/filterMap.py"
+            filename = "resource://lsst.faro/resources/config/filterMap.py"
         self.load(filename)
 
     def getFilters(self, instName, bands, doRaise=True):
